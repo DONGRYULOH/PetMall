@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.dongmall.shop.dao.ShopDao">
+	
+	<!-- 카테고리별 상품리스트  -->
+	<select id="cateProductList" parameterType="String" resultType="kr.or.dongmall.main.dto.ProductCateDto">
+			select product_number,product_name,product_category,product_price,product_stock,product_desc,product_ThumbImg,c.category_name
+			from product p 
+			inner join product_category c 
+			on p.product_category = c.category_code
+			where p.product_category = #{categoryNumber}
+	</select> 
+	
+	
+	<!-- 전체 상품리스트 -->
+	<select id="AllcateProductList" resultType="kr.or.dongmall.main.dto.ProductCateDto">
+			select product_number,product_name,product_category,product_price,product_stock,product_desc,product_ThumbImg
+			from product
+	</select> 
+	
+	<!-- 해당상품 조회 -->
+	<select id="shopDetail" resultType="kr.or.dongmall.main.dto.ProductCateDto">
+			select product_number,product_name,product_category,product_price,product_stock,product_desc,product_ThumbImg
+			from product
+			where product_number = #{product_number}
+	</select> 
+	
+	<!-- 상품 소감(댓글) 작성 -->
+	<insert id="replyInsert" parameterType="kr.or.dongmall.shop.dto.ProductReply" >
+		insert into reply(product_number,reply_content,reply_writer,origin_ref,group_ord,group_layer) 
+		values(#{product_number},#{reply_content},#{reply_writer},0,0,0)
+	</insert>
+	
+	<!-- 상품 소감(댓글) 작성후 ref값 변경  -->
+	<update id="replyInsert_ref" parameterType="kr.or.dongmall.shop.dto.ProductReply" keyProperty="reply_num">
+		<selectKey order ="BEFORE" keyProperty="reply_num" resultType="int">
+   			select max(reply_num) 
+   			from reply 
+   			where product_number = #{product_number};
+   		</selectKey>
+		update reply 
+		set origin_ref = #{reply_num}
+		where reply_num = #{reply_num};
+	</update>
+	
+	<!-- 상품 댓글 리스트 -->
+	<select id="replyList" resultType="kr.or.dongmall.shop.dto.ProductReply">
+		select r.product_number,r.reply_writer,r.reply_num,r.reply_content,r.reply_date,r.origin_ref,r.group_ord,r.group_layer,m.user_name 
+		from reply r inner join member m 
+		on r.reply_writer = m.user_id 
+		where r.product_number = #{product_number}
+		order by r.origin_ref desc ,
+		field(r.group_ord,0) desc , r.group_ord desc
+	</select>
+	
+	<!-- 상품 댓글 삭제 -->
+	<delete id="replyDelete">
+		delete from reply 
+			<choose>
+			<when test="group_layer == 0">
+		   	where origin_ref=#{origin_ref}
+		   	</when>
+		   	<when test="group_layer == 1">
+		   	where reply_num=#{reply_num}
+		   	</when>
+		   	</choose>
+	</delete>
+	
+	<!-- 상품 댓글 수정 -->
+	<delete id="replyModify">
+		update reply
+		set reply_content = #{reply_content}
+		where reply_num = #{reply_num}
+	</delete>
+	
+	<!-- 상품 답글 작성 -->
+	<insert id="reCmtInsert" parameterType="kr.or.dongmall.shop.dto.ProductReply" useGeneratedKeys="true" keyProperty="group_ord">
+		<selectKey order ="BEFORE" keyProperty="group_ord" resultType="int">
+   				select MAX(group_ord)+1
+   				from reply
+   				where origin_ref = #{origin_ref} and product_number = #{product_number}
+   		</selectKey>
+		insert into reply(product_number,reply_content,reply_writer,origin_ref,group_ord,group_layer) 
+		values(#{product_number},#{reply_content},#{reply_writer},#{origin_ref},#{group_ord},1)
+	</insert>
+	
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

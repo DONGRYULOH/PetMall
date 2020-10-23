@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.dongmall.admin.dao.AdminDao">
+	
+	<!-- 카테고리 호출 -->
+	<select id="category" resultType="kr.or.dongmall.admin.dto.CategoryDto">
+		SELECT 1 AS level, category_name, category_code, category_code_ref FROM product_category WHERE category_code_ref is NULL
+		UNION ALL
+		SELECT 2 AS level, category_name, category_code, category_code_ref FROM product_category WHERE category_code_ref IS NOT null
+		ORDER BY category_code
+	</select>
+
+	<!-- 상품등록 -->
+	<insert id="product_insert" parameterType="kr.or.dongmall.main.dto.ProductDto">
+		insert into product(product_name,product_category,product_price,product_stock,product_desc,product_image,product_ThumbImg)
+		values(#{product_name},#{product_category},#{product_price},#{product_stock},#{product_desc},#{product_image},#{product_ThumbImg})
+	</insert>
+	
+	<!-- 상품목록 -->
+	<select id="product_list" resultType="kr.or.dongmall.main.dto.ProductDto">
+		select product_number,product_name,product_category,product_price,product_stock,product_desc,product_date,product_ThumbImg
+		from product
+		order by product_number desc
+	</select>
+	
+	<!-- 해당 상품호출 -->
+	<!-- <select id="product_detail" resultType="kr.or.dongmall.main.dto.ProductDto">
+		select product_number,product_name,product_category,product_price,product_stock,product_desc,product_image,product_date
+		from product
+		where product_number=#{product_number}
+	</select> -->
+	
+	<!-- 상품조회 + 카테고리 조인 -->
+	<select id="product_detail" resultType="kr.or.dongmall.main.dto.ProductCateDto">
+		select  
+			g.category_code_ref,g.category_name,product_number,product_category,product_name,
+			product_price,product_stock,product_desc,product_image,product_date,product_image,product_ThumbImg
+		from product p
+		inner join product_category g 
+		on p.product_category = g.category_code
+		where product_number=#{product_number}	
+	</select>
+	
+	<!-- 해당 상품수정  -->
+	<update id="product_update" parameterType="kr.or.dongmall.main.dto.ProductCateDto">
+		update product 
+		set 
+			product_name = #{product_name},
+			product_category = #{product_category},
+			product_price = #{product_price},
+		    product_stock = #{product_stock},
+		    product_desc = #{product_desc},
+		    product_image = #{product_image},
+		    product_ThumbImg = #{product_ThumbImg}	    
+		where product_number = #{product_number}  
+	</update>
+	
+	<!-- 해당 상품삭제-->
+	<delete id="product_delete" parameterType="Integer">
+		delete from product 
+		where product_number = #{product_number}
+	</delete>
+</mapper>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

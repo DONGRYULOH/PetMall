@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.dongmall.user.dao.UserDao">
+	
+	<!-- 회원 가입 -->
+	<insert id="signUp" parameterType="UserDto">
+		insert into member(user_id,user_pwd,user_name)
+		values(#{user_id},#{user_pwd},#{user_name})
+	</insert>
+	  
+	  <!-- 로그인 -->
+	<select id="signIn" resultType="UserDto" parameterType="UserDto">
+		select user_id,user_pwd,user_name,verify
+	 	from member
+	 	where user_id=#{user_id}
+	</select>
+	
+	<!-- ID중복검사(1이면 중복 0이면 중복아님) -->
+	<select id="userIdCheck" parameterType="String" resultType="int">
+		 select count(*) 
+		 from member 
+		 where user_id = #{user_id}
+	</select>
+	
+	
+	<select id="userList" resultType="kr.or.dongmall.user.dto.UserDto">
+		select *
+		from user
+	</select>
+	
+	
+</mapper>
+
