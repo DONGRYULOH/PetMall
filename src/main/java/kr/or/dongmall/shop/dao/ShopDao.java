@@ -5,6 +5,7 @@ import java.util.List;
 import kr.or.dongmall.admin.dto.CategoryDto;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
+import kr.or.dongmall.shop.dto.CartDto;
 import kr.or.dongmall.shop.dto.ProductReply;
 
 
@@ -37,4 +38,37 @@ public interface ShopDao {
 	
 	//상품답글작성
 	public void reCmtInsert(ProductReply reply) throws Exception;
+	
+	
+	//카트 담기 
+	public void addCart(CartDto cart) throws Exception;
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

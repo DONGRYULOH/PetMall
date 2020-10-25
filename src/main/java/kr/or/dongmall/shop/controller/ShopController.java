@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import kr.or.dongmall.main.dto.ProductCateDto;
+import kr.or.dongmall.shop.dto.CartDto;
 import kr.or.dongmall.shop.dto.ProductReply;
 import kr.or.dongmall.shop.service.ShopService;
 import kr.or.dongmall.user.dto.UserDto;
@@ -144,6 +145,24 @@ public class ShopController {
 		
 		shopService.reCmtInsert(reply);
 		
+	}
+	
+	// 카트 담기
+	@ResponseBody
+	@RequestMapping(value="/addCart", method=RequestMethod.POST)
+	public int addCart(CartDto cart,HttpSession session)throws Exception{
+		
+		int result = 0;
+		//현재세션에 저장되어있는 유저ID 가져오기 
+		UserDto user = (UserDto)session.getAttribute("User");
+		
+		if(user != null) { //세션이 남아있는경우(로그인시) 
+			cart.setUser_id(user.getUser_id());
+			shopService.addCart(cart);
+			result = 1;
+		}
+			
+		return result;
 	}
 }
 

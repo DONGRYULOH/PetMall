@@ -150,12 +150,12 @@
 							</table>
 						</div>							
 						<%-- <h4 class="display-4 mb-0">카테고리 : ${product.product_category}</h4> --%>
-						<h4 class="display-4 mb-0">
+						<h4 class="display-4 mb-0" >
 							 재고 : <fmt:formatNumber pattern="###,###,###" value="${product.product_stock}" /> EA
 						</h4>
 						<p class="cartStock">
 						   <span>구입 수량</span>
-						   <input type="number" min="1" max="${product.product_stock}" value="1" />  
+						   <input type="number" min="1" max="${product.product_stock}" value="1" id="numBox"/>  
 						</p>
 						<div>
 							<div>
@@ -165,8 +165,40 @@
 							</div>
 							<div>
 							  <a href="#" class="btn btn-lg btn-white btn-icon mb-3 mb-sm-0">
-			                    <span class="btn-inner--text">ADD CART</span>
+			                    <span class="btn-inner--text" id="addCart_btn">ADD CART</span>
 			                  </a>
+			                   <script>
+									  $("#addCart_btn").click(function(){
+										var product_num = ${product.product_number};	
+									    var cart_stock = $("#numBox").val();
+									    console.log("상품번호"+product_num);
+									    console.log("선택한 수량"+cart_stock);
+									     var data = {
+											    product_num : product_num,
+									     		cart_stock : cart_stock
+									     	};
+									   
+										    $.ajax({
+											    url : "${pageContext.request.contextPath}/shop/addCart",
+											    type : "post",
+											    data : data,
+											    success : function(result){
+											    	if(result == 1){
+												     	alert("카트 담기 성공");
+												     	$("#numBox").val("1");
+											    	}else{
+											    		alert("카트 담기 실패 로그인 바람!!");
+												     	$("#numBox").val("1");
+											    	}
+											    },
+											    error : function(){
+											    	//일단은 로그인한 회원만 장바구니를 사용할수 있도록 함
+											    	//추후에 비로그인도 장바구니 기능을 사용할수 있도록 수정하자 
+											     	alert("카트 담기 실패");
+											    }
+										    });
+									  });
+								</script>
 				              <a href="#" class="btn btn-lg btn-white btn-icon mb-3 mb-sm-0" >
 			                     <span class="btn-inner--text">WISH LIST</span>
 			                  </a>

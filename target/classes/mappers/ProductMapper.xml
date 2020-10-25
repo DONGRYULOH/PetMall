@@ -88,6 +88,13 @@
 	
 	
 	
+	
+	<!-- 장바구니 담기  -->
+	<insert id="addCart">
+		insert into cart(product_num,user_id,cart_stock)
+		values(#{product_num},#{user_id},#{cart_stock});
+	</insert>
+	
 </mapper>
 
 

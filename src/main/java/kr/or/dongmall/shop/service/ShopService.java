@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.shop.dao.ShopDao;
+import kr.or.dongmall.shop.dto.CartDto;
 import kr.or.dongmall.shop.dto.ProductReply;
 
 @Service
@@ -79,6 +80,14 @@ public class ShopService {
 	public void reCmtInsert(ProductReply reply) throws Exception {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		shopdao.reCmtInsert(reply);
+	}
+	
+	
+	// 카트관련 서비스  ----------------------------------------------------------
+	
+	public void addCart(CartDto cart) throws Exception {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		shopdao.addCart(cart);
 	}
 	
 	
