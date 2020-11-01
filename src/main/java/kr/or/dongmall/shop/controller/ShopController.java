@@ -152,6 +152,45 @@ public class ShopController {
 		
 	}
 	
+	//서버에 저장되어있는 모든 세션을 가져오는 함수 
+	public ArrayList<String> allSession(HttpSession session){
+		Enumeration session_values = session.getAttributeNames();
+		int cnt = 0;
+		String session_name = "";
+		String session_value = "";
+		
+		ArrayList<String> s_list = new ArrayList<String>();
+		
+		//nextElement 하면 서버로부터 뽑아올 세션데이터 1씩 줄어들기 떄문에 ... 
+		while(session_values.hasMoreElements()) {
+			cnt++; 
+			session_name = session_values.nextElement().toString();
+			session_value = session.getAttribute(session_name).toString();
+			System.out.println(cnt+"번째 세션이름->"+session_name);
+			System.out.println(cnt+"번째 세션값->"+session_value);
+			s_list.add(session_value);
+		}
+		return s_list;
+	}
+	
+	//사용자브라우저의 쿠키값과 서버의 세션값이 일치하는게 없는경우의 함수 
+	public String notCookie_Session(HttpSession session,HttpServletResponse response) {
+		//128비트의 랜덤 UUID 코드생성한 값을 서버의 세션과 브라우저의 쿠키에 저장시킴
+		//페이지 이동시 쿠키값이 사라짐 
+		 UUID uid = UUID.randomUUID();
+		 String guest = uid + "guest";
+		 //쿠키이름은 guest라는 이름으로 부여 
+		 System.out.println("생성된 쿠키값->"+guest);				 
+		 //비회원 식별값을 세션에 저장시킴
+		 session.setAttribute("guest",guest);
+		 Cookie setCookie = new Cookie("guest",guest);
+		 setCookie.setPath("/"); //쿠키가 유효한 경로 설정(전역 페이지) 
+		 setCookie.setMaxAge(60*60*24); //쿠키 유효시간 
+		 response.addCookie(setCookie); //쿠키 저장하기 
+		 
+		 return guest;
+	}
+	
 	// 카트 담기
 	@ResponseBody
 	@RequestMapping(value="/addCart", method=RequestMethod.POST)
@@ -161,26 +200,12 @@ public class ShopController {
 		//현재세션에 저장되어있는 유저ID 가져오기(로그인된 사용자의 아이디 가져오는것)
 		UserDto user = (UserDto)session.getAttribute("User");
 		String user_id = null;
+		//사용자브라우저에 쿠키값이 서버의 세션에 존재하는지 체크함
+		boolean check = false; 
 		
-		//서버에 저장되어있는 모든 세션을 가져오기 
-		Enumeration session_values = session.getAttributeNames();
-		int i = 0;
-		String session_name = "";
-		String session_value = "";
-		boolean check = false;
-		
+		//서버에 저장되어있는 모든 세션을 가져오기 (함수1)
 		//서버의 세션에 저장되어 있는 값들 (키,값 -> map으로 저장시킬까??)
-		ArrayList<String> s_list = new ArrayList<String>();
-		//nextElement 하면 서버로부터 뽑아올 세션데이터 1씩 줄어들기 떄문에 ... 
-		while(session_values.hasMoreElements()) {
-			System.out.println("세션값이 존재함..."+session_values.hasMoreElements());
-			i++; 
-			session_name = session_values.nextElement().toString();
-			session_value = session.getAttribute(session_name).toString();
-			System.out.println(i+"번째 세션이름->"+session_name);
-			System.out.println(i+"번째 세션값->"+session_value);
-			s_list.add(session_value);
-		}
+		ArrayList<String> s_list = allSession(session);	
 		
 		if(user != null) { //세션이 남아있는경우(로그인시) - 회원인 경우  	
 			user_id = user.getUser_id();
@@ -196,7 +221,7 @@ public class ShopController {
 					//브라우저의 쿠키값 과 서버에 저장되어있는 세션값들(1부터...N까지 돌면서 비교)
 					System.out.println("서버의 값->"+s_list.get(j));
 					if(value.equals(s_list.get(j))){
-						user_id = session_value;
+						user_id = value;
 						check = true;
 						break root;
 					}
@@ -206,19 +231,7 @@ public class ShopController {
 			
 			//2.사용자브라우저의 쿠키값과 서버의 세션값이 일치하는게 없는경우(비회원식별값을 랜덤으로 만들어서 세션에 저장시킨다음 사용자 브라우저의 쿠키값으로 전달)
 			if(check == false) {
-				//128비트의 랜덤 UUID 코드생성한 값을 서버의 세션과 브라우저의 쿠키에 저장시킴
-				//페이지 이동시 쿠키값이 사라짐 
-				 UUID uid = UUID.randomUUID();
-				 String guest = uid + "guest";
-				 user_id = guest;
-				 //쿠키이름은 guest라는 이름으로 부여 
-				 System.out.println("생성된 쿠키값->"+guest);				 
-				 //비회원 식별값을 세션에 저장시킴
-				 session.setAttribute("guest",guest);
-				 Cookie setCookie = new Cookie("guest",guest);
-				 setCookie.setPath("/"); //쿠키가 유효한 경로 설정(전역 페이지) 
-				 setCookie.setMaxAge(60*60*24); //쿠키 유효시간 
-				 response.addCookie(setCookie); //쿠키 저장하기 
+				 user_id = notCookie_Session(session,response);
 			}
 		}
 		
@@ -235,8 +248,14 @@ public class ShopController {
 		
 		//1.현재세션에 저장되어있는 유저ID 가져오기 
 		UserDto user = null;
-		String user_id = null;
-		
+		String user_id = null;	
+		//사용자브라우저에 쿠키값이 서버의 세션에 존재하는지 체크함
+		boolean check = false; 
+				
+		//서버에 저장되어있는 모든 세션을 가져오기 (함수1)
+		//서버의 세션에 저장되어 있는 값들 (키,값 -> map으로 저장시킬까??)
+		ArrayList<String> s_list = allSession(session);	
+
 		//1-1.회원일경우 OR 비회원일 경우로 나눠봐야됨 
 		if(session.getAttribute("User") != null) {
 			// 회원인 경우 
@@ -247,46 +266,30 @@ public class ShopController {
 			// 비회원인 경우 
 			// 1.사용자 브라우저에 저장되있는 쿠키값을 가져온다 
 			Cookie[] getCookie = request.getCookies();
-			boolean check = false; //사용자브라우저에 쿠키값이 서버의 세션에 존재하는지 체크함(쿠키값이 서버에 있다면 3번을 실행안시킴)
 			
-			//2.가져온 쿠키값을 서버(장바구니)에 있는 세션값(유저ID)이랑 비교를 한다 (만약 일치하는게 있다면 그 세션값으로 장바구니 리스트를 출력한다)
-			List<CartDto> all_id = shopService.all_id();
-			
+			//2.가져온 쿠키값을 서버에 있는 세션값이랑 비교를 한다 (만약 일치하는게 있다면 그 세션값으로 장바구니 리스트를 출력한다)			
 			//중첩문을 탈출하는 방법(함수로 만들어서 return 해주기 , 라벨 붙이기 , flag 세우기) 
 			root:for(int i=0;i<getCookie.length;i++) {
 				String name = getCookie[i].getName(); //쿠키이름 
 				String value = getCookie[i].getValue(); //쿠키값 
 				System.out.println("쿠키이름->"+name);
 				System.out.println("쿠키값->"+value);
-				for(int j=0;j<all_id.size();j++) {
-					System.out.println("유저ID->"+all_id.get(j).getUser_id());
-					// 쿠키값  == 장바구니의 세션값 일치하는 경우 
-					if(value.equals(all_id.get(j).getUser_id())) {
-						System.out.println("쿠키값  == 장바구니의 세션값 일치하는 경우");
-						user_id =  all_id.get(j).getUser_id();
+				
+				//1-1.사용자 브라우저의 쿠키값과 서버의 세션값이 일치하는 경우
+				for(int j=0;j<s_list.size();j++) {
+					//브라우저의 쿠키값 과 서버에 저장되어있는 세션값들(1부터...N까지 돌면서 비교)
+					System.out.println("서버의 값->"+s_list.get(j));
+					if(value.equals(s_list.get(j))){
+						user_id = value;
 						check = true;
 						break root;
-					}else {
-						System.out.println("일치하는 값없음");
 					}
 				}
 			}
 			
-			//3.사용자 브라우저에 쿠키값이 없을 경우(서버와 일치하는) 
+			//3.사용자브라우저의 쿠키값과 서버의 세션값이 일치하는게 없는경우(비회원식별값을 랜덤으로 만들어서 세션에 저장시킨다음 사용자 브라우저의 쿠키값으로 전달)
 			if(check == false) {
-				//128비트의 랜덤 UUID 코드생성한 값을 서버의 세션과 브라우저의 쿠키에 저장시킴
-				//페이지 이동시 쿠키값이 사라짐 
-				 UUID uid = UUID.randomUUID();
-				 String guest = uid + "guest";
-				 user_id = guest;
-				 //쿠키이름은 guest라는 이름으로 부여 
-				 System.out.println("생성된 쿠키값->"+guest);
-				 //비회원 식별값을 세션에 저장시킴
-				 session.setAttribute("guest",guest);
-				 Cookie setCookie = new Cookie("guest",guest);
-				 setCookie.setPath("/"); //쿠키가 유효한 경로 설정(전역 페이지) 
-				 setCookie.setMaxAge(60*60*24); //쿠키 유효시간 
-				 response.addCookie(setCookie); //쿠키 저장하기 
+				 user_id = notCookie_Session(session,response);
 			}
 									 
 		}
