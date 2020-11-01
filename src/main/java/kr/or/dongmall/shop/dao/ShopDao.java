@@ -1,5 +1,6 @@
 package kr.or.dongmall.shop.dao;
 
+import java.util.HashMap;
 import java.util.List;
 
 import kr.or.dongmall.admin.dto.CategoryDto;
@@ -43,6 +44,20 @@ public interface ShopDao {
 	//카트 담기 
 	public void addCart(CartDto cart) throws Exception;
 	
+	//장바구니 리스트 출력 
+	public List<CartDto> cartList(String user_id) throws Exception;
+	
+	//장바구니 물품 총액수 
+	public int cartTotal(String user_id) throws Exception;
+	
+	//장바구니 물품 삭제 
+	public void cartDelete(int cart_num) throws Exception;
+	
+	//장바구니 물품 수정 
+	public void cartUpdate(HashMap<String,Integer> cart) throws Exception;
+	
+	//장바구니 모든 아이디 가져오기 
+	public List<CartDto> all_id() throws Exception;
 }
 
 

@@ -91,10 +91,49 @@
 	
 	<!-- 장바구니 담기  -->
 	<insert id="addCart">
-		insert into cart(product_num,user_id,cart_stock)
-		values(#{product_num},#{user_id},#{cart_stock});
+		insert into cart(product_number,user_id,cart_stock)
+		values(#{product_number},#{user_id},#{cart_stock})
 	</insert>
 	
+	<!-- 장바구니 리스트 -->
+	<!-- 설마 select 해서 얻어와서 DTO에 넣어줄라면 DTO에 있는 순서랑 똑같아야되나??-->
+	<select id="cartList" resultType="kr.or.dongmall.shop.dto.CartDto">
+		select c.cart_num,c.product_number,c.user_id,c.cart_stock,p.product_name,p.product_price,p.product_ThumbImg
+		from cart c join product p using(product_number)
+		where c.user_id = #{user_id}
+		order by c.cart_num desc
+	</select>
+	
+	<!-- 장바구니 물품 총액수 -->	
+	<select id="cartTotal" resultType="int">
+		select coalesce(sum(c.cart_stock * p.product_price),0)  as 'total'
+		from cart c join product p 
+		ON c.product_number = p.product_number
+		where c.user_id = #{user_id}
+	</select>
+	
+	<!-- 장바구니 물품 삭제 -->
+	<delete id="cartDelete">
+		delete 
+		from cart 
+		where cart_num = #{cart_num}
+	</delete>
+	
+	<!-- 장바구니 물품 수량 수정  -->
+	<update id="cartUpdate" parameterType="HashMap">
+		update cart  
+		set cart_stock = #{cart_stock}
+		where cart_num = #{cart_num}
+	</update>
+	
+	<!-- ********************************************** 비회원시 장바구니 *************** -->
+	
+	
+	<!-- 장바구니에 있는 모든 아이디 가져오기 -->
+	<select id="all_id" resultType="kr.or.dongmall.shop.dto.CartDto">
+		select user_id 
+		from cart
+	</select>
 </mapper>
 
 

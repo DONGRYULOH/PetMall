@@ -18,4 +18,6 @@ public interface UserDao {
 	public int userIdCheck(String user_id) throws Exception;
 	
 	public List<UserDto> userList() throws Exception;
+	
+	
 }

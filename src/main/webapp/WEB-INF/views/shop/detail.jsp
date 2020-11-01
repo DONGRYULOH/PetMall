@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ page session="false" %>
+<%@ page session="true" %>
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -105,6 +105,14 @@
 	</script>	
 	
   </head>
+  <%
+	Cookie[] c = request.getCookies();
+	if (c != null) {
+		for (Cookie cf : c) {
+			
+		}
+	}
+	%>
   <body>
   	 
   	 <div class="container"> 
@@ -169,12 +177,12 @@
 			                  </a>
 			                   <script>
 									  $("#addCart_btn").click(function(){
-										var product_num = ${product.product_number};	
+										var product_number = ${product.product_number};	
 									    var cart_stock = $("#numBox").val();
-									    console.log("상품번호"+product_num);
+									    console.log("상품번호"+product_number);
 									    console.log("선택한 수량"+cart_stock);
 									     var data = {
-											    product_num : product_num,
+											    product_number : product_number,
 									     		cart_stock : cart_stock
 									     	};
 									   

@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>	
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="true" %>
 <%--  <div class="masthead">
 	 	<div id="leftbar">
 	 		<c:if test="${User == null}">
@@ -90,7 +91,7 @@
                   	</a>
      			</c:if>
      			 <li class="nav-item">
-                  <a class="nav-link nav-link-icon" href="#">
+                  <a class="nav-link nav-link-icon" href="${pageContext.request.contextPath}/shop/cart/cartList">
                     <span class="nav-link-inner--text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">장바구니</font></font></span>
                   </a>
                 </li>
@@ -103,7 +104,7 @@
           <nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded">
                <div class="row">
              		<div class="col-lg-2">
-		                 <a class="navbar-brand" href="javascript:;">Home</a>
+		                 <a class="navbar-brand" href="${pageContext.request.contextPath}/">Home</a>
 		                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-inner-primary" aria-controls="nav-inner-primary" aria-expanded="false" aria-label="Toggle navigation">
 		                   <span class="navbar-toggler-icon"></span>
 		                 </button>
@@ -151,31 +152,4 @@
            </nav>
                 
                 
-       <!--  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mt-4">
-          <div class="container">
-            <h3 style="background-color: # 212529;">홈</h3>
-			<h3>회사소개</h3>
-         	
-         	<div>
-	           <a class="nav-link dropdown-toggle" href="javascript:;" id="nav-inner-primary_dropdown_1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
-	           <div class="dropdown-menu" aria-labelledby="nav-inner-primary_dropdown_1">
-	             <a class="dropdown-item" href="javascript:;">Action</a>
-	             <a class="dropdown-item" href="javascript:;">Another action</a>
-	             <div class="dropdown-divider"></div>
-	             <a class="dropdown-item" href="javascript:;">Something else here</a>
-	           </div>
-	        </div>
-           <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                	상품
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 54px, 0px); top: 0px; left: 0px; will-change: transform;">
-                  <a class="dropdown-item" href="#"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">동작</font></font></a>
-                  <a class="dropdown-item" href="#"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">또 다른 행동</font></font></a>
-                  <a class="dropdown-item" href="#"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">여기에 다른 것</font></font></a>
-                </div>
-            </div>
-            
-            <h3>고객센터</h3>
-          </div>
-        </nav> -->
+       

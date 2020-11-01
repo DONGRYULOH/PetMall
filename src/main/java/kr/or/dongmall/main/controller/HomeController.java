@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -41,6 +42,12 @@ public class HomeController {
 		UserDto name = (UserDto)session.getAttribute("User");	
 		
 		model.addAttribute("User",name);
+		
+		Cookie[] getCookie = req.getCookies();
+		for(int i=0;i<getCookie.length;i++) {
+			String value = getCookie[i].getValue(); //쿠키값 
+			System.out.println("홈에서의 쿠키값->"+value);
+		}
 		
 		return "index";
 	}
