@@ -35,14 +35,11 @@
    </div>	 --%>
  	<nav class="navbar navbar-expand-lg navbar-dark bg-default" style="height: 62px;">
           <div class="container">
-            
-            	<img src="${pageContext.request.contextPath}/resources/images/logo.jpg" style="width:20%; height:100px;">
-            
+            <a class="navbar-brand" href="${pageContext.request.contextPath}/">Home</a>
+  
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-info" aria-controls="navbar-info" aria-expanded="false" aria-label="탐색 전환">
               <span class="navbar-toggler-icon"></span>
-            </button>
-            
-         
+            </button>                   
               
             <div class="collapse navbar-collapse" id="navbar-info">
               <div class="navbar-collapse-header">
@@ -101,16 +98,21 @@
           </div>
         </nav>
         
-          <nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded">
+        <div class="mt-2 py-3 text-center">
+            <img src="${pageContext.request.contextPath}/resources/images/logo.jpg" style="width:20%; height:100px;">
+        </div>
+        
+        <!-- (상품페이지,고객센터,QnA) 메뉴바 -->
+        <div>
+         <nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded">
                <div class="row">
              		<div class="col-lg-2">
-		                 <a class="navbar-brand" href="${pageContext.request.contextPath}/">Home</a>
 		                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-inner-primary" aria-controls="nav-inner-primary" aria-expanded="false" aria-label="Toggle navigation">
 		                   <span class="navbar-toggler-icon"></span>
 		                 </button>
                    </div>
                      
-                  <div class="col-lg-10">  
+                  <div class="col-lg-10" style="width: 930px;">  
 	                 <div class="collapse navbar-collapse" id="nav-inner-primary">
 	                 	<!-- 화면 크기가 작아졌을때 다음코드 생성(반응형) -->
 	                   <div class="navbar-collapse-header">
@@ -150,6 +152,6 @@
                  </div>
                </div>
            </nav>
-                
+         </div>       
                 
        

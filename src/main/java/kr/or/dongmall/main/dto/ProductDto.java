@@ -13,6 +13,7 @@ create table product(
 	product_desc varchar(500), -- 상품설명 
 	product_image varchar(500), -- 상품이미지 
     product_date datetime default current_timestamp, -- 상품 등록날짜 
+    product_hits int default 0 -- 상품 조회수 
 	primary key(product_number)
 );
 */

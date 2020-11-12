@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -77,8 +78,44 @@ public class ShopController {
 	}
 	
 	//해당상품 조회 
+	/*
+	 	해당 게시물(상품)클릭시 조회수 올리기 방지 방법 => 쿠키사용 
+	 	@CookieValue => 사용자브라우저에 저장되어있는 쿠키를 읽기만 가능
+	 */
 	@RequestMapping(value="/detail",method=RequestMethod.GET)
-	public String shopDetail(@RequestParam("n") int product_number,Model model,HttpServletRequest req)throws Exception{
+	public String shopDetail(HttpServletResponse response,HttpServletRequest request,@CookieValue(value = "viewProductCookie",defaultValue="null") String viewProduct,@RequestParam("n") int product_number,Model model)throws Exception{
+		
+		Cookie[] cookies = request.getCookies();
+		Cookie viewProductCookie = null; //해당게시물의 다중접근 여부 
+		
+		for(int i=0;i<cookies.length;i++) {
+			//사용자 클라이언트 브라우저에 해당이름으로된 쿠키가 존재하는경우 
+			if(cookies[i].getName().equals("viewProductCookie")) {
+				viewProductCookie = cookies[i];
+			}
+		}
+		
+		//상품조회시 조회수를 방지하는 쿠키가 없을경우
+		if(viewProductCookie == null) {
+			System.out.println("조회수 1증가 가능!");
+			//쿠키 생성 (key - 쿠키이름 , value - 쿠키값(상품번호) ) 
+			Cookie newCookie = new Cookie("viewProductCookie","|"+product_number);
+			response.addCookie(newCookie);
+			//조회수 1증가시키기 
+		}else {
+			System.out.println("viewProductCookie 존재!");
+			String value = viewProductCookie.getValue(); //해당쿠키의 값을 가져옴 
+			System.out.println("가져온 쿠키값 -->"+value);
+			
+			//가져온 쿠키값이 해당게시글번호와 일치여부 판단 
+			//ex) product_A(가져온 쿠키값) != product_B(보고있는 상품정보) 
+			if(value.indexOf("|"+product_number) == -1) { // 값.indexOf("찾을특정문자",시작할위치(생략가능 생략시 처음부터찾음))
+				value = value + "|" + product_number;
+				viewProductCookie.setValue(value);
+				response.addCookie(viewProductCookie);
+			}
+		}
+		
 		System.out.println("상품번호"+product_number);
 		ProductCateDto product = shopService.shopDetail(product_number);
 		
@@ -89,7 +126,7 @@ public class ShopController {
 		List<ProductReply> reply = shopService.replyList(product_number);
 		model.addAttribute("replyList",reply);
 		*/
-		model.addAttribute("User",UserSession(model,req));
+		model.addAttribute("User",UserSession(model,request));
 		
 		return "shop/detail";
 	}

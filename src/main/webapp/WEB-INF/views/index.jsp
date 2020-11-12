@@ -24,13 +24,13 @@
 			  </ol>
 			  <div class="carousel-inner">
 			    <div class="carousel-item active">
-			     <img src="${pageContext.request.contextPath}/resources/images/a.jpg" title="Funky roots" style="width: 100%; height:500px;">
+			     <img src="${pageContext.request.contextPath}/resources/images/b.jpg" title="Funky roots" style="width: 100%; height:500px;">
 			    </div>
 			    <div class="carousel-item">
 			      <img src="${pageContext.request.contextPath}/resources/images/b.jpg" title="Funky roots" style="width: 100%; height:500px;">
 			    </div>
 			    <div class="carousel-item">
-			      <img src="${pageContext.request.contextPath}/resources/images/c.jpg" title="Funky roots" style="width: 100%; height:500px;">
+			      <img src="${pageContext.request.contextPath}/resources/images/b.jpg" title="Funky roots" style="width: 100%; height:500px;">
 			    </div>
 			  </div>
 			  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
@@ -42,76 +42,7 @@
 			    <span class="sr-only">Next</span>
 			  </a>
 			</div> 
-			
-  	  		
-			
-  	  		
-		      
-		<%-- <div class="row">
-				  <c:forEach var="productList" items="${productList}" begin="0" end="3"> 
-		  		   <div>	
-					
-					 
-					    <div class="col-md-3">
-					      <div class="thumbnail">
-					        <a href="/w3images/lights.jpg" target="_blank">
-					          <img src="${pageContext.request.contextPath}/resources/images/${productList.product_image}" style="width:100%; height:300px;" >
-					          <div class="caption">
-					            <p>${productList.product_name} </p>
-					          </div>
-					        </a>
-					      </div>
-					    </div>
-					       
-					
-					  
-		           </div>
-		   		 </c:forEach>
-   		 </div>
-   		 
-   		 <div class="row">
-				  <c:forEach var="productList" items="${productList}" begin="4" end="7"> 
-		  		   <div>	
-					
-					 
-					    <div class="col-md-3">
-					      <div class="thumbnail">
-					        <a href="/w3images/lights.jpg" target="_blank">
-					          <img src="${pageContext.request.contextPath}/resources/images/${productList.product_image}" style="width: 100%; height:300px;" >
-					          <div class="caption">
-					            <p>${productList.product_name} </p>
-					          </div>
-					        </a>
-					      </div>
-					    </div>
-					       
-					
-					  
-		           </div>
-		   		 </c:forEach>
-   		 </div>
-   		 
-   		 <div class="row">
-				  <c:forEach var="productList" items="${productList}" begin="8" end="11"> 
-		  		   <div>	
-					
-					 
-					    <div class="col-md-3">
-					      <div class="thumbnail">
-					        <a href="/w3images/lights.jpg" target="_blank">
-					          <img src="${pageContext.request.contextPath}/resources/images/${productList.product_image}" style="width:100%; height:300px;" >
-					          <div class="caption">
-					            <p>${productList.product_name} </p>
-					          </div>
-					        </a>
-					      </div>
-					    </div>
-					       
-					
-					  
-		           </div>
-		   		 </c:forEach>
-   		 </div> --%>
+
    		 
     		<%@ include file="/WEB-INF/include/footer.jsp"%> 
 	    	
