@@ -71,16 +71,27 @@ public class ShopController {
 			*/
 		}
 		
+		//전체 리스트 사이즈가 0,1,2,3일때는 사이즈가 마이너스가 되버림 
+		int size = list.size()/2-2; // 전체사이즈(8)/2 -> 반으로 나눔(몫:4) -> 몫(4)-1 (인덱스가 0부터 시작하므로 -2를뺴주자)
+		if(size < 0) size = 0;
+		System.out.println("사이즈는?"+size);
 		model.addAttribute("cateNum",categoryNumber); // 카테고리 번호 (전체,상의,하의,신발,시계 중하나) 
-		model.addAttribute("cateSize",list.size());	// 카테고리 목록 사이즈(해당카테고리 물품이 총몇개있는지)
+		model.addAttribute("cateSize",size);	// 카테고리 목록 사이즈(해당카테고리 물품이 총몇개있는지)
 		model.addAttribute("cateProductList",list);
 		return "shop/list";
 	}
 	
 	//해당상품 조회 
 	/*
+	 	<상품를 계속해서 무한새로고침 또는 조회시 계속해서 조회수가 올라가는걸 막기위해 쿠키를 사용한 조회수 방지방법을 사용해본다>
 	 	해당 게시물(상품)클릭시 조회수 올리기 방지 방법 => 쿠키사용 
 	 	@CookieValue => 사용자브라우저에 저장되어있는 쿠키를 읽기만 가능
+	 	1.세션은 쿠키보다 보안이 좋지만 세션을 사용시 서버의 자원을 낭비하므로 보안이 중요하지 않은데이터는 쿠키를 사용하는것이 좋다고 판단함 
+	 	2.상품조회시 해당 IP를 테이블에 저장하는 방식으로 DB에 저장(IP,조회날짜)시키는 방식 사용자수가 많아지면 DB의 용량이 커지고 많은 자원을 사용하게 된다고 판단함 
+	 	
+	 	<쿠키 라이프 타임>
+	 	-세션 쿠키 : 브라우저를 닫을때 쿠키가 삭제됨(세션쿠키가 없어지는 시점)
+	 	-지속적 쿠키 : 쿠키의 정해진 시간에 따라 쿠키가 삭제됨 
 	 */
 	@RequestMapping(value="/detail",method=RequestMethod.GET)
 	public String shopDetail(HttpServletResponse response,HttpServletRequest request,@CookieValue(value = "viewProductCookie",defaultValue="null") String viewProduct,@RequestParam("n") int product_number,Model model)throws Exception{
@@ -98,10 +109,12 @@ public class ShopController {
 		//상품조회시 조회수를 방지하는 쿠키가 없을경우
 		if(viewProductCookie == null) {
 			System.out.println("조회수 1증가 가능!");
+			//조회수 1증가시키기 
+			shopService.productViewCount(product_number);
 			//쿠키 생성 (key - 쿠키이름 , value - 쿠키값(상품번호) ) 
 			Cookie newCookie = new Cookie("viewProductCookie","|"+product_number);
+			//newCookie.setMaxAge(60*60*24); //쿠키 시간(24시간설정) 
 			response.addCookie(newCookie);
-			//조회수 1증가시키기 
 		}else {
 			System.out.println("viewProductCookie 존재!");
 			String value = viewProductCookie.getValue(); //해당쿠키의 값을 가져옴 
@@ -110,8 +123,12 @@ public class ShopController {
 			//가져온 쿠키값이 해당게시글번호와 일치여부 판단 
 			//ex) product_A(가져온 쿠키값) != product_B(보고있는 상품정보) 
 			if(value.indexOf("|"+product_number) == -1) { // 값.indexOf("찾을특정문자",시작할위치(생략가능 생략시 처음부터찾음))
+				//조회수 1증가시키기 
+				shopService.productViewCount(product_number);
+				
 				value = value + "|" + product_number;
 				viewProductCookie.setValue(value);
+				//viewProductCookie.setMaxAge(60*60*24); //쿠키 시간(24시간설정) 
 				response.addCookie(viewProductCookie);
 			}
 		}
@@ -120,12 +137,6 @@ public class ShopController {
 		ProductCateDto product = shopService.shopDetail(product_number);
 		
 		model.addAttribute("product", product);
-		
-		//해당 상품에 대한 댓글리스트 가져오기 
-		/*
-		List<ProductReply> reply = shopService.replyList(product_number);
-		model.addAttribute("replyList",reply);
-		*/
 		model.addAttribute("User",UserSession(model,request));
 		
 		return "shop/detail";

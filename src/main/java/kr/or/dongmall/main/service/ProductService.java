@@ -32,4 +32,12 @@ public class ProductService {
 		
 	}
 	
+	//조회수가 가장 높은 상품순으로 상위9개 가져오기
+	public List<ProductDto> getRankNine()throws Exception{
+		ProductDao productDao = sqlsession.getMapper(ProductDao.class);
+		
+		List<ProductDto> list = productDao.getRankNine();
+		
+		return list;
+	}
 }

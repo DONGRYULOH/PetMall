@@ -40,6 +40,8 @@ public interface ShopDao {
 	//상품답글작성
 	public void reCmtInsert(ProductReply reply) throws Exception;
 	
+	//상품조회시 조회수 증가
+	public void productViewCount(int product_number) throws Exception;
 	
 	//카트 담기 
 	public void addCart(CartDto cart) throws Exception;

@@ -11,4 +11,8 @@ public interface ProductDao {
 	
 	//전체 상품 리스트 가져오기
 	public List<ProductDto> getProductList() throws Exception;
+	
+	//조회수가 가장 높은 상품순으로 상위9개 가져오기
+	public List<ProductDto> getRankNine() throws Exception;
+	
 }

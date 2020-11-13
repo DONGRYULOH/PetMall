@@ -45,6 +45,14 @@ public class ShopService {
 		return shopdao.shopDetail(product_number);
 	}
 	
+	//상품 조회시 조회수 1증가 서비스 
+	public void productViewCount(int product_number)throws Exception {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		shopdao.productViewCount(product_number);
+	}
+	
+	
+	// ------ 상품 댓글 관련 -------------------------------------------------------
 	//상품 댓글 작성 
 	public void replyInsert(ProductReply reply){
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);

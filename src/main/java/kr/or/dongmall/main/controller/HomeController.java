@@ -37,17 +37,16 @@ public class HomeController {
 		//List<ProductDto> productList = productService.getProductList();
 		//model.addAttribute("productList",productList);
 		
-		//session.setAttribute("User",login); 했던게 사라지므로 index페이지에 세션값을 부여할려면 다시 지정해줘야함 
-		HttpSession session = req.getSession();
-		UserDto name = (UserDto)session.getAttribute("User");	
-		
-		model.addAttribute("User",name);
-		
+		//조회수가 가장 높은 상품순으로 상위9개 가져오기
+		List<ProductDto> productRankNine = productService.getRankNine();
+		model.addAttribute("productRankNine",productRankNine);
+		/*
 		Cookie[] getCookie = req.getCookies();
 		for(int i=0;i<getCookie.length;i++) {
 			String value = getCookie[i].getValue(); //쿠키값 
 			System.out.println("홈에서의 쿠키값->"+value);
 		}
+		*/
 		
 		return "index";
 	}

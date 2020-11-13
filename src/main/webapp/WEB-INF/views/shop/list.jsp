@@ -70,14 +70,14 @@
 			
    		 	<c:forEach begin="0" end="${cateSize}" step="1" varStatus="status">
 				
-	   		 	<div class="row">
+	   		 	<div class="row" style="margin-bottom: 50px;">
 	   		 		<%-- <h1>끝번호 : ${status.current}</h1> --%>
 	   		 		<c:forEach items="${cateProductList}" var="list" begin="${index}" end="${index_2}" step="1" varStatus="status_2">
 				        <div class="col-4">
 				          <a href="${pageContext.request.contextPath}/shop/detail?n=${list.product_number}">
 				          	<img src="${pageContext.request.contextPath}/imgUpload${list.product_ThumbImg}" class="thumbImg"/>
 				          </a>
-				          <small class="d-block text-uppercase font-weight-bold mb-4">${list.product_name}</small>
+				          <small class="d-block text-uppercase font-weight-bold mb-4" style="height: 5px;">${list.product_name}</small>
 				          <span><fmt:formatNumber value="${list.product_price}" pattern="###,###,###"/></span>
 				        </div>
 				        <!-- 끝번호라면 다음if구문실행(시작인덱스와 끝인덱스값을 바꿔줌) -->

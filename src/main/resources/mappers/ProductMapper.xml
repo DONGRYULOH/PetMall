@@ -4,6 +4,7 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.or.dongmall.shop.dao.ShopDao">
 	
+	
 	<!-- 카테고리별 상품리스트  -->
 	<select id="cateProductList" parameterType="String" resultType="kr.or.dongmall.main.dto.ProductCateDto">
 			select product_number,product_name,product_category,product_price,product_stock,product_desc,product_ThumbImg,c.category_name
@@ -12,7 +13,6 @@
 			on p.product_category = c.category_code
 			where p.product_category = #{categoryNumber}
 	</select> 
-	
 	
 	<!-- 전체 상품리스트 -->
 	<select id="AllcateProductList" resultType="kr.or.dongmall.main.dto.ProductCateDto">
@@ -27,6 +27,13 @@
 			where product_number = #{product_number}
 	</select> 
 	
+	<!-- 해당 상품 조회시 조회수 1증가 -->
+	<insert id="productViewCount" >
+		update product set product_hits = product_hits+1 
+		where product_number = #{product_number}
+	</insert>
+	
+	<!-- *****************  댓글 관련 쿼리문 ************************************************************ -->
 	<!-- 상품 소감(댓글) 작성 -->
 	<insert id="replyInsert" parameterType="kr.or.dongmall.shop.dto.ProductReply" >
 		insert into reply(product_number,reply_content,reply_writer,origin_ref,group_ord,group_layer) 
@@ -85,7 +92,7 @@
 		insert into reply(product_number,reply_content,reply_writer,origin_ref,group_ord,group_layer) 
 		values(#{product_number},#{reply_content},#{reply_writer},#{origin_ref},#{group_ord},1)
 	</insert>
-	
+	<!-- *****************  댓글 관련 쿼리문 END************************************************************ -->
 	
 	
 	
