@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page session="false" %>
+<%@ page session="true" %>
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,18 +22,19 @@
 		<%@ include file="/WEB-INF/views/admin/include/admin_topnav.jsp"%>
 
 			
-  	  		<h1>상품등록 페이지</h1>
+  	  		<h2>1차분류 선택후 2차분류를 무조건 선택해야됨!!!</h2>
   	  		<!-- enctype="multipart/form-data" 파일을 올릴시 필수조건  -->
 		    <form role="form" method="post" autocomplete="off" enctype="multipart/form-data">
-
+					
+				<!-- 1차분류 선택후 2차분류를 무조건 선택해야됨!!!  -->
 				<div class="inputArea"> 
 				 <label>1차 분류</label>
-				 <select class="category1" name="product_category">
+				 <select class="category1" name="product_category_1">
 				  <option value="">전체</option>
 				 </select>
 				
 				 <label>2차 분류</label>
-				 <select class="category2" name="product_category_2">
+				 <select class="category2" name="product_category">
 				  <option value="">전체</option>
 				 </select>
 				</div>
@@ -82,6 +83,9 @@
     </div>
     	
     	<%@ include file="/WEB-INF/views/admin/include/admin_tail_import.jsp"%> 
+    	<!--  
+    		어렵게 짜놓은 코드는 나중에 다시 볼때 이해하기 편하게 주석을 달아놓는 습관을 가지자!!! 
+    	-->
     	<!-- 상품수량,가격 숫자만 입력할수있는 정규표현식  -->
     	<script>
 			var regExp = /[^0-9]/gi;
@@ -107,6 +111,7 @@
 			 CKEDITOR.replace("product_desc", ckeditor_config);
 		</script>
 
+		<!-- 파일선택후 이미지 업로드시 선택한 이미지를 보여줌  -->
     	 <script>
 			  $("#gdsImg").change(function(){
 			   if(this.files && this.files[0]) {
@@ -153,6 +158,7 @@
 		      + cate1Arr[i].cateName + "</option>"); 
 		} 
 		
+		//상위 카테고리(1차분류)의 SELECT가 변경되면 함수 실행 
 		$(document).on("change", "select.category1", function(){
 
 			 var cate2Arr = new Array();
@@ -182,10 +188,11 @@
 			  cate2Select.append("<option value=''>전체</option>");
 			  
 			  for(var i = 0; i < cate2Arr.length; i++) {
-			   if(selectVal == cate2Arr[i].cateCodeRef) {
-			    cate2Select.append("<option value='" + cate2Arr[i].cateCode + "'>"
-			         + cate2Arr[i].cateName + "</option>");
-			   }
+					// 1차분류 부모카테고리 코드와 2차분류의 카테고리 참조값이 똑같을 경우에만실행 
+				   if(selectVal == cate2Arr[i].cateCodeRef) {
+				    cate2Select.append("<option value='" + cate2Arr[i].cateCode + "'>"
+				         + cate2Arr[i].cateName + "</option>");
+				   }
 			  }
 			  
 			 });

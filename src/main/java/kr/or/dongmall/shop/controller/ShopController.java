@@ -71,9 +71,11 @@ public class ShopController {
 			*/
 		}
 		
-		//전체 리스트 사이즈가 0,1,2,3일때는 사이즈가 마이너스가 되버림 
-		int size = list.size()/2-2; // 전체사이즈(8)/2 -> 반으로 나눔(몫:4) -> 몫(4)-1 (인덱스가 0부터 시작하므로 -2를뺴주자)
-		if(size < 0) size = 0;
+		//전체 리스트 사이즈가 0,1,2,3일때는 사이즈가 마이너스가 되버림 이떄는 사이즈가 0이되야됨
+		int size = 0;
+		if(list.size()>3) {
+			size = list.size()/2-1; // 전체사이즈(8)/2 -> 반으로 나눔(몫:4) -> 몫(4)-1 (인덱스가 0부터 시작하므로 -1를뺴주자)
+		}
 		System.out.println("사이즈는?"+size);
 		model.addAttribute("cateNum",categoryNumber); // 카테고리 번호 (전체,상의,하의,신발,시계 중하나) 
 		model.addAttribute("cateSize",size);	// 카테고리 목록 사이즈(해당카테고리 물품이 총몇개있는지)

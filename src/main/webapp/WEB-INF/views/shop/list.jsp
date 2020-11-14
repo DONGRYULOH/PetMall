@@ -17,7 +17,7 @@
   	  
   	    	<%@ include file="/WEB-INF/include/header.jsp"%>
   	  		
-  	  		<!-- 카테고리 구분 -->
+  	  		<!-- 카테고리 구분 11/14(토) 여기서부터 다시하기 -->
   	  		<nav aria-label="breadcrumb" role="navigation">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="#">Shop</a></li>
@@ -32,6 +32,18 @@
 			     		<li class="breadcrumb-item active" aria-current="page">
 			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101">상의</a>
 			     		</li>
+			     		<c:choose>
+			     			<c:when test="${cate == '101'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101">ALL</a>
+					     		</li>
+				     		</c:when>
+			     			<c:when test="${cate == '101-1'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101">스웨터</a>
+					     		</li>
+				     		</c:when>
+			     		 </c:choose>
 					</c:when>
 					<c:when test="${cate == '102'}">
 			     		<li class="breadcrumb-item active" aria-current="page">

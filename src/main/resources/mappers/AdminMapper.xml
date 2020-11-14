@@ -5,6 +5,10 @@
 <mapper namespace="kr.or.dongmall.admin.dao.AdminDao">
 	
 	<!-- 카테고리 호출 -->
+	<!--
+		 카테고리참조코드가 NULL것은  최상위 부모이므로 LEVEL이 1이고 
+		 카테고리참조코드가 NULL이 아닌것은  참조할 부모가 있다는 뜻이므로 LEVEL 1이아님  
+	-->
 	<select id="category" resultType="kr.or.dongmall.admin.dto.CategoryDto">
 		SELECT 1 AS level, category_name, category_code, category_code_ref FROM product_category WHERE category_code_ref is NULL
 		UNION ALL

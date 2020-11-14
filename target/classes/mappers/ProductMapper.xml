@@ -11,7 +11,22 @@
 			from product p 
 			inner join product_category c 
 			on p.product_category = c.category_code
-			where p.product_category = #{categoryNumber}
+			where 1=1
+			<choose>
+				<!--  넘어온 파라미터를 임의의 이름으로 지칭할 경우 예외가 발생합니다. 
+						ex) test="categoryNumber  == '101'
+					해결책: _parameter 로 파라미터를 지칭할 수 있습니다. 넘어온 파라미터가 하나인경우에만 가능한듯?? 
+					참고 : https://thswave.github.io/spring/2015/06/18/mybatis-test-string-parameter.html
+				-->
+				<!-- 1차(부모)카테고리인 경우  ex)상의,하의,시계 -->
+				<when test="_parameter  == '101' or _parameter  == '102' or _parameter  == '103' or _parameter  == '104' ">
+					<!-- 부모카테고리에 포함되어 있는 모든 항목을 포함한다 -->
+					AND p.product_category like CONCAT(#{_parameter},'%')
+				</when>
+				<otherwise>
+					AND p.product_category = #{categoryNumber}
+				</otherwise>
+			</choose>
 	</select> 
 	
 	<!-- 전체 상품리스트 -->

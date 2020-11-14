@@ -45,17 +45,7 @@ public class AdminController {
 	public void Ex(Exception e) {
 		System.out.println("에러발생"+e.getClass());
 		System.out.println("에러발생"+e.getMessage());
-	}
-	
-	
-	//세션값을 부여하는 함수(임시로 만듬)
-	public UserDto UserSession(Model model,HttpServletRequest req) {
-		//session.setAttribute("User",login); 했던게 사라지므로 index페이지에 세션값을 부여할려면 다시 지정해줘야함 
-		HttpSession session = req.getSession();
-		UserDto name = (UserDto)session.getAttribute("User");	
-		System.out.println("세션에 저장되어있는 값"+name);
-		return name;
-	}
+	}	
 	
 	@Inject
 	AdminService adminService;
@@ -70,7 +60,6 @@ public class AdminController {
 	public String adminIndex(Model model,HttpServletRequest req) throws Exception{
 		System.out.println("관리자 화면");
 
-		model.addAttribute("User",UserSession(model,req));
 				
 		return "admin/admin_index";
 	}
@@ -86,15 +75,15 @@ public class AdminController {
 		
 		model.addAttribute("category",JSONArray.fromObject(category));
 		
-		model.addAttribute("User",UserSession(model,req));
 		
 		return "admin/product_register";
 	}
 	
-	//상품등록
+	//상품등록(상품등록후 상품이 등록된 페이지로 이동할것인가? 아니면 계속해서 상품을 등록할수 있게 상품등록페이지로 이동할것인가?)
 	@RequestMapping(value="/product_register",method=RequestMethod.POST) 
-	public String productRegisterApply(ProductDto product,MultipartFile file) throws Exception{
-		System.out.println("상품등록 하기");
+	public String productRegisterApply(ProductDto product,MultipartFile file,HttpServletRequest request) throws Exception{
+		System.out.println("상품등록중...");
+		//System.out.println("선택한 하위 카테고리"+request.getParameter("product_category_2"));
 		
 		String imgUploadPath = uploadPath + File.separator + "imgUpload";
 		String ymdPath = UploadFileUtils.calcPath(imgUploadPath); //업로드될 파일을 년도/월/일 별로 관리할수 있게 지정 
@@ -118,7 +107,7 @@ public class AdminController {
 		//상품등록하기 
 		adminService.product_insert(product);
 		
-		return "admin/product_register";
+		return "redirect:/admin/product_register";
 	}
 
 	//상품목록 
@@ -134,8 +123,7 @@ public class AdminController {
 		}
 		
 		model.addAttribute("ProductList",ProductList);
-		model.addAttribute("User",UserSession(model,req));
-		
+	
 		return "admin/product_list";
 	}
 	
@@ -160,7 +148,6 @@ public class AdminController {
 		List<CategoryDto> category = adminService.category();
 							
 		model.addAttribute("category",JSONArray.fromObject(category));
-		model.addAttribute("User",UserSession(model,req));
 		model.addAttribute("product",product);
 		
 		return "admin/product_modify";
@@ -209,7 +196,6 @@ public class AdminController {
 			System.out.println("해당상품 Update 문제발생..."+e.getMessage());
 		}
 							
-		model.addAttribute("User",UserSession(model,req));
 		model.addAttribute("product",product);
 		
 		return url;

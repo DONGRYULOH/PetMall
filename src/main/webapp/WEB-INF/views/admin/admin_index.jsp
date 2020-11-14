@@ -1,10 +1,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page session="false" %>
+<%@ page session="true" %>
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>도르가 무역 관리자 페이지</title>
+    <title>상품등록 페이지</title>
    
 
 	
@@ -22,9 +22,9 @@
 		<%@ include file="/WEB-INF/views/admin/include/admin_topnav.jsp"%>
 
 			
-  	  		<h1>관리자 페이지 입니다..</h1>
-		      
-		
+  	  		<h1>관리자 메인화면 입니다!</h1>
+  	  		
+					
    		 
    		 
    		
@@ -34,7 +34,7 @@
     </div>
     	
     	<%@ include file="/WEB-INF/views/admin/include/admin_tail_import.jsp"%> 
-    	
+
   </body>
   	  
 </html>

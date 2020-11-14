@@ -1,11 +1,11 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ page session="false" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page session="true" %>
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>상품목록 관리자 페이지</title>
+    <title>상품등록 페이지</title>
    
 
 	
@@ -89,8 +89,8 @@
     </div>
     	
     	<%@ include file="/WEB-INF/views/admin/include/admin_tail_import.jsp"%> 
-    	
-    	<script>
+
+		<script>
 			  var formObj = $("form[role='form']");
 			  
 			  $("#modify_Btn").click(function(){
@@ -113,6 +113,8 @@
   </body>
   	  
 </html>
+
+
 
 
 

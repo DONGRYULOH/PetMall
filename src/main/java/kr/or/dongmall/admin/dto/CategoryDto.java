@@ -7,9 +7,9 @@ category_code_ref varchar(30),
 */
 
 public class CategoryDto {
-	private String category_name; 
-	private String category_code;
-	private String category_code_ref;
+	private String category_name; //카테고리 이름 
+	private String category_code; //카테고리 코드 
+	private String category_code_ref; //카테고리 참조코드  EX) 가디건(101) -> 상의(101)를 참조 
 	private int level;
 	
 	public int getLevel() {
