@@ -17,7 +17,7 @@
 				
 				
 				
-			 <form  method="post" >
+			 <form  method="post" name="formOk">
 				<table class="table">
 				    <tbody>
 				        <tr>
@@ -51,10 +51,18 @@
 				        </tr>
 				        <tr>
 				            <td class="text-center">
+				            	닉네임<i class="ni ni-fat-remove pt-1"></i>
+				            </td>
+				            <td>
+				            	<input type="text" id="user_nickname" name="user_nickname" placeholder="닉네임을 입력해주세요" />      
+				            </td>  
+				        </tr>
+				        <tr>
+				            <td class="text-center">
 				            	이름<i class="ni ni-fat-remove pt-1"></i>
 				            </td>
 				            <td>
-				            	<input type="text" id="user_name" name="user_name" placeholder="닉네임을 입력해주세요" />      
+				            	<input type="text" id="user_name" name="user_name" placeholder="이름을 입력해주세요" />      
 				            </td>  
 				        </tr>
 				         <tr>
@@ -89,9 +97,9 @@
 				            	이메일 수신여부<i class="ni ni-fat-remove pt-1"></i>
 				            </td>
 				            <td>
-				            	 <div class="custom-control custom-checkbox mb-3">
-								  <input class="custom-control-input" id="customCheck1" type="checkbox">
-								  <label class="custom-control-label" for="customCheck1">동의함</label>
+				            	 <div class="custom-control custom-checkbox mb-3">								
+								  <input type="checkbox" id="email_check" name="email_check" /> 
+								  <label>동의함</label>
 								  <p>쇼핑몰에서 제공하는 유익한 이벤트 소식을 이메일로 받으실 수 있습니다.</p>
 								</div>
 				            </td>  
@@ -113,6 +121,7 @@
 	
 	
 </body>
+	
 	
 	<!-- 다음 우편변호API 사용 -->
 	<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -257,8 +266,21 @@
 			
 		});
 		
-		//가입버튼 클릭시 공백 검증
+		//가입버튼 클릭시 공백 검증 + emailCheck 여부확인 
 		$('button:submit').click(function() {
+			
+			//emailCheck 여부확인 
+			var check = document.formOk.email_check.checked;
+			console.log("체크여부:"+check);
+			if(check == false){
+				console.log("이메일 수신을 동의하지 않음");
+				document.getElementById("email_check").value = 'N';
+			}else{
+				console.log("이메일 수신을 동의함");
+				document.getElementById("email_check").value = 'Y';
+			}
+			
+			//공백검증 
 			for (let i = 0; i < validate.length; i++) {
 				if (validate[i] == false) {
 					console.log(i);
@@ -266,7 +288,7 @@
 					case 0:
 						$('#user_id').focus();
 						$('#id_check').text('아이디를 입력해주세요 :)');
-						$('#id_check').css('color', 'red');
+						$('#id_check').css('color', 'red');						
 						return false;
 					case 1:
 						$('#user_pwd').focus();
@@ -281,6 +303,7 @@
 					}
 				}
 			}
+			
 		});	 
 	</script>
 	<!-- 회원가입 정규표현식(Juqery를 못불러옴) -->

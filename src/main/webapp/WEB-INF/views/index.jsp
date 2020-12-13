@@ -55,7 +55,7 @@
 	   		 		<c:forEach items="${productRankNine}" var="list" begin="${index}" end="${index_2}" step="1" varStatus="status_2">
 				        <div class="col-4">
 				          <a href="${pageContext.request.contextPath}/shop/detail?n=${list.product_number}">
-				          	<img src="${pageContext.request.contextPath}/imgUpload${list.product_ThumbImg}" class="thumbImg"/>
+				          	<img src="${pageContext.request.contextPath}/imgUpload/${list.stored_thumbNail}" class="thumbImg"/>
 				          </a>
 				          <small class="d-block text-uppercase font-weight-bold mb-4" style="height: 5px;">${list.product_name}</small>
 				          <!-- 가격 -->

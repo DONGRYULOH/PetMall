@@ -33,7 +33,7 @@
 					   <th>이름</th>
 					   <th>카테고리</th>
 					   <th>가격</th>
-					   <th>수량</th>
+					   <th>수량(재고)</th>
 					   <th>등록날짜</th>
                   </tr>
                 </thead>
@@ -47,18 +47,18 @@
 	                    <td>
 		                    <%-- <c:set var="ThumbImg" value="${ProductList.product_ThumbImg}" /> --%>
 		                    <c:choose>
-						        <c:when test="${list.product_ThumbImg == null }">
+						        <c:when test="${list.stored_thumbNail == null }">
 			                    		<img src="${pageContext.request.contextPath}/images/none.PNG" class="thumbImg"/>
 						        </c:when>         
 						        <c:otherwise>
-				                    	<img src="${pageContext.request.contextPath}/imgUpload${list.product_ThumbImg}" class="thumbImg"/>
+				                    	<img src="${pageContext.request.contextPath}/imgUpload/${list.stored_thumbNail}" class="thumbImg"/>
 						         </c:otherwise>
 						    </c:choose>
 						 </td>
 					    <td>
 					    	<a href="${pageContext.request.contextPath}/admin/product_detail?n=${list.product_number}">${list.product_name}</a>
 					    </td>
-					    <td>${list.product_category}</td>
+					    <td>${list.category_code}</td>
 					    <td>
 					    	<fmt:formatNumber value="${list.product_price}" pattern="###,###,###"/>
 					    </td>

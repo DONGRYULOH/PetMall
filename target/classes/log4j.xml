@@ -12,7 +12,8 @@
 	
 	<!-- Application Loggers -->
 	<logger name="kr.or.dongmall">
-		<level value="info" />
+		<level value="debug" />
+		<appender-ref ref="console" />
 	</logger>
 	
 	<!-- 3rdparty Loggers -->

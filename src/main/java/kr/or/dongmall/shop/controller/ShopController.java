@@ -22,7 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import kr.or.dongmall.admin.dto.Product_ImageFile;
+import kr.or.dongmall.admin.dto.Product_Join_ProductImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
+import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dto.CartDto;
 import kr.or.dongmall.shop.dto.ProductReply;
 import kr.or.dongmall.shop.service.ShopService;
@@ -56,7 +59,7 @@ public class ShopController {
 		System.out.println("카테고리 코드번호" + categoryNumber);
 		//1.전체목록을 볼경우(100) 2.해당카테고리 목록만 볼경우(101,102,103 ...등등) 
 		
-		List<ProductCateDto> list = null;
+		List<Product_Join_ProductImageFile> list = null;
 		if(categoryNumber.equals("100")) { //문자열을 == 으로 하면 해당 주소번지를 비교하기때문에 equals메소드를 사용해야지 내용자체를 비교할수있음  
 			System.out.println("전체상품목록 가져오는중..");
 			list = shopService.AllcateProductList();
@@ -86,7 +89,7 @@ public class ShopController {
 	//해당상품 조회 
 	/*
 	 	<상품를 계속해서 무한새로고침 또는 조회시 계속해서 조회수가 올라가는걸 막기위해 쿠키를 사용한 조회수 방지방법을 사용해본다>
-	 	해당 게시물(상품)클릭시 조회수 올리기 방지 방법 => 쿠키사용 
+	 	해당 게시물(상품)클릭시 조회수 올리기 방지 방법 => 쿠키사용 (세션 쿠키를 사용)
 	 	@CookieValue => 사용자브라우저에 저장되어있는 쿠키를 읽기만 가능
 	 	1.세션은 쿠키보다 보안이 좋지만 세션을 사용시 서버의 자원을 낭비하므로 보안이 중요하지 않은데이터는 쿠키를 사용하는것이 좋다고 판단함 
 	 	2.상품조회시 해당 IP를 테이블에 저장하는 방식으로 DB에 저장(IP,조회날짜)시키는 방식 사용자수가 많아지면 DB의 용량이 커지고 많은 자원을 사용하게 된다고 판단함 
@@ -135,10 +138,18 @@ public class ShopController {
 			}
 		}
 		
-		System.out.println("상품번호"+product_number);
-		ProductCateDto product = shopService.shopDetail(product_number);
-		
+		//상품이미지 제외한 상품세부사항만 가져옴 
+		ProductDto product = shopService.shopDetail(product_number);
 		model.addAttribute("product", product);
+		
+		//해당 상품번호의 모든 이미지를 가져옴 
+		List<Product_ImageFile> product_image = shopService.shopDetailImg(product_number);
+		model.addAttribute("product_image",product_image);
+		
+		//해당 상품의 대표이미지만 가져옴 
+		Product_ImageFile delegate_image = shopService.shop_delegate_image(product_number);
+		model.addAttribute("delegate_image",delegate_image);
+		
 		model.addAttribute("User",UserSession(model,request));
 		
 		return "shop/detail";
@@ -149,16 +160,16 @@ public class ShopController {
 	@RequestMapping(value="/view/replyInsert", method=RequestMethod.POST)
 	public void replyInsert(ProductReply reply,HttpSession session)throws Exception{
 		
-		//현재세션에 저장되어있는 유저ID 가져오기 
+		//현재세션에 저장되어있는 유저닉네임 가져오기 
 		UserDto user = (UserDto)session.getAttribute("User");
-		reply.setReply_writer(user.getUser_id());
+		reply.setWriter_nickname(user.getUser_nickname());
 		
 		shopService.replyInsert(reply);
 		
 	}
 	
 	//상품 소감(댓글) 목록(AJAX) 
-	@ResponseBody
+	@ResponseBody // 자바객체를 JSON 형태로 변환을 해서 클라이언트단에 응답하는 역할 
 	@RequestMapping(value = "/view/replyList",method=RequestMethod.GET)
 	public List<ProductReply> getReplyList(@RequestParam("n") int product_number) throws Exception {
 	   
@@ -171,9 +182,9 @@ public class ShopController {
 	@ResponseBody
 	@RequestMapping(value="/view/replyDelete", method=RequestMethod.POST)
 	public void replyDelete(ProductReply reply,HttpSession session)throws Exception{
-		System.out.println("지울 댓글 번호:"+reply.getReply_num());
-		System.out.println("지울 참조 부모댓글:"+reply.getOrigin_ref());
-		System.out.println("댓글 깊이:"+reply.getGroup_layer());
+//		System.out.println("지울 댓글 번호:"+reply.getReply_num());
+//		System.out.println("지울 참조 부모댓글:"+reply.getOrigin_ref());
+//		System.out.println("댓글 깊이:"+reply.getGroup_layer());
 		shopService.replyDelete(reply);
 		
 	}
@@ -182,8 +193,7 @@ public class ShopController {
 	@ResponseBody
 	@RequestMapping(value="/view/replyModify", method=RequestMethod.POST)
 	public void replyModify(ProductReply reply)throws Exception{
-		System.out.println("수정할 댓글 번호:"+reply.getReply_num());
-		System.out.println("수정할 내용:"+reply.getReply_content());
+
 		shopService.replyModify(reply);
 		
 	}
@@ -193,13 +203,7 @@ public class ShopController {
 	@ResponseBody
 	@RequestMapping(value="/view/reCmtInsert", method=RequestMethod.POST)
 	public void reCmtInsert(ProductReply reply)throws Exception{
-		System.out.println("부모댓글 번호:"+reply.getOrigin_ref());
-		System.out.println("상품번호 내용:"+reply.getProduct_number());
-		System.out.println("작성자 이름:"+reply.getReply_writer());
-		System.out.println("답글내용:"+reply.getReply_content());
-		
 		shopService.reCmtInsert(reply);
-		
 	}
 	
 	//서버에 저장되어있는 모든 세션을 가져오는 함수 
@@ -225,14 +229,15 @@ public class ShopController {
 	
 	//사용자브라우저의 쿠키값과 서버의 세션값이 일치하는게 없는경우의 함수 
 	public String notCookie_Session(HttpSession session,HttpServletResponse response) {
-		//128비트의 랜덤 UUID 코드생성한 값을 서버의 세션과 브라우저의 쿠키에 저장시킴
-		//페이지 이동시 쿠키값이 사라짐 
+	 	 //128비트의 랜덤 UUID 코드생성한 값을 서버의 세션과 브라우저의 쿠키에 저장시킴
 		 UUID uid = UUID.randomUUID();
 		 String guest = uid + "guest";
+		 
 		 //쿠키이름은 guest라는 이름으로 부여 
 		 System.out.println("생성된 쿠키값->"+guest);				 
 		 //비회원 식별값을 세션에 저장시킴
 		 session.setAttribute("guest",guest);
+		 
 		 Cookie setCookie = new Cookie("guest",guest);
 		 setCookie.setPath("/"); //쿠키가 유효한 경로 설정(전역 페이지) 
 		 setCookie.setMaxAge(60*60*24); //쿠키 유효시간 
@@ -246,7 +251,8 @@ public class ShopController {
 	@RequestMapping(value="/addCart", method=RequestMethod.POST)
 	public int addCart(CartDto cart,HttpSession session,HttpServletRequest request,HttpServletResponse response)throws Exception{
 		
-		int result = 0;
+		int result = 0; // 카트담기 성공/실패 여부 (1이면 성공 0이면 실패) 
+		
 		//현재세션에 저장되어있는 유저ID 가져오기(로그인된 사용자의 아이디 가져오는것)
 		UserDto user = (UserDto)session.getAttribute("User");
 		String user_id = null;
@@ -259,22 +265,25 @@ public class ShopController {
 		
 		if(user != null) { //세션이 남아있는경우(로그인시) - 회원인 경우  	
 			user_id = user.getUser_id();
-			result = 1;
 		}else { // 비회원일경우 장바구니에 물품을 담는 경우 
+			
 			// 1.사용자 브라우저에 저장되있는 쿠키값을 가져와서 서버의 세션값과 비교 
 			Cookie[] getCookie = request.getCookies();
 			root:for(int k=0;k<getCookie.length;k++) {
 				String value = getCookie[k].getValue(); //쿠키값 
 				
 				//1-1.사용자 브라우저의 쿠키값과 서버의 세션값이 일치하는 경우(사용자 브라우저의 쿠키값으로 장바구니에 물품을 등록함)
+				//브라우저의 쿠키값 과 서버에 저장되어있는 세션값들(1부터...N까지 돌면서 비교-구구단과 비슷)
 				for(int j=0;j<s_list.size();j++) {
-					//브라우저의 쿠키값 과 서버에 저장되어있는 세션값들(1부터...N까지 돌면서 비교)
 					System.out.println("서버의 값->"+s_list.get(j));
+					
+					//사용자 브라우저의 쿠키값과 서버의 세션값이 매칭이 되는 경우 실행 
 					if(value.equals(s_list.get(j))){
 						user_id = value;
 						check = true;
 						break root;
 					}
+					
 				}
 		
 			}//root:END 
@@ -286,9 +295,10 @@ public class ShopController {
 		}
 		
 		//장바구니에 물품담기 
-		cart.setUser_id(user_id);
-		shopService.addCart(cart);
-			
+		cart.setUser_id(user_id); //회원일 경우 회원ID를 비회원일 경우 비회원고유식별값(쿠키)를 셋팅시킴 
+		result = shopService.addCart(cart); //result 값이 1일경우 카트담기 성공 0일경우 실패 
+		System.out.println("result 값??"+result);
+		
 		return result;
 	}
 	
@@ -299,16 +309,16 @@ public class ShopController {
 		//1.현재세션에 저장되어있는 유저ID 가져오기 
 		UserDto user = null;
 		String user_id = null;	
+		
 		//사용자브라우저에 쿠키값이 서버의 세션에 존재하는지 체크함
 		boolean check = false; 
 				
 		//서버에 저장되어있는 모든 세션을 가져오기 (함수1)
-		//서버의 세션에 저장되어 있는 값들 (키,값 -> map으로 저장시킬까??)
 		ArrayList<String> s_list = allSession(session);	
 
 		//1-1.회원일경우 OR 비회원일 경우로 나눠봐야됨 
 		if(session.getAttribute("User") != null) {
-			// 회원인 경우 
+			// 회원인 경우 (회원 ID로 장바구니 테이블에 있는 목록들을 조회함) 
 			user = (UserDto)session.getAttribute("User");
 			user_id = user.getUser_id();
 			System.out.println("현재 유저ID"+user.getUser_id());			
@@ -347,13 +357,10 @@ public class ShopController {
 		//2.해당 유저가 장바구니에 담은 리스트 가져오기 
 		List<CartDto> cartList = shopService.cartList(user_id);
 		
-		//3.장바구니의 전체금액 가져오기(회원일 경우에도 장바구니에 물품이 없는경우가 있는데???
+		//3.장바구니의 전체금액 가져오기
 		int total = 0;
-		try {
-			total = shopService.cartTotal(user_id);
-		} catch (Exception e) {
-			System.out.println("총액 에러 발생!!");
-			e.printStackTrace();
+		for(int i=0;i<cartList.size();i++) {
+			total += cartList.get(i).getProduct_count() * cartList.get(i).getProduct_price(); // 수량 * 상품가격 
 		}
 		
 		//4.장바구니 전체금액에 따른 배송비 구분 ( 5만원 이상이면 무료 미만이면 배송비 2500 추가  )
@@ -375,19 +382,32 @@ public class ShopController {
 	
 	//장바구니 물품 삭제 
 	@RequestMapping(value="/cart/cartDelete", method=RequestMethod.GET)
-	public String cartDelete(@RequestParam int cart_num) {
-		System.out.println("삭제할 카트번호 -> " + cart_num);
-		shopService.cartDelete(cart_num);
+	public String cartDelete(@RequestParam int cart_number) {
+		System.out.println("삭제할 카트번호 -> " + cart_number);
+		shopService.cartDelete(cart_number);
 		
 		return "redirect:/shop/cart/cartList";
 	}
 	
+	//장바구니 체크박스로 선택한 물품들 삭제 
+	@ResponseBody
+	@RequestMapping(value="/cart/selectDelete", method=RequestMethod.POST)
+	public int selectDelete(@RequestParam(value="DeleteCartList[]") Integer[] DeleteCartList) {
+		
+		for(Integer list : DeleteCartList) {
+			System.out.println("삭제할 상품번호"+list);
+		}
+		int result = shopService.cartselectDelete(DeleteCartList);
+		
+		return result;
+	}
+	
 	//장바구니 물품 수량 수정 
 	@RequestMapping(value="/cart/cartUpdate", method=RequestMethod.GET)
-	public String cartUpdate(@RequestParam int cart_num,int cart_stock) {
-		System.out.println("수정할 카트번호 -> " + cart_num);
-		System.out.println("수정될 물품수량 -> " + cart_stock);
-		shopService.cartUpdate(cart_num,cart_stock);
+	public String cartUpdate(@RequestParam int cart_number,@RequestParam int product_count) {
+		System.out.println("수정할 카트번호 -> " + cart_number);
+		System.out.println("수정될 물품수량 -> " + product_count);
+		shopService.cartUpdate(cart_number,product_count);
 		
 		return "redirect:/shop/cart/cartList";
 	}

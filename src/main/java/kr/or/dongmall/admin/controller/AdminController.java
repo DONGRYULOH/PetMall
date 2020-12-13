@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,7 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,11 +29,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.gson.JsonObject;
 
 import kr.or.dongmall.admin.dto.CategoryDto;
+import kr.or.dongmall.admin.dto.Product_ImageFile;
 import kr.or.dongmall.admin.service.AdminService;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
@@ -40,6 +47,9 @@ import net.sf.json.JSONArray;
 @Controller
 @RequestMapping("/admin/*") 
 public class AdminController {
+	
+	//AdminController에 한해서 로그설정하기 
+	protected Log log = LogFactory.getLog(AdminController.class);
 	
 	@ExceptionHandler(Exception.class)
 	public void Ex(Exception e) {
@@ -72,7 +82,7 @@ public class AdminController {
 		//카테고리 호출 
 		List<CategoryDto> category = adminService.category();
 		
-		
+		//JSON 라이브러리를 사용해 JSON 형태로 변경시킴 
 		model.addAttribute("category",JSONArray.fromObject(category));
 		
 		
@@ -83,29 +93,33 @@ public class AdminController {
 	@RequestMapping(value="/product_register",method=RequestMethod.POST) 
 	public String productRegisterApply(ProductDto product,MultipartFile file,HttpServletRequest request) throws Exception{
 		System.out.println("상품등록중...");
-		//System.out.println("선택한 하위 카테고리"+request.getParameter("product_category_2"));
 		
-		String imgUploadPath = uploadPath + File.separator + "imgUpload";
-		String ymdPath = UploadFileUtils.calcPath(imgUploadPath); //업로드될 파일을 년도/월/일 별로 관리할수 있게 지정 
-		String fileName = null;
-		
-		//업로드한 파일이 존재하는 경우 
-		if(file.getOriginalFilename() != null && file.getOriginalFilename() != "") {
-			fileName = UploadFileUtils.fileUpload(imgUploadPath,file.getOriginalFilename(),file.getBytes(), ymdPath);
-			product.setProduct_image(ymdPath + File.separator + fileName);
-			product.setProduct_ThumbImg(ymdPath + File.separator + "s" + File.separator + "s_" + fileName);
-		}else { //파일을 업로드하지 않은경우
-			fileName = null;
-			product.setProduct_image(fileName);
-			product.setProduct_ThumbImg(fileName);
+		//대표썸네일 체크여부 검사 로직  (체크박스에 체크하지 않으면 NULL로 해당값을 가져오지 못함)
+		String[] checkList =  request.getParameterValues("checkList");
+		for(int i=0;i<checkList.length;i++) {
+			System.out.println(i+"번째 이미지 대표 썸네일 체크여부:"+checkList[i]);
 		}
 		
-		System.out.println("imgUploadPath" + imgUploadPath);
-		System.out.println("ymdPath" + ymdPath);
-		System.out.println("fileName" + fileName);
-
+		//HttpServletRequest 이용해 전송된(업로드한) 파일을 가져온다 (업로드한 파일 로그로 확인하기) 
+		MultipartHttpServletRequest MultipartHttpServletRequest = (MultipartHttpServletRequest)request;
+		Iterator<String> iterator = MultipartHttpServletRequest.getFileNames();
+		MultipartFile multipartFile = null;
+		while(iterator.hasNext()) {
+			multipartFile = MultipartHttpServletRequest.getFile(iterator.next());
+			if(multipartFile.isEmpty() == false) {
+				
+				 log.debug("-----------file start--------------");
+				 log.debug("name :"+multipartFile.getName());
+				 log.debug("filename"+multipartFile.getOriginalFilename());
+				 log.debug("size:"+multipartFile.getSize());
+				 log.debug("-----------file start--------------");
+				
+			}
+		}
+		
 		//상품등록하기 
-		adminService.product_insert(product);
+		adminService.product_insert(product,MultipartHttpServletRequest,checkList);
+
 		
 		return "redirect:/admin/product_register";
 	}
@@ -119,7 +133,7 @@ public class AdminController {
 		List<ProductDto> ProductList = adminService.product_list();
 		
 		for(int i=0;i<ProductList.size();i++) {
-			System.out.println("썸네일이미지 -> "+ProductList.get(i).getProduct_ThumbImg());
+			//System.out.println("썸네일이미지 -> "+ProductList.get(i).getProduct_ThumbImg());
 		}
 		
 		model.addAttribute("ProductList",ProductList);
@@ -130,65 +144,61 @@ public class AdminController {
 	//해당 상품(디테일)보기 
 	@RequestMapping("/product_detail")
 	public String product_detail(@RequestParam("n") int product_number, Model model) throws Exception {
-	 
+		
+		 //해당 상품목록 가져오기(이미지 제외) 
 		 ProductCateDto product = adminService.product_detail(product_number);
-		 
 		 model.addAttribute("product", product);
+		 
+		 //해당 상품에 해당되는 이미지파일(썸네일) 가져오기 
+		 List<Product_ImageFile> thumbImg = adminService.product_img(product_number);
+		 for(int i=0;i<thumbImg.size();i++) {
+			 System.out.println(i+"번쨰 이미지 파일"+thumbImg.get(i));
+		 }
+		 model.addAttribute("ThumbImg", thumbImg);
 		 
 		 return "admin/product_detail";
 	}
 	
-	//해당 상품수정 페이지 
+	//해당 상품수정 페이지 이동 
 	@RequestMapping(value="/product_modify",method=RequestMethod.GET) 
 	public String product_modify(@RequestParam("n") int product_number,Model model,HttpServletRequest req) throws Exception{
 		System.out.println("상품수정 페이지 이동");
 		System.out.println("상품 번호"+product_number);
+		
+		//해당 상품의 세부목록가져오기 
 		ProductCateDto product = adminService.product_detail(product_number);
-		//카테고리 호출 
-		List<CategoryDto> category = adminService.category();
-							
-		model.addAttribute("category",JSONArray.fromObject(category));
 		model.addAttribute("product",product);
 		
+		//카테고리 호출 
+		List<CategoryDto> category = adminService.category();
+		model.addAttribute("category",JSONArray.fromObject(category));
+		
+		//해당 상품에 해당되는 이미지파일(썸네일) 가져오기 
+		 List<Product_ImageFile> thumbImg = adminService.product_img(product_number);
+		 for(int i=0;i<thumbImg.size();i++) {
+			 System.out.println(i+"번쨰 이미지 파일"+thumbImg.get(i));
+		 }
+		 model.addAttribute("ThumbImg", thumbImg);
+		 
 		return "admin/product_modify";
 	}
 	
 	//해당 상품수정 완료버튼 클릭시 
 	@RequestMapping(value="/product_modify",method=RequestMethod.POST) 
-	public String product_modify_apply(@ModelAttribute ProductCateDto product,MultipartFile file,Model model,HttpServletRequest req,RedirectAttributes redirectAttributes){
+	public String product_modify_apply(@ModelAttribute ProductCateDto product,Model model,HttpServletRequest request,RedirectAttributes redirectAttributes){
 		System.out.println("해당 상품수정중... ");
 		//뷰단의 form의 name 값이랑 Dto의 필드명이랑 똑같아야지 자동으로 setter를 통해 삽입될수있음 
-		//System.out.println("상품수정 완료 버튼 클릭시 상품번호"+product.getProduct_number());
-		//System.out.println("상품카테고리"+product.getProduct_category());
-		//System.out.println("상품참조카테고리"+product.getCategory_code_ref());
-		
+
 		String url="redirect:/admin/product_modify";
 		
+		//대표썸네일 체크여부 검사 로직  (체크박스에 체크하지 않으면 NULL로 해당값을 가져오지 못함)
+		String[] checkList =  request.getParameterValues("checkList");
+		for(int i=0;i<checkList.length;i++) {
+			System.out.println(i+"번째 이미지 대표 썸네일 체크여부:"+checkList[i]);
+		}
+				
 		try {
-			//새로운 파일을 등록헀다면 다음 구문실행 
-		
-			if(file.getOriginalFilename() != null && file.getOriginalFilename() != "") {
-				
-				System.out.println("새로운 파일등록완료 !");
-				//기존파일삭제
-				new File(uploadPath + req.getParameter("product_image")).delete();
-				new File(uploadPath + req.getParameter("product_ThumbImg")).delete();
-				
-				//새로첨부한 파일등록
-				String imgUploadPath = uploadPath + File.separator + "imgUpload";
-				String ymdPath = UploadFileUtils.calcPath(imgUploadPath);
-				String fileName = UploadFileUtils.fileUpload(imgUploadPath,file.getOriginalFilename(),file.getBytes(), ymdPath);
-				
-				product.setProduct_image(ymdPath + File.separator + fileName);
-				product.setProduct_ThumbImg(ymdPath + File.separator + "s" + File.separator + "s_" + fileName);
-			}else { //새로운 파일이 등록되지 않았을시
-				//기존이미지를 그대로 사용함 
-				product.setProduct_image(req.getParameter("product_image"));
-				product.setProduct_ThumbImg(req.getParameter("product_ThumbImg"));
-			}
-
-			
-			url = adminService.product_update(product);
+			url = adminService.product_update(product,request,checkList);
 			System.out.println("이동URL 주소"+url);
 			System.out.println("상품수정 완료 버튼 클릭시 상품번호"+product.getProduct_number());
 			redirectAttributes.addAttribute("n",product.getProduct_number());

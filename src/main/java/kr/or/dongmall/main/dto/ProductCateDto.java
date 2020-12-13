@@ -3,54 +3,50 @@ package kr.or.dongmall.main.dto;
 import java.util.Date;
 
 /*
+ 
 -- 상품 테이블 
-create table product(
-	product_number int auto_increment, -- 상품번호 
-	product_name varchar(50) not null, -- 상품이름 
-    product_category varchar(30) not null, -- 상품 카테고리 
-	product_price int not null, -- 상품가격 
-	product_stock int null, -- 상품 수량 
-	product_desc varchar(500), -- 상품설명 
-	product_image varchar(500), -- 상품이미지 
-    product_date datetime default current_timestamp, -- 상품 등록날짜 
-	primary key(product_number)
+Create table Product(
+	product_number INT AUTO_INCREMENT NOT NULL, -- 상품번호 
+	category_code VARCHAR(30) NOT NULL, -- 상품코드
+	product_name VARCHAR(50) NOT NULL, -- 상품명
+	product_price INT NOT NULL, -- 상품가격
+	product_stock INT NOT NULL, -- 상품재고
+	product_desc TEXT NOT NULL, -- 상품설명
+	product_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 상품등록일
+	product_hits INT NOT NULL, -- 조회수 
+	PRIMARY KEY(product_number),
+	FOREIGN KEY(category_code) REFERENCES Product_category(category_code)
 );
+
+-- 상품 카테고리 테이블 
+-- 카테고리 참조코드는 카테고리코드를 참조함(존재하는 카테고리 코드에 한해서만 참조가가능) 
+Create table Product_category(
+	category_code VARCHAR(30) NOT NULL, -- 카테고리 코드(100:상위코드 , 100-1:하위코드) 
+	category_name VARCHAR(50) NOT NULL, -- 카테고리 이름(100:상의 , 100-1:반팔티)
+	category_ref_code VARCHAR(30), -- 참조코드(100:null , 100-1:100번을 참조) 
+	PRIMARY KEY(category_code),
+	FOREIGN KEY(category_ref_code) REFERENCES Product_category(category_code)
+);
+
 */
 //상품테이블 + 카테고리 테이블 조인 
 public class ProductCateDto {
 
+	//상품테이블 
 	private int product_number;
 	private String product_name;
-	private String product_category;
+	private String category_code;
 	private int product_price;
 	private int product_stock;
 	private String product_desc;
-	private String product_image;
 	private Date product_date;
+	private int product_hits;
 	
-	private String category_code_ref;
+	//카테고리 테이블 
 	private String category_name;
-	//썸네일 이미지 
-	private String product_ThumbImg;
-	
-	public String getProduct_ThumbImg() {
-		return product_ThumbImg;
-	}
-	public void setProduct_ThumbImg(String product_ThumbImg) {
-		this.product_ThumbImg = product_ThumbImg;
-	}
-	public String getCategory_code_ref() {
-		return category_code_ref;
-	}
-	public void setCategory_code_ref(String category_code_ref) {
-		this.category_code_ref = category_code_ref;
-	}
-	public String getCategory_name() {
-		return category_name;
-	}
-	public void setCategory_name(String category_name) {
-		this.category_name = category_name;
-	}
+	//private String category_code;
+	private String category_ref_code;
+		
 	public int getProduct_number() {
 		return product_number;
 	}
@@ -63,11 +59,11 @@ public class ProductCateDto {
 	public void setProduct_name(String product_name) {
 		this.product_name = product_name;
 	}
-	public String getProduct_category() {
-		return product_category;
+	public String getCategory_code() {
+		return category_code;
 	}
-	public void setProduct_category(String product_category) {
-		this.product_category = product_category;
+	public void setCategory_code(String category_code) {
+		this.category_code = category_code;
 	}
 	public int getProduct_price() {
 		return product_price;
@@ -87,18 +83,32 @@ public class ProductCateDto {
 	public void setProduct_desc(String product_desc) {
 		this.product_desc = product_desc;
 	}
-	public String getProduct_image() {
-		return product_image;
-	}
-	public void setProduct_image(String product_image) {
-		this.product_image = product_image;
-	}
 	public Date getProduct_date() {
 		return product_date;
 	}
 	public void setProduct_date(Date product_date) {
 		this.product_date = product_date;
 	}
+	public int getProduct_hits() {
+		return product_hits;
+	}
+	public void setProduct_hits(int product_hits) {
+		this.product_hits = product_hits;
+	}
+	public String getCategory_name() {
+		return category_name;
+	}
+	public void setCategory_name(String category_name) {
+		this.category_name = category_name;
+	}
+	public String getCategory_ref_code() {
+		return category_ref_code;
+	}
+	public void setCategory_ref_code(String category_ref_code) {
+		this.category_ref_code = category_ref_code;
+	}
+	
+	
 	
 	
 	

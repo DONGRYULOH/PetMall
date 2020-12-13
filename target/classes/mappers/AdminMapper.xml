@@ -10,23 +10,27 @@
 		 카테고리참조코드가 NULL이 아닌것은  참조할 부모가 있다는 뜻이므로 LEVEL 1이아님  
 	-->
 	<select id="category" resultType="kr.or.dongmall.admin.dto.CategoryDto">
-		SELECT 1 AS level, category_name, category_code, category_code_ref FROM product_category WHERE category_code_ref is NULL
+		SELECT 1 AS level, category_code, category_name, category_ref_code FROM product_category WHERE category_ref_code is NULL
 		UNION ALL
-		SELECT 2 AS level, category_name, category_code, category_code_ref FROM product_category WHERE category_code_ref IS NOT null
+		SELECT 2 AS level, category_code, category_name, category_ref_code FROM product_category WHERE category_ref_code IS NOT null
 		ORDER BY category_code
 	</select>
 
 	<!-- 상품등록 -->
-	<insert id="product_insert" parameterType="kr.or.dongmall.main.dto.ProductDto">
-		insert into product(product_name,product_category,product_price,product_stock,product_desc,product_image,product_ThumbImg)
-		values(#{product_name},#{product_category},#{product_price},#{product_stock},#{product_desc},#{product_image},#{product_ThumbImg})
+	<insert id="product_insert" parameterType="hashmap" useGeneratedKeys="true" keyProperty="product_number">
+		insert into product(category_code,product_name,product_price,product_stock,product_desc)
+		values(#{category_code},#{product_name},#{product_price},#{product_stock},#{product_desc})
+		<selectKey keyProperty="product_number" resultType="string" order="AFTER">
+			select max(product_number) from product
+		</selectKey>	
 	</insert>
 	
-	<!-- 상품목록 -->
+	<!-- 상품목록 (해당 상품에 대한 썸네일이 여러장 존재할경우 대표사진 한장만 보여주기 ) -->
 	<select id="product_list" resultType="kr.or.dongmall.main.dto.ProductDto">
-		select product_number,product_name,product_category,product_price,product_stock,product_desc,product_date,product_ThumbImg
-		from product
-		order by product_number desc
+		SELECT P.product_number,P.product_name,P.category_code,P.product_price,P.product_stock,P.product_desc,P.product_date,PI.stored_thumbNail
+		FROM Product P INNER JOIN (SELECT product_number,stored_thumbNail  FROM Product_imageFile where delegate_thumbNail = 'Y' AND delete_check = 'N') PI
+		ON P.product_number = PI.product_number
+		ORDER BY P.product_number DESC
 	</select>
 	
 	<!-- 해당 상품호출 -->
@@ -36,28 +40,23 @@
 		where product_number=#{product_number}
 	</select> -->
 	
-	<!-- 상품조회 + 카테고리 조인 -->
-	<select id="product_detail" resultType="kr.or.dongmall.main.dto.ProductCateDto">
-		select  
-			g.category_code_ref,g.category_name,product_number,product_category,product_name,
-			product_price,product_stock,product_desc,product_image,product_date,product_image,product_ThumbImg
-		from product p
-		inner join product_category g 
-		on p.product_category = g.category_code
-		where product_number=#{product_number}	
+	<!-- 상품조회(해당 상품의 썸네일이 여러장이 있을수도 있음) + 카테고리 조인(해당 상품의 카테고리 이름과 상위 카테고리 이름을 가져옴) -->
+	<select id="product_detail"  parameterType="Integer" resultType="kr.or.dongmall.main.dto.ProductCateDto">
+		SELECT P.product_number,P.product_name,P.product_price,P.product_stock,P.product_desc,P.product_date,P.product_hits,PC.category_code,PC.category_name,PC.category_ref_code 
+		FROM Product P INNER JOIN Product_category PC
+		ON P.category_code = PC.category_code
+		WHERE product_number = #{product_number}
 	</select>
 	
-	<!-- 해당 상품수정  -->
+	<!-- 해당 상품수정(상품이미지 파일제외)  -->
 	<update id="product_update" parameterType="kr.or.dongmall.main.dto.ProductCateDto">
 		update product 
 		set 
 			product_name = #{product_name},
-			product_category = #{product_category},
+			category_code = #{category_code},
 			product_price = #{product_price},
 		    product_stock = #{product_stock},
-		    product_desc = #{product_desc},
-		    product_image = #{product_image},
-		    product_ThumbImg = #{product_ThumbImg}	    
+		    product_desc = #{product_desc} 
 		where product_number = #{product_number}  
 	</update>
 	
@@ -66,6 +65,29 @@
 		delete from product 
 		where product_number = #{product_number}
 	</delete>
+	
+	<!--  ********************************************** 상품 이미지 파일 ************************************** -->
+	<!-- 해당 상품의 이미지파일 삭제여부 YES  -->
+	<update id="deleteFileList" parameterType="hashmap">
+		UPDATE Product_imageFile SET delete_check = 'Y'
+		WHERE product_number = #{product_number}
+	</update>
+	
+	<!-- 해당 상품의 신규 이미지 파일등록 -->
+	<insert id="insertFile" parameterType="hashmap" >
+		INSERT INTO Product_imageFile(product_number,origin_file_name,stored_file_name,stored_thumbNail,delegate_thumbNail,file_size)
+					VALUES(#{product_number},#{ORIGINAL_FILE_NAME},#{STORED_FILE_NAME},#{STORED_ThumbNail},#{delegate_thumbNail},#{FILE_SIZE})
+	</insert>
+	
+	<!-- 해당 상품에 해당되는 이미지 파일가져오기(해당 상품조회시)  -->
+	<select id="product_img"  parameterType="Integer" resultType="kr.or.dongmall.admin.dto.Product_ImageFile">
+		SELECT file_number,stored_thumbNail,delegate_thumbNail FROM Product_imageFile WHERE product_number = #{product_number} AND delete_check='N'
+	</select>
+	
+	<!-- 기존에 저장된 파일인 경우 삭제했던 delete_check(Y) -> delete_check(N) 바꿈 (대표 썸네일 이미지 체크여부 업데이트 처리) -->
+	<update id="updateFile" parameterType="hashmap">
+		UPDATE Product_imageFile SET delete_check = 'N',delegate_thumbNail=#{delegate_thumbNail} WHERE file_number = #{FILE_IDX}
+	</update>
 </mapper>
 	
 	

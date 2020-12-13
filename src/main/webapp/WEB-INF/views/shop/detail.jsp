@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page session="true" %>
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -39,59 +40,62 @@
 
 		function replyList(){
 			 var p = ${product.product_number};	
-			 var session_email = '${User.user_id}';
+			 var session_id = '${User.user_id}';
+			 var session_nickname = '${User.user_nickname}';
+			  
+			 console.log("서버로부터 받은 현재PC세션의 아이디"+session_id);
+			 console.log("서버로부터 받은 현재PC세션의 닉네임"+session_nickname);
 			 
 			 	  $.getJSON("${pageContext.request.contextPath}/shop/view/replyList?n=" + p, function(data){
 				  var str = "";
 				  
 				  $(data).each(function(){
 				   	
-					   console.log("전체 글목록"+data);
-					   //console.log("글작성자 이메일"+data[0].reply_writer);
-					   console.log("서버로부터 받은 현재PC세션의 이메일"+session_email);
-					   console.log("글작성자 이메일"+this.reply_writer);
+					   console.log("글작성자 닉네임"+this.writer_nickname);
 					   
 					   /* depth 체크 */
 		   				let depthCss = "";
 		   				let depthStyle="";
 		   				let reCmt ="";
 		   				
-		   				if(this.group_layer == 0){ //depth 0일경우 
+		   				if(this.reply_depth == 0){ //depth 0일경우 
 		   					//답글쓰기 버튼 추가 
 		   					reCmt += "<div id='replyForm'>";
-		   					reCmt += "<button type='button' class='replyBtn' reply_num='" + this.reply_num + "'>답글달기</button>"
+		   					reCmt += "<button type='button' class='replyBtn' reply_num='" + this.reply_number + "'>답글달기</button>"
 		   					reCmt += "</div>"
 		   				}else{ //depth 1이상일경우 
 		   					depthStyle = " background-color : green;";
 		   					depthCss = " padding-left: 50px;";
 		   				}
 		   				
-					   var reply_date = new Date(this.reply_date);
-					   reply_date = reply_date.toLocaleDateString("ko-US")
+		   			   //한국 시각으로 바꿈 
+					   var reply_date = new Date(this.reporting_date);
+					   reply_date = reply_date.toLocaleDateString("ko-US");
 					   
 					   str += "<li data-gdsNum='" + this.product_number + "' style='"+depthCss+"'>"
 					     + "<div class='userInfo' style='"+depthStyle+"'>"
-					     + 	"<span class='userName'>" + this.user_name + "</span>"
+					     + 	"<span class='userName'>" + this.writer_nickname + "</span>"
 					     + 	"<span class='date'>" + reply_date + "</span>"
 					     + "</div>"
-					     + "<div class='replyContent'>" + this.reply_content + "</div>"		
+					     + "<div class='replyContent'>" + this.content + "</div>"		
 	     					
 					     //로그인 상태일때만 답글,수정,삭제 가능
 					     //로그인을 한사람만 신고가 가능하다 아니다?? 
- 						 if(session_email != null && session_email != ''){
+ 						 if(session_id != null && session_id != ''){
  							 str += reCmt; 
 					     }
-					     		     
-					     if(session_email==this.reply_writer){
+					     		    
+					     //로그인한 유저의 세션의 닉네임이 작성한 해당 상품에 작성한 닉네임과 똑같을경우 수정과 삭제가 가능 
+					     if(session_nickname==this.writer_nickname){
 						     str +=  "<div class='replyFooter'>"
 						     //수정폼으로 이동시 
-					    	 str += "<button type='button' class='modify' reply_num='" + this.reply_num + "'>수정</button>"
+					    	 str += "<button type='button' class='modify' reply_num='" + this.reply_number + "'>수정</button>"
 					    	 //삭제시 해당 댓글의 고유번호,참조번호,depth 를 받음 
-					    	 str += "<button type='button' class='delete' reply_num='" + this.reply_num + "'  origin_ref='" + this.origin_ref + "' group_layer='" + this.group_layer + "'>삭제</button>"
+					    	 str += "<button type='button' class='delete' reply_num='" + this.reply_number + "'  origin_ref='" + this.reply_orgin_number + "' group_layer='" + this.reply_depth + "'>삭제</button>"
 					    	 str += "</div>"
 					     }else{
 					    	str += "<div class='replyFooter'>"
-						    str += "<button type='button' class='report' reply_num='" + this.reply_num + "'>신고</button>"
+						    str += "<button type='button' class='report' reply_num='" + this.reply_number + "'>신고</button>"
 						    str += "</div>"
 					     }					     	
 					    
@@ -127,11 +131,41 @@
 			</form>
 			
 				<div class="row">
-					<div class="col-6">
-						<p>썸네일</p>
-						<img src="${pageContext.request.contextPath}/imgUpload${product.product_ThumbImg}" class="thumbImg"/> 
+					<!-- 상품 이미지  -->
+					<div class="col-8">
+						
+						<!-- 대표 이미지인 경우 -->
+						<div class="thumbNail" style="float:left;">
+							<img src="${pageContext.request.contextPath}/imgUpload/${delegate_image.stored_thumbNail}" id="image_0" style="width: 500px;height: 500px;" /> 			
+						</div>
+							
+						<c:forEach items="${product_image}" var="imageList" varStatus="var" >					
+							<!-- 기본 이미지인 경우 -->
+							<div class="imageList">
+								<img src="${pageContext.request.contextPath}/imgUpload/${imageList.stored_thumbNail}" class="subImage" id="image_${var.count}" style="width: 100px;padding-bottom: 10px;padding-left: 10px;"/> 
+							</div>
+						</c:forEach>
+						<!-- 이미지 변환 함수 -->
+						<script type="text/javascript">
+							window.onload = function(){
+								var imageCount = '${fn:length(product_image)}'; // 상품에 대한 이미지 총개수
+								
+								for(var i=1;i<imageCount+1;i++){
+									
+									var imageMouseOver = document.getElementById('image_'+i);
+									
+									//해당 이미지에 마우스를 올렸을경우 실행할 함수 
+									imageMouseOver.onmouseover = function(e){
+										//console.log($(this).parent("div").children(".subImage").attr('src'));
+										var change = $(this).parent("div").children(".subImage").attr('src'); // 마우스를 오버한 이미지의 src 값을 가져옴 
+										console.log($(this).parent().parent().children(".thumbNail").children("#image_0").attr('src',change)); // 메인 썸네일을 마우스를 오버한 이미지의 src값으로 교체
+									};
+								}
+							};
+						</script>
 					</div>
-					<div class="col-6">
+					
+					<div class="col-4">
 						<div class="table-responsive">
 							<table >
 								<%-- <caption>기본 정보</caption> --%>
@@ -175,6 +209,7 @@
 							  <a href="#" class="btn btn-lg btn-white btn-icon mb-3 mb-sm-0">
 			                    <span class="btn-inner--text" id="addCart_btn">ADD CART</span>
 			                  </a>
+			                  <!-- 장바구니 담기 함수  -->
 			                   <script>
 									  $("#addCart_btn").click(function(){
 										var product_number = ${product.product_number};	
@@ -183,7 +218,7 @@
 									    console.log("선택한 수량"+cart_stock);
 									     var data = {
 											    product_number : product_number,
-									     		cart_stock : cart_stock
+											    product_count : cart_stock
 									     	};
 									   
 										    $.ajax({
@@ -195,13 +230,11 @@
 												     	alert("카트 담기 성공");
 												     	$("#numBox").val("1");
 											    	}else{
-											    		alert("카트 담기 실패 로그인 바람!!");
+											    		alert("카트 담기 실패");
 												     	$("#numBox").val("1");
 											    	}
 											    },
 											    error : function(){
-											    	//일단은 로그인한 회원만 장바구니를 사용할수 있도록 함
-											    	//추후에 비로그인도 장바구니 기능을 사용할수 있도록 수정하자 
 											     	alert("카트 담기 실패");
 											    }
 										    });
@@ -234,15 +267,17 @@
 							    <!-- button 타입을 submit으로 하니까 Ajax도 타고 form도 작동이된다...   -->
 							    <!-- 해결방안  type="button" 바꾸어서 form 태그가 작동을 못하게 함  -->
 							    <button type="button" id="reply_btn">소감 남기기</button>
+							    
+							    <!-- 상품에 대한 댓글 작성시 이벤트 발생 함수  -->
 							    <script>
 									 $("#reply_btn").click(function(){									  
 										  var formObj = $(".replyForm form[role='form']");
-										  var product_number = $("#product_number").val();
-										  var reply_content = $("#reply_content").val()
+										  var product_number = $("#product_number").val(); //상품번호 
+										  var reply_content = $("#reply_content").val(); //댓글내용
 										  
 										  var data = {
 											  product_number : product_number,
-											  reply_content : reply_content
+											  content : reply_content
 										    };
 										  
 										  $.ajax({
@@ -256,6 +291,7 @@
 										  });
 									 });
 								</script>
+								
 							   </div>
 						   
 						  </form>
@@ -269,10 +305,11 @@
 						    
 						    </ol>
 						    <!-- 댓글 목록이 들어가는 부분   -->
-						    
 						    <script> 
 								replyList();
 							</script>
+							
+							<!-- 댓글 삭제 함수 -->
 							<script>
 								 $(document).on("click", ".delete", function(){
 								  
@@ -281,9 +318,9 @@
 									 if(deleteConfirm){
 										 
 										 	var data = {
-												 reply_num : $(this).attr("reply_num"), //고유번호
-												 origin_ref : $(this).attr("origin_ref"), //부모참조댓글 
-												 group_layer : $(this).attr("group_layer") //깊이 
+										 			reply_number : $(this).attr("reply_num"), //고유번호
+										 			reply_orgin_number : $(this).attr("origin_ref"), //부모참조댓글 
+										 			reply_depth : $(this).attr("group_layer") //깊이 
 											};
 										   
 										 	console.log("삭제할 파라미터값 얻어오기"+data);
@@ -331,7 +368,7 @@
 		 
 		</div>
 		
-		<!-- 댓글 수정 부분  -->
+		<!-- 댓글 수정 부분  START-->
 		<script>
 			$(document).on("click", ".modify", function(){
 				 //$(".replyModal").attr("style", "display:block;");
@@ -352,29 +389,31 @@
 			$(".modal_modify_btn").click(function(){
 				 var modifyConfirm = confirm("정말로 수정하시겠습니까?");
 				 
+				 //수정완료 버튼을 정상적으로 눌렀을경우 실행 
 				 if(modifyConfirm) {
-				  var data = {
-					 reply_num : $(this).attr("reply_num"),
-				     reply_content : $(".modal_repCon").val()
+					 
+				    var data = {
+						  reply_number : $(this).attr("reply_num"), //댓글번호
+						  content : $(".modal_repCon").val() //내용 
 				    };  
 				  
-				  $.ajax({
-					   url : "${pageContext.request.contextPath}/shop/view/replyModify",
-					   type : "post",
-					   data : data,
-					   success : function(result){				   
-					     	replyList();
-					    	$(".replyModal").fadeOut(200);
-					   },
-					   error : function(){
-					    	alert("로그인하셔야합니다.")
-					   }
-				  });
+					  $.ajax({
+						   url : "${pageContext.request.contextPath}/shop/view/replyModify",
+						   type : "post",
+						   data : data,
+						   success : function(result){				   
+						     	replyList();
+						    	$(".replyModal").fadeOut(200);
+						   },
+						   error : function(){
+						    	alert("로그인하셔야합니다.")
+						   }
+					  });
 				 }
 			 
 			});
 		</script>
-		<!-- 댓글 수정 부분  -->
+		<!-- 댓글 수정 부분  END-->
 		
 		<!-- 답글을 작성할수 있는 폼 생성 -->
 		<script>
@@ -409,13 +448,14 @@
 		
 		<!-- 댓글에 대한 답글 작성시 AJAX로 INSERT -->
 		<!--  
-			  ex) 1번댓글에 대한 답글 ( 1번댓글 ref - 0 , step - 0 , depth - 0) 
+			  ex) 1번댓글(부모댓글)에 대한 답글 ( 1번댓글 ref - 1 , step - 0 , depth - 0) 
 			  1.처음 답글일시 ref - 1 , step(순서) - 1 , depth(깊이) - 1 
 			  2.두번째 답글일시 ref - 1 , step - 2 , depth - 1
 		-->
 		<script>
-			var product_num = ${product.product_number};	
-		 	var session_email = '${User.user_id}';
+			var product_number = ${product.product_number};	
+		 	var session_nickname = '${User.user_nickname}';
+		 	
 			$(document).on("click", ".reply_insert", function(){
 				//textarea 안에 있는 값은 val 받아야지 넘어온다 
 			 	var cnt = $(this).parent().children("#reply_content").val();
@@ -428,13 +468,13 @@
 	   			} 
 				
 				/*  
-					부모댓글번호,상품번호,작성자이름,답글내용  
+					부모댓글번호,상품번호,작성자닉네임,답글내용  
 				*/
 				var data = {
-						origin_ref :  $(this).attr("reply_ref"), 
-						product_number : product_num,
-						reply_writer : session_email,
-						reply_content : cnt
+						reply_orgin_number :  $(this).attr("reply_ref"), 
+						product_number : product_number,
+						writer_nickname : session_nickname,
+						content : cnt
 	   			}
 				console.log(data);
 				 

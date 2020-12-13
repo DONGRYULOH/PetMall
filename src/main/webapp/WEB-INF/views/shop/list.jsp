@@ -17,60 +17,194 @@
   	  
   	    	<%@ include file="/WEB-INF/include/header.jsp"%>
   	  		
-  	  		<!-- 카테고리 구분 11/14(토) 여기서부터 다시하기 -->
+  	  		<!-- 카테고리 구분  -->
   	  		<nav aria-label="breadcrumb" role="navigation">
 			  <ol class="breadcrumb">
-			    <li class="breadcrumb-item"><a href="#">Shop</a></li>
 			     <c:set var="cate" value="${cateNum}" />
+			     <!-- 상단 네브바 -->
 			     <c:choose>
 			     	<c:when test="${cate == '100'}">
 			     		<li class="breadcrumb-item active" aria-current="page">
 			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=100">ALL</a>
 			     		</li>
 					</c:when>
-					<c:when test="${cate == '101'}">
+					<%--상의 품목들 --%>
+					<c:when test="${cate == '101' || cate == '101-1' || cate == '101-2' || cate == '101-3' || cate == '101-4'}">
+						<%--상위항목 --%>
 			     		<li class="breadcrumb-item active" aria-current="page">
 			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101">상의</a>
 			     		</li>
+			     		<%--하위 항목 --%>
 			     		<c:choose>
 			     			<c:when test="${cate == '101'}">
 					     		<li class="breadcrumb-item active" aria-current="page">
 					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101">ALL</a>
 					     		</li>
 				     		</c:when>
-			     			<c:when test="${cate == '101-1'}">
+				     		<c:when test="${cate == '101-1'}">
 					     		<li class="breadcrumb-item active" aria-current="page">
-					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101">스웨터</a>
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101-1">반팔티셔츠</a>
+					     		</li>
+				     		</c:when>
+				     		<c:when test="${cate == '101-2'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101-2">긴팔티셔츠</a>
+					     		</li>
+				     		</c:when>
+				     		<c:when test="${cate == '101-3'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101-3">기타상의</a>
 					     		</li>
 				     		</c:when>
 			     		 </c:choose>
 					</c:when>
-					<c:when test="${cate == '102'}">
+					<%--하의 품목들 --%>
+					<c:when test="${cate == '102' || cate == '102-1' || cate == '102-2' || cate == '102-3' || cate == '102-4'}">
 			     		<li class="breadcrumb-item active" aria-current="page">
 			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102">하의</a>
 			     		</li>
+			     		<c:choose>
+			     			<c:when test="${cate == '102'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102">ALL</a>
+					     		</li>
+				     		</c:when>
+			     			<c:when test="${cate == '102-1'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102-1">군복바지</a>
+					     		</li>
+				     		</c:when>
+				     		<c:when test="${cate == '102-2'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102-2">레깅스</a>
+					     		</li>
+				     		</c:when>
+				     		<c:when test="${cate == '102-3'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102-3">숏팬츠</a>
+					     		</li>
+				     		</c:when>
+				     		<c:when test="${cate == '102-4'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102-4">기타하의</a>
+					     		</li>
+				     		</c:when>
+			     		 </c:choose>
 					</c:when>
-					<c:when test="${cate == '103'}">
+					<%--신발 품목들 --%>
+					<c:when test="${cate == '103' || cate == '103-1' || cate == '103-2' }">
 			     		<li class="breadcrumb-item active" aria-current="page">
 			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=103">신발</a>
 			     		</li>
+			     		<c:choose>
+			     			<c:when test="${cate == '103'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=103">ALL</a>
+					     		</li>
+				     		</c:when>
+			     			<c:when test="${cate == '103-1'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=103-1">구두</a>
+					     		</li>
+				     		</c:when>
+				     		<c:when test="${cate == '103-2'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=103-2">기타신발</a>
+					     		</li>
+				     		</c:when>
+			     		 </c:choose>
 					</c:when>
-					<c:otherwise>
+					<%--시계 품목들 --%>
+					<c:when test="${cate == '104' || cate == '104-1' || cate == '104-2' }">
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=104">시계</a>
+			     		</li>
+			     		<c:choose>
+			     			<c:when test="${cate == '104'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=104">ALL</a>
+					     		</li>
+				     		</c:when>
+			     			<c:when test="${cate == '104-1'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=104-1">디지털시계</a>
+					     		</li>
+				     		</c:when>
+				     		<c:when test="${cate == '104-2'}">
+					     		<li class="breadcrumb-item active" aria-current="page">
+					     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=104-2">기타시계</a>
+					     		</li>
+				     		</c:when>
+			     		 </c:choose>
+					</c:when>
+					<%-- 	<c:otherwise>
 						<li class="breadcrumb-item active" aria-current="page">
 							<a href="${pageContext.request.contextPath}/shop/list?cateNum=104">시계</a>
 						</li>
-					</c:otherwise>
+					</c:otherwise> --%>
 			     </c:choose>
 			  </ol>
 			</nav>
 			
 			<nav aria-label="breadcrumb" role="navigation">
 			  <ol class="breadcrumb">
-			    <li class="breadcrumb-item" aria-current="page"><a href="${pageContext.request.contextPath}/shop/list?cateNum=100">ALL</a></li>
-			    <li class="breadcrumb-item" aria-current="page"><a href="${pageContext.request.contextPath}/shop/list?cateNum=101">상의</a></li>
-			    <li class="breadcrumb-item" aria-current="page"><a href="${pageContext.request.contextPath}/shop/list?cateNum=102">하의</a></li>
-			    <li class="breadcrumb-item" aria-current="page"><a href="${pageContext.request.contextPath}/shop/list?cateNum=103">신발</a></li>
-			    <li class="breadcrumb-item" aria-current="page"><a href="${pageContext.request.contextPath}/shop/list?cateNum=104">시계</a></li>
+			    <!-- 하단 카테고리 네브바 -->
+			  	<c:choose>
+	     			<c:when test="${cate == '101' || cate == '101-1' || cate == '101-2' || cate == '101-3' || cate == '101-4'}">
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101">ALL</a>
+			     		</li>
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101-1">반팔티셔츠</a>
+			     		</li>
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101-2">긴팔티셔츠</a>
+			     		</li>
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=101-3">기타상의</a>
+			     		</li>
+		     		</c:when>
+		     		<c:when test="${cate == '102' || cate == '102-1' || cate == '102-2' || cate == '102-3' || cate == '102-4'}">
+		     			<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102">ALL</a>
+			     		</li>
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102-1">군복바지</a>
+			     		</li>
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102-2">레깅스</a>
+			     		</li>
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102-3">숏팬츠</a>
+			     		</li>
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=102-4">기타하의</a>
+			     		</li>					     		
+		     		</c:when>
+		     		<c:when test="${cate == '103' || cate == '103-1' || cate == '103-2' }">
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=103">ALL</a>
+			     		</li>		     		
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=103-1">구두</a>
+			     		</li>				     
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=103-2">기타신발</a>
+			     		</li>	
+					</c:when>
+					<c:when test="${cate == '104' || cate == '104-1' || cate == '104-2' }">
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=104">ALL</a>
+			     		</li>		     		
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=104-1">디지털시계</a>
+			     		</li>				     
+			     		<li class="breadcrumb-item active" aria-current="page">
+			     			<a href="${pageContext.request.contextPath}/shop/list?cateNum=104-2">기타시계</a>
+			     		</li>	
+					</c:when>
+	     		 </c:choose>
+			   
 			  </ol>
 			</nav>
    		 	<!-- 카테고리 구분  END-->
@@ -80,14 +214,13 @@
    		 	<c:set var="index" value="0"/>
 			<c:set var="index_2" value="2"/>
 			
-   		 	<c:forEach begin="0" end="${cateSize}" step="1" varStatus="status">
-				
+   		 	<c:forEach begin="0" end="${cateSize}" step="1" varStatus="status">				
 	   		 	<div class="row" style="margin-bottom: 50px;">
 	   		 		<%-- <h1>끝번호 : ${status.current}</h1> --%>
 	   		 		<c:forEach items="${cateProductList}" var="list" begin="${index}" end="${index_2}" step="1" varStatus="status_2">
 				        <div class="col-4">
 				          <a href="${pageContext.request.contextPath}/shop/detail?n=${list.product_number}">
-				          	<img src="${pageContext.request.contextPath}/imgUpload${list.product_ThumbImg}" class="thumbImg"/>
+				          	<img src="${pageContext.request.contextPath}/imgUpload/${list.stored_thumbNail}" class="thumbImg"/>
 				          </a>
 				          <small class="d-block text-uppercase font-weight-bold mb-4" style="height: 5px;">${list.product_name}</small>
 				          <span><fmt:formatNumber value="${list.product_price}" pattern="###,###,###"/></span>
@@ -104,24 +237,10 @@
 				    	</c:if>
 			         </c:forEach>
 			         
-			    </div>
-		    	
+			    </div>		    	
 			</c:forEach>
 		    <!-- 상품별 카테고리 목록  END-->
 		    
-		    <%-- <div class="row">
-   		 		<c:forEach items="${cateProductList}" var="list" begin="3" end="5">
-			        <div class="col-4">
-			          <a href="${pageContext.request.contextPath}/shop/detail?n=${list.product_number}">
-			          	<img src="${pageContext.request.contextPath}/imgUpload${list.product_ThumbImg}" class="thumbImg"/>
-			          </a>
-			          <small class="d-block text-uppercase font-weight-bold mb-4">${list.product_name}</small>
-					  <span><fmt:formatNumber value="${list.product_price}" pattern="###,###,###"/></span>
-			        </div>
-		         </c:forEach>
-		    </div> --%>
-   		 	
-   		 	
     		<%@ include file="/WEB-INF/include/footer.jsp"%> 
 	    	
     	</div> 

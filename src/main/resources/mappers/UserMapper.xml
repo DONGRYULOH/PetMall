@@ -6,21 +6,21 @@
 	
 	<!-- 회원 가입 -->
 	<insert id="signUp" parameterType="UserDto">
-		insert into member(user_id,user_pwd,user_name)
-		values(#{user_id},#{user_pwd},#{user_name})
+		insert into User(user_id,user_pwd,user_name,user_phone,user_email,user_nickname,email_check)
+		values(#{user_id},#{user_pwd},#{user_name},'010-2397-1523','admin@naver.com',#{user_nickname},#{email_check})
 	</insert>
 	  
 	  <!-- 로그인 -->
 	<select id="signIn" resultType="UserDto" parameterType="UserDto">
-		select user_id,user_pwd,user_name,verify
-	 	from member
+		select user_id,user_pwd,user_nickname,user_role
+	 	from User
 	 	where user_id=#{user_id}
 	</select>
 	
 	<!-- ID중복검사(1이면 중복 0이면 중복아님) -->
 	<select id="userIdCheck" parameterType="String" resultType="int">
 		 select count(*) 
-		 from member 
+		 from User 
 		 where user_id = #{user_id}
 	</select>
 	

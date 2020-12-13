@@ -4,10 +4,12 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.or.dongmall.main.dao.ProductDao">
 	
-	<!-- 조회수가 가장 높은 상품순으로 상위9개 가져오기  -->
-	<select id="getRankNine"  resultType="kr.or.dongmall.main.dto.ProductDto">
-			select * from product 
-			order by product_hits desc 
+	<!-- 조회수가 가장 높은 상품순으로 상위9개 가져오기(상품썸네일 여러장있으면 1장만) -->
+	<select id="getRankNine"  resultType="kr.or.dongmall.admin.dto.Product_Join_ProductImageFile">
+			SELECT P.product_number,P.product_name,P.category_code,P.product_price,P.product_stock,P.product_desc,P.product_date,PI.stored_thumbNail
+			FROM Product P INNER JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile where delegate_thumbNail = 'Y' AND delete_check = 'N') PI
+			ON P.product_number = PI.product_number
+			ORDER BY P. product_hits DESC
 			LIMIT 9
 	</select> 
 </mapper>

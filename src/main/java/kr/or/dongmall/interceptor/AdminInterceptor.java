@@ -19,14 +19,16 @@ public class AdminInterceptor extends HandlerInterceptorAdapter{
 		  UserDto user = (UserDto)session.getAttribute("User");
 		  
 		  System.out.println("세션"+user);
-		  	  
+		  
+		  //세션이 없을때(로그인이 되어있지 않은상태라면) 
 		  if(user == null ) {
 			  System.out.println("로그인 화면으로 강제이동");
 			  res.sendRedirect("/dongmall/login");
 			  return false;
 		  }
 		  
-		  if(user.getVerify() != 9) {
+		  //관리자 권한이 아닐때(일반 회원인경우) 
+		  if(user.getUser_role() != 9) {
 			  System.out.println("메인 화면으로 강제이동");
 			  res.sendRedirect("/dongmall/");
 			  return false;

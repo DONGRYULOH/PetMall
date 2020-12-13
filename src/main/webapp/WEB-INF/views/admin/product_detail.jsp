@@ -23,16 +23,19 @@
 		<%@ include file="/WEB-INF/views/admin/include/admin_topnav.jsp"%>
 
 			
-  	  		<h1>상품디테일 페이지</h1>
+  	  		<h1>상품 세부 목록</h1>
   	  		<form role="form" method="post" autocomplete="off">
   	  			<!--  수정과 삭제시 번호를 받아서 할꺼기 떄문에 hidden 으로 숨겨놈 -->
 				<input type="hidden" name="n" value="${product.product_number}" />
 				
 				<div class="inputArea"> 
 				 <label>1차 분류</label>
-				 <span class="category1"></span>        
+				 <span class="category1">${product.category_ref_code}</span> 
+				</div>
+				
+				<div class="inputArea">        
 				 <label>2차 분류</label>
-				 <span class="category2">${product.product_category}</span>
+				 <span class="category2">${product.category_name}</span>
 				</div>
 				
 				<div class="inputArea">
@@ -55,22 +58,14 @@
 				 <span>${product.product_desc}</span>
 				</div>
 				
+				<label for="gdsImg">상품 이미지</label>
 				<div class="inputArea">
-				    <label for="gdsImg">이미지</label>
-					<c:choose>
-				        <c:when test="${product.product_ThumbImg == null }">
-			        		<p>원본 이미지</p>
-                    		<h2>이미지가 없습니다!</h2>
-                    		<p>썸네일</p>
-                    		<h2>썸네일이 없습니다!</h2>
-				        </c:when>         
-				        <c:otherwise>
-		                     <p>원본 이미지</p>
-							 <img src="${pageContext.request.contextPath}/imgUpload${product.product_image}" class="oriImg"/>							 
-							 <p>썸네일</p>
-							 <img src="${pageContext.request.contextPath}/imgUpload${product.product_ThumbImg}" class="thumbImg"/>
-				         </c:otherwise>
-				    </c:choose>
+				   
+				    <c:forEach items="${ThumbImg}" var="list" varStatus="status">
+				    	<h3>${status.count}</h3>
+				    	<img src="${pageContext.request.contextPath}/imgUpload/${list.stored_thumbNail}" class="thumbImg"/>
+				    </c:forEach>     
+
 				</div>
 				
 				<div class="inputArea">

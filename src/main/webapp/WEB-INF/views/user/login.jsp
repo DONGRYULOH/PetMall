@@ -24,7 +24,11 @@
 			
 			  
 			  <button type="submit" >로그인</button>
-			  
+			   <c:if test="${msg == false}">
+			   	<script type="text/javascript">
+			   		alert("로그인에 실패했습니다 아이디 또는 패스워드가 틀림");
+			   	</script>
+			   </c:if>
 			 </form>   
 			</div>
 			

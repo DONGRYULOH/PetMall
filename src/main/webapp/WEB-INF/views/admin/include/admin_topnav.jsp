@@ -25,7 +25,7 @@
 		            </li> -->
 		                      
 	         	 </ul>
-	         	 <c:if test="${User.verify == 9}">
+	         	 <c:if test="${User.user_role == 9}">
 	         		<h2 class="h2 text-white d-inline-block mb-0">
 						<a href="${pageContext.request.contextPath}/admin/index" style="margin-right: 10px;">
 							관리자 페이지

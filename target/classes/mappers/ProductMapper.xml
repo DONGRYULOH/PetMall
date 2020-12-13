@@ -6,11 +6,12 @@
 	
 	
 	<!-- 카테고리별 상품리스트  -->
-	<select id="cateProductList" parameterType="String" resultType="kr.or.dongmall.main.dto.ProductCateDto">
-			select product_number,product_name,product_category,product_price,product_stock,product_desc,product_ThumbImg,c.category_name
-			from product p 
-			inner join product_category c 
-			on p.product_category = c.category_code
+	<select id="cateProductList" parameterType="String" resultType="kr.or.dongmall.admin.dto.Product_Join_ProductImageFile">
+			SELECT P.product_number,P.category_code,P.product_name,P.product_price,P.product_stock,PI.stored_thumbNail
+				FROM product P INNER JOIN product_category C  
+				ON P.category_code = C.category_code 
+			    INNER JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile where delegate_thumbNail = 'Y' AND delete_check = 'N') PI
+			    ON P.product_number = PI.product_number
 			where 1=1
 			<choose>
 				<!--  넘어온 파라미터를 임의의 이름으로 지칭할 경우 예외가 발생합니다. 
@@ -21,25 +22,28 @@
 				<!-- 1차(부모)카테고리인 경우  ex)상의,하의,시계 -->
 				<when test="_parameter  == '101' or _parameter  == '102' or _parameter  == '103' or _parameter  == '104' ">
 					<!-- 부모카테고리에 포함되어 있는 모든 항목을 포함한다 -->
-					AND p.product_category like CONCAT(#{_parameter},'%')
+					AND p.category_code like CONCAT(#{_parameter},'%')
 				</when>
+				<!-- 2차(자식)카테고리인 경우  ex)반팔티,레깅스,전자시계 -->
 				<otherwise>
-					AND p.product_category = #{categoryNumber}
+					AND p.category_code = #{categoryNumber}
 				</otherwise>
 			</choose>
 	</select> 
 	
 	<!-- 전체 상품리스트 -->
-	<select id="AllcateProductList" resultType="kr.or.dongmall.main.dto.ProductCateDto">
-			select product_number,product_name,product_category,product_price,product_stock,product_desc,product_ThumbImg
-			from product
+	<select id="AllcateProductList" resultType="kr.or.dongmall.admin.dto.Product_Join_ProductImageFile">
+			SELECT P.product_number,P.product_name,P.category_code,P.product_price,P.product_stock,P.product_desc,P.product_date,PI.stored_thumbNail
+				FROM Product P INNER JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile WHERE delegate_thumbNail = 'Y' AND delete_check = 'N') PI
+				ON P.product_number = PI.product_number
+			ORDER BY P.product_number DESC
 	</select> 
 	
-	<!-- 해당상품 조회 -->
-	<select id="shopDetail" resultType="kr.or.dongmall.main.dto.ProductCateDto">
-			select product_number,product_name,product_category,product_price,product_stock,product_desc,product_ThumbImg
-			from product
-			where product_number = #{product_number}
+	<!-- 해당상품 조회(이미지 제외) -->
+	<select id="shopDetail" resultType="kr.or.dongmall.main.dto.ProductDto">
+			SELECT P.product_number,P.product_name,P.category_code,P.product_price,P.product_stock,P.product_desc
+				FROM Product P 
+			WHERE P.product_number = #{product_number}
 	</select> 
 	
 	<!-- 해당 상품 조회시 조회수 1증가 -->
@@ -48,82 +52,99 @@
 		where product_number = #{product_number}
 	</insert>
 	
+	<!-- 해당 상품번호에 대한 모든 이미지를 가져옴(대표 썸네일을 먼저 가져옴)   -->
+	<select id="shopDetailImg" resultType="kr.or.dongmall.admin.dto.Product_ImageFile">
+			SELECT file_number,product_number,origin_file_name,stored_file_name,stored_thumbNail,delegate_thumbNail,file_size,create_date,delete_check
+					FROM Product_imagefile
+			    WHERE product_number = #{product_number} AND delete_check = 'N'
+			ORDER BY delegate_thumbNail DESC
+	</select> 
+	
+	<!-- 해당 상품의 대표이미지만 가져오기   -->
+	<select id="shop_delegate_image" resultType="kr.or.dongmall.admin.dto.Product_ImageFile">
+			SELECT file_number,product_number,origin_file_name,stored_file_name,stored_thumbNail,delegate_thumbNail,file_size,create_date,delete_check
+				FROM Product_imagefile
+			 WHERE product_number = #{product_number} AND delegate_thumbNail= 'Y' AND delete_check = 'N'
+	</select> 
+	
+	
 	<!-- *****************  댓글 관련 쿼리문 ************************************************************ -->
 	<!-- 상품 소감(댓글) 작성 -->
 	<insert id="replyInsert" parameterType="kr.or.dongmall.shop.dto.ProductReply" >
-		insert into reply(product_number,reply_content,reply_writer,origin_ref,group_ord,group_layer) 
-		values(#{product_number},#{reply_content},#{reply_writer},0,0,0)
+		insert into Product_reply(product_number,content,writer_nickname,reply_orgin_number,reply_order,reply_depth) 
+		values(#{product_number},#{content},#{writer_nickname},0,0,0)
 	</insert>
 	
 	<!-- 상품 소감(댓글) 작성후 ref값 변경  -->
-	<update id="replyInsert_ref" parameterType="kr.or.dongmall.shop.dto.ProductReply" keyProperty="reply_num">
-		<selectKey order ="BEFORE" keyProperty="reply_num" resultType="int">
-   			select max(reply_num) 
-   			from reply 
-   			where product_number = #{product_number};
+	<update id="replyInsert_ref" parameterType="kr.or.dongmall.shop.dto.ProductReply" keyProperty="reply_number">
+		<selectKey order ="BEFORE" keyProperty="reply_number" resultType="int">
+   			select max(reply_number) 
+   			from Product_reply 
+   			where product_number = #{product_number}
    		</selectKey>
-		update reply 
-		set origin_ref = #{reply_num}
-		where reply_num = #{reply_num};
+		update Product_reply 
+		set reply_orgin_number = #{reply_number}
+		where reply_number = #{reply_number}
 	</update>
 	
 	<!-- 상품 댓글 리스트 -->
 	<select id="replyList" resultType="kr.or.dongmall.shop.dto.ProductReply">
-		select r.product_number,r.reply_writer,r.reply_num,r.reply_content,r.reply_date,r.origin_ref,r.group_ord,r.group_layer,m.user_name 
-		from reply r inner join member m 
-		on r.reply_writer = m.user_id 
-		where r.product_number = #{product_number}
-		order by r.origin_ref desc ,
-		field(r.group_ord,0) desc , r.group_ord desc
+		SELECT R.reply_number,R.product_number,R.content,R.writer_nickname,R.reporting_date,R.reply_orgin_number,R.reply_order,R.reply_depth
+			FROM (SELECT * FROM Product_reply WHERE product_number = #{product_number}) R JOIN User U 
+			ON R.writer_nickname = U.user_nickname
+		ORDER BY R.reply_orgin_number DESC,FIELD(R.reply_order,0) DESC,R.reply_order DESC
 	</select>
 	
-	<!-- 상품 댓글 삭제 -->
-	<delete id="replyDelete">
-		delete from reply 
+	<!-- 상품 댓글 삭제(부모댓글을 삭제할경우(깊이가 0임) 부모댓글에 달린 자식답글들을 모두 삭제함) -->
+	<delete id="replyDelete" parameterType="kr.or.dongmall.shop.dto.ProductReply">
+		DELETE FROM Product_reply 
 			<choose>
-			<when test="group_layer == 0">
-		   	where origin_ref=#{origin_ref}
-		   	</when>
-		   	<when test="group_layer == 1">
-		   	where reply_num=#{reply_num}
-		   	</when>
+				<when test="reply_depth == 0">
+			   	WHERE reply_orgin_number = #{reply_orgin_number}
+			   	</when>
+			   	<when test="reply_depth == 1">
+			   	WHERE reply_number = #{reply_number}
+			   	</when>
 		   	</choose>
 	</delete>
 	
 	<!-- 상품 댓글 수정 -->
-	<delete id="replyModify">
-		update reply
-		set reply_content = #{reply_content}
-		where reply_num = #{reply_num}
+	<delete id="replyModify" parameterType="kr.or.dongmall.shop.dto.ProductReply">
+		update Product_reply
+		set content = #{content}
+		where reply_number = #{reply_number}
 	</delete>
 	
-	<!-- 상품 답글 작성 -->
-	<insert id="reCmtInsert" parameterType="kr.or.dongmall.shop.dto.ProductReply" useGeneratedKeys="true" keyProperty="group_ord">
-		<selectKey order ="BEFORE" keyProperty="group_ord" resultType="int">
-   				select MAX(group_ord)+1
-   				from reply
-   				where origin_ref = #{origin_ref} and product_number = #{product_number}
+	<!-- 상품 답글 작성(부모댓글에 대한 답글이 존재할경우 답글순서가 가장큰 답글을 가져온후 +1을 해줌) -->
+	<insert id="reCmtInsert" parameterType="kr.or.dongmall.shop.dto.ProductReply" useGeneratedKeys="true" keyProperty="reply_order">
+		<selectKey order ="BEFORE" keyProperty="reply_order" resultType="int">
+   				select MAX(reply_order)+1
+   				from Product_reply
+   				where reply_orgin_number = #{reply_orgin_number}
    		</selectKey>
-		insert into reply(product_number,reply_content,reply_writer,origin_ref,group_ord,group_layer) 
-		values(#{product_number},#{reply_content},#{reply_writer},#{origin_ref},#{group_ord},1)
+		insert into Product_reply(product_number,content,writer_nickname,reply_orgin_number,reply_order,reply_depth) 
+		values(#{product_number},#{content},#{writer_nickname},#{reply_orgin_number},#{reply_order},1)
 	</insert>
 	<!-- *****************  댓글 관련 쿼리문 END************************************************************ -->
 	
 	
-	
+	<!-- ****************** 장바구니 관련 쿼리문 ************************************************************** -->
 	<!-- 장바구니 담기  -->
-	<insert id="addCart">
-		insert into cart(product_number,user_id,cart_stock)
-		values(#{product_number},#{user_id},#{cart_stock})
+	<insert id="addCart" parameterType="kr.or.dongmall.shop.dto.CartDto" >
+		insert into cart(product_number,user_id,product_count)
+		values(#{product_number},#{user_id},#{product_count})
 	</insert>
 	
-	<!-- 장바구니 리스트 -->
+	<!-- 장바구니 리스트(장바구니 테이블 + 상품테이블 + 상품이미지테이블) 12/12(토)  -->
 	<!-- 설마 select 해서 얻어와서 DTO에 넣어줄라면 DTO에 있는 순서랑 똑같아야되나??-->
 	<select id="cartList" resultType="kr.or.dongmall.shop.dto.CartDto">
-		select c.cart_num,c.product_number,c.user_id,c.cart_stock,p.product_name,p.product_price,p.product_ThumbImg
-		from cart c join product p using(product_number)
-		where c.user_id = #{user_id}
-		order by c.cart_num desc
+		SELECT C.cart_number,C.product_number,C.user_id,C.product_count,P.product_name,P.product_price,PI.stored_thumbNail
+			FROM Cart C JOIN Product P 
+			ON C.product_number = P.product_number 
+			JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile WHERE delegate_thumbNail = 'Y' AND delete_check = 'N') PI
+			ON C.product_number = PI.product_number
+		 WHERE C.user_id = #{user_id}
+		ORDER BY C.cart_number DESC
 	</select>
 	
 	<!-- 장바구니 물품 총액수 -->	
@@ -138,24 +159,25 @@
 	<delete id="cartDelete">
 		delete 
 		from cart 
-		where cart_num = #{cart_num}
+		where cart_number = #{cart_number}
 	</delete>
 	
 	<!-- 장바구니 물품 수량 수정  -->
 	<update id="cartUpdate" parameterType="HashMap">
 		update cart  
-		set cart_stock = #{cart_stock}
-		where cart_num = #{cart_num}
+		set product_count = #{product_count}
+		where cart_number = #{cart_number}
 	</update>
 	
 	<!-- ********************************************** 비회원시 장바구니 *************** -->
-	
-	
 	<!-- 장바구니에 있는 모든 아이디 가져오기 -->
 	<select id="all_id" resultType="kr.or.dongmall.shop.dto.CartDto">
 		select user_id 
 		from cart
 	</select>
+	<!-- ****************** 장바구니 관련 쿼리문 END ************************************************************** -->
+	
+	
 </mapper>
 
 

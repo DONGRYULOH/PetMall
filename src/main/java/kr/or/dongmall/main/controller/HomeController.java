@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import kr.or.dongmall.admin.dto.Product_Join_ProductImageFile;
 import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.main.service.ProductService;
 import kr.or.dongmall.user.dto.UserDto;
@@ -38,7 +39,7 @@ public class HomeController {
 		//model.addAttribute("productList",productList);
 		
 		//조회수가 가장 높은 상품순으로 상위9개 가져오기
-		List<ProductDto> productRankNine = productService.getRankNine();
+		List<Product_Join_ProductImageFile> productRankNine = productService.getRankNine();
 		model.addAttribute("productRankNine",productRankNine);
 		/*
 		Cookie[] getCookie = req.getCookies();

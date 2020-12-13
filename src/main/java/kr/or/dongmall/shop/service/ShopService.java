@@ -8,7 +8,10 @@ import javax.inject.Inject;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
+import kr.or.dongmall.admin.dto.Product_ImageFile;
+import kr.or.dongmall.admin.dto.Product_Join_ProductImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
+import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dao.ShopDao;
 import kr.or.dongmall.shop.dto.CartDto;
 import kr.or.dongmall.shop.dto.ProductReply;
@@ -21,10 +24,10 @@ public class ShopService {
 	SqlSession sqlSession;
 	
 	//카테고리 별로 해당 상품목록 가져오는 서비스 
-	public List<ProductCateDto> cateProductList(String categoryNumber) throws Exception{
+	public List<Product_Join_ProductImageFile> cateProductList(String categoryNumber) throws Exception{
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		
-		List<ProductCateDto> list = shopdao.cateProductList(categoryNumber);
+		List<Product_Join_ProductImageFile> list = shopdao.cateProductList(categoryNumber);
 		for(int i=0;i<list.size();i++) {
 			System.out.println("상품번호"+list.get(i).getProduct_number());
 		}
@@ -33,14 +36,14 @@ public class ShopService {
 	}
 	
 	//전체 상품목록 가져오는 서비스 
-	public List<ProductCateDto> AllcateProductList() throws Exception{
+	public List<Product_Join_ProductImageFile> AllcateProductList() throws Exception{
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);		
-		List<ProductCateDto> list = shopdao.AllcateProductList();
+		List<Product_Join_ProductImageFile> list = shopdao.AllcateProductList();
 		return list;
 	}
 	
 	//해당 상품 조회 서비스 
-	public ProductCateDto shopDetail(int product_number) throws Exception {
+	public ProductDto shopDetail(int product_number) throws Exception {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		return shopdao.shopDetail(product_number);
 	}
@@ -63,7 +66,7 @@ public class ShopService {
 			shopdao.replyInsert_ref(reply);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("에러발생!!"+e.getMessage());
+			System.out.println("원댓글 작성중 에러발생!!"+e.getMessage());
 		}
 	} 
 	
@@ -91,14 +94,16 @@ public class ShopService {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		shopdao.reCmtInsert(reply);
 	}
+	// ------ 상품 댓글 관련 END-------------------------------------------------------
 	
 	
-	// 카트관련 서비스  ----------------------------------------------------------
+	
+	// 카트(장바구니)관련 서비스  ----------------------------------------------------------
 	
 	//장바구니 추가 
-	public void addCart(CartDto cart) throws Exception {
+	public int addCart(CartDto cart) throws Exception {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
-		shopdao.addCart(cart);
+		return shopdao.addCart(cart);
 	}
 	
 	//장바구니 리스트 호출 
@@ -108,17 +113,14 @@ public class ShopService {
 		try {
 			cartList = shopdao.cartList(user_id);
 			for(int i=0;i<cartList.size();i++) {
-				System.out.println("장바구니 번호 -> "+cartList.get(i).getCart_num());
 				
 //				int cart_num = (int)cartList.get(i).getCart_num();				
 //				cartList.get(i).setCart_num(cart_num);
 					
 				System.out.println("상품 번호 -> " +cartList.get(i).getProduct_number());
 				System.out.println("유저ID -> "+cartList.get(i).getUser_id());
-				System.out.println("선택한 상품 수량 -> "+cartList.get(i).getCart_stock());
 				System.out.println("상품이름 -> "+cartList.get(i).getProduct_name());
-				System.out.println("상품가격 -> "+cartList.get(i).getProduct_price());
-				System.out.println("상품이미지 -> "+cartList.get(i).getProduct_ThumbImg());
+				System.out.println("상품가격 -> "+cartList.get(i).getProduct_price());			
 				System.out.println("=========================================");
 			}		
 		} catch (Exception e) {
@@ -129,7 +131,7 @@ public class ShopService {
 		return cartList;
 	}
 	
-	//장바구니에 담긴 물품의 총액수 
+	//장바구니에 담긴 물품의 총액수 계산 
 	public int cartTotal(String user_id){
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		int result =0;
@@ -143,10 +145,10 @@ public class ShopService {
 	}
 	
 	//장바구니 물품 삭제 
-	public void cartDelete(int cart_num) {
+	public void cartDelete(int cart_number) {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		try {
-			shopdao.cartDelete(cart_num);
+			shopdao.cartDelete(cart_number);
 		} catch (Exception e) {
 			System.out.println("장바구니에서 물품 삭제 중 에러발생....");
 			e.printStackTrace();
@@ -154,12 +156,28 @@ public class ShopService {
 		
 	}
 	
+	//장바구니에서 선택한 물품만 삭제 
+	public int cartselectDelete(Integer[] deleteCartList) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		int result = 0;
+		try {
+			for(int i=0;i<deleteCartList.length;i++) {
+				result = shopdao.cartDelete(deleteCartList[i]); //삭제 성공시 1 반환 실패시 0 반환 
+			}
+		} catch (Exception e) {
+			System.out.println("장바구니에서 물품 삭제 중 에러발생....");
+			e.printStackTrace();
+			result = 0; //삭제도중 예외가 발생함 실패라는 경우임(0) 
+		}
+		return result;
+	}
+	
 	//장바구니 물풀 수량 수정 
-	public void cartUpdate(int cart_num,int cart_stock) {
+	public void cartUpdate(int cart_number,int product_count) {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		HashMap<String,Integer> cart = new HashMap<String,Integer>();
-		cart.put("cart_num",cart_num);
-		cart.put("cart_stock",cart_stock);
+		cart.put("cart_number",cart_number); //카트번호
+		cart.put("product_count",product_count); //주문할 상품수량 
 		try {
 			shopdao.cartUpdate(cart);
 		} catch (Exception e) {
@@ -173,6 +191,23 @@ public class ShopService {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		return shopdao.all_id();
 	}
+	
+	// 카트(장바구니)관련 서비스  END ----------------------------------------------------------
+	
+	
+	//해당 상품번호의 이미지를 모두가져옴
+	public List<Product_ImageFile> shopDetailImg(int product_number) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		return shopdao.shopDetailImg(product_number);
+	}
+	
+	//해당 상품의 대표이미지 가져오기 
+	public Product_ImageFile shop_delegate_image(int product_number) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		return shopdao.shop_delegate_image(product_number);
+	}
+
+	
 	
 }
 

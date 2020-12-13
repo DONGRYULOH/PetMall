@@ -29,7 +29,11 @@ public class UserService {
 		
 		try {
 			System.out.println("register try문");
-			
+			// 이메일을 체크여부가 N일때는 왜?? Null값이 들어오지?? 이메일 체크가 Y이면 Y값이 잘넘어옴 
+			System.out.println("이메일 체크여부 "+user.getEmail_check());
+			if(user.getEmail_check() == 0 || user.getEmail_check() == ' ') {
+				user.setEmail_check('N');
+			}
 			//이것도 잘얻어옴 
 //			System.out.println("ID"+user.getUser_id());
 //			System.out.println("name"+user.getUser_name());
@@ -37,8 +41,8 @@ public class UserService {
 //			System.out.println("phone"+user.getUser_phone());
 			
 			user.setUser_pwd(bCryptPasswordEncoder.encode(user.getUser_pwd()));
-			System.out.println("암호화된 패스워드 "+user.getUser_pwd()); //여기까지 성공 
-			userdao.signUp(user); //여기서 에러발생 
+			System.out.println("암호화된 패스워드 "+user.getUser_pwd()); 
+			userdao.signUp(user);  
 
 //			List<UserDto> list = userdao.userList();
 //			

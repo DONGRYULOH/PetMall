@@ -15,11 +15,12 @@
 	<!-- 공통 DB작업  -->
 	 <bean id="driverManagerDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 	 	<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy" />
-	 	<property name="url" value="jdbc:log4jdbc:mysql://localhost:3306/board?serverTimezone=UTC&amp;useSSL=false&amp;allowPublicKeyRetrieval=true" />
+	 	<property name="url" value="jdbc:log4jdbc:mysql://localhost:3306/shoppingmall?serverTimezone=UTC&amp;useSSL=false&amp;allowPublicKeyRetrieval=true" />
 	 	<property name="username" value="root" />
 	 	<property name="password" value="1234" />
 	 </bean>		
 	 
+	 <!-- MyBatis 와 스프링 연동하는 부분(DB에 접근하는 경우 사용됨) -->
 	 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		 <property name="dataSource" ref="driverManagerDataSource" />
 		 <property name="configLocation" value="classpath:/mybatis-config.xml" />

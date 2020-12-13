@@ -32,7 +32,7 @@
 	 </interceptor>
 	</interceptors>
 	
-	<!-- 업로드 패스 설정 --> 
+	<!-- 업로드 패스(경로) 설정 --> 
 	<beans:bean class="java.lang.String" id="uploadPath">
 	 <beans:constructor-arg value="C:\Spring\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\ShoppingMall_Project\resources" />
 	</beans:bean>
@@ -48,7 +48,8 @@
 	<resources mapping="/ckUpload/**" location="/resources/ckUpload/" />
 	
 	<beans:bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
-	 <beans:property name="maxUploadSize" value="10485760"/>
+		<!-- 최대 업로드 크기 -->
+	 	<beans:property name="maxUploadSize" value="10485760"/>
 	</beans:bean>
 	
 	

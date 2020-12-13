@@ -1,38 +1,7 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>	
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
-<%--  <div class="masthead">
-	 	<div id="leftbar">
-	 		<c:if test="${User == null}">
-	  			<h5>
-	  				<a href="login">로그인</a>
-	  			</h5>
-	     		<h5>
-	     			<a href="register">회원가입</a>
-	     		</h5>
-     		</c:if>
-     		<c:if test="${User != null}">
-     			<h5>
-     				<a href="/member/signout">로그아웃</a>
-     			</h5>
-     		</c:if>
-     		<h5>장바구니</h5>
-		</div>
-		
-		<input type="text" value="${User.user_id}"/>
-		
-	 	<div id="logo">	 
-	 		<img src="${pageContext.request.contextPath}/resources/images/logo.jpg" class="img-responsive" width="360" height="200">
-    	 </div>
-	    <nav>
-	      <ul class="nav nav-justified">
-	        <li><a href="#">Home</a></li>
-	        <li><a href="#">제품페이지</a></li>
-	        <li><a href="#">회사소개</a></li>
-	        <li><a href="#">관리자 페이지</a></li>
-	      </ul>
-	    </nav>
-   </div>	 --%>
+
  	<nav class="navbar navbar-expand-lg navbar-dark bg-default" style="height: 62px;">
           <div class="container">
             <a class="navbar-brand" href="${pageContext.request.contextPath}/">Home</a>
@@ -74,11 +43,11 @@
 	             	<li class="nav-item">
 	             		 <a class="nav-link nav-link-icon" href="#">
 		             		 <span class="nav-link-inner--text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
-		             		  ${User.user_name}님 
+		             		  ${User.user_nickname}님 
 		             		 </font></font></span>
 						</a>		             		 
 					</li>
-					<c:if test="${User.verify == 9}">
+					<c:if test="${User.user_role == 9}">
 						<a class="nav-link nav-link-icon" href="${pageContext.request.contextPath}/admin/index">
 							관리자 화면
 						</a>	
@@ -145,7 +114,7 @@
 	                       <a class="nav-link" href="javascript:;">고객센터</a>
 	                     </li>
 	                     <li class="nav-item">
-	                       <a class="nav-link" href="javascript:;">게시판</a>
+	                       <a class="nav-link" href="${pageContext.request.contextPath}/board/List">게시판</a>
 	                     </li>                    
 	                   </ul>
 	                 </div>

@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
+import kr.or.dongmall.admin.dto.Product_Join_ProductImageFile;
 import kr.or.dongmall.main.dao.ProductDao;
 import kr.or.dongmall.main.dto.ProductDto;
 
@@ -33,10 +34,10 @@ public class ProductService {
 	}
 	
 	//조회수가 가장 높은 상품순으로 상위9개 가져오기
-	public List<ProductDto> getRankNine()throws Exception{
+	public List<Product_Join_ProductImageFile> getRankNine()throws Exception{
 		ProductDao productDao = sqlsession.getMapper(ProductDao.class);
 		
-		List<ProductDto> list = productDao.getRankNine();
+		List<Product_Join_ProductImageFile> list = productDao.getRankNine();
 		
 		return list;
 	}
