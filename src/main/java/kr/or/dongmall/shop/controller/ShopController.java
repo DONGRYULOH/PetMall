@@ -376,6 +376,7 @@ public class ShopController {
 		model.addAttribute("total",total);
 		model.addAttribute("fee",fee);
 		model.addAttribute("total_fee",total_fee);
+		//model.addAttribute("User",UserSession(model,request));
 		
 		return "cart/cartList_1";
 	}
@@ -410,6 +411,15 @@ public class ShopController {
 		shopService.cartUpdate(cart_number,product_count);
 		
 		return "redirect:/shop/cart/cartList";
+	}
+	
+	// *********************** 주문 관련 컨트롤러 ****************************
+	
+	//주문서(주문/결제) 작성 페이지 이동 
+	@RequestMapping(value="/order_page", method=RequestMethod.GET)
+	public String orderPage() {
+		
+		return "shop/order_page";
 	}
 }
 

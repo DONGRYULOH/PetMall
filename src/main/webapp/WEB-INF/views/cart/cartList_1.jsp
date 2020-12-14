@@ -62,18 +62,26 @@
 									
 								</div>	
 						 </c:forEach>   
-								
+						 		
 							
 							   <div>
 							   		장바구니 금액 합계 : <fmt:formatNumber pattern="###,###,###" value="${total}"/><br>
 						                        배송료 : ${fee}<br>
 						                        전체 주문금액  :<fmt:formatNumber pattern="###,###,###" value="${total_fee}"/>
 							   </div> 
-
+				
+								
 			        
 			        </c:otherwise>
+			       				 
 			    </c:choose>
-
+						<!-- 주문하기 버튼(회원만 주문이 가능하다는 조건하에 주문하기 버튼을 누르면 해당 회원이 장바구니에 넣은 
+						 			 상품들과 회원의 정보를 가져온다음 주문서 페이지로 이동함) 	-->
+								<c:if test="${User != null && cartListCount != 0}">
+								  <a href="${pageContext.request.contextPath}/shop/order_page" class="btn btn-default" style="width: 342px;margin-top: 50px;">
+				                     <span class="btn-inner--text">주문하기</span>
+				                  </a>
+								</c:if>
    		 	
    		 	
     		<%@ include file="/WEB-INF/include/footer.jsp"%> 
