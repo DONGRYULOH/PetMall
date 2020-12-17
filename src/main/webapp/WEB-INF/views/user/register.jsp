@@ -26,6 +26,7 @@
 				            </td>
 				            <td>
 				            	<input type="text" id="user_id" name="user_id" required="required" />
+				            	<span class="status">(영문 소문자 + 숫자 결합 4~12자리)</span>
 				            	<!-- ID중복체크  -->
 				            	<div class="check_font" id="id_check"></div>    
 				            </td>  
@@ -36,6 +37,7 @@
 				            </td>
 				            <td>
 				            	<input type="password" id="user_pwd" name="user_pwd" required="required" />  
+				            	<span class="status">(8~20자에 특수문자가 반드시 포함된 영어 대소문자,숫자를 사용하세요)</span>
 				            	<div id="pwd"></div>      
 				            </td>  
 				        </tr>
@@ -69,11 +71,12 @@
 				            <td class="text-center">
 				            	주소<i class="ni ni-fat-remove pt-1"></i>
 				            </td>
+				            	<!-- 우편번호  -->
 				            <td>
-				            	<input type="text"  id="sample6_postcode" style="width:100px;" maxlength="5" readonly="readonly" placeholder="우편번호">
+				            	<input type="text"  id="sample6_postcode" name="user_address1" style="width:100px;" maxlength="5" readonly="readonly" placeholder="우편번호">
 								<input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>
-								<input type="text" id="sample6_address" placeholder="주소" style="width: 47%;" readonly="readonly"><br>
-								<input type="text" id="sample6_detailAddress" style="width: 47%;" placeholder="상세주소">
+								<input type="text" id="sample6_address" name="user_address2" placeholder="주소" style="width: 47%;" readonly="readonly"><br>
+								<input type="text" id="sample6_detailAddress" name="user_address3" style="width: 47%;" placeholder="상세주소">
 				            </td>  
 				        </tr>
 				        <tr>

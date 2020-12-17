@@ -3,6 +3,7 @@ package kr.or.dongmall.shop.controller;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,8 +29,10 @@ import kr.or.dongmall.admin.dto.Product_Join_ProductImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dto.CartDto;
+import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.ProductReply;
 import kr.or.dongmall.shop.service.ShopService;
+import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 
 @Controller
@@ -415,11 +419,87 @@ public class ShopController {
 	
 	// *********************** 주문 관련 컨트롤러 ****************************
 	
-	//주문서(주문/결제) 작성 페이지 이동 
-	@RequestMapping(value="/order_page", method=RequestMethod.GET)
-	public String orderPage() {
+	//주문서(주문/결제) 작성 페이지 이동(장바구니에서 주문하기를 클릭했을 경우) 
+	@RequestMapping(value="/order_page_a", method=RequestMethod.GET)
+	public String orderPage_A(HttpSession session,Model model) {
+		
+		UserDto user = (UserDto)session.getAttribute("User");
+		
+		//1.회원의 배송지 정보 가져오기 
+		UserAddressDto user_address = shopService.getUserAddress(user.getUser_id());
+		model.addAttribute("user_address",user_address);
+		
+		//2.회원의 정보(이름,전화번호,이메일) 가져오기 
+		UserDto userInfo = shopService.getUserInfo(user.getUser_id());
+		model.addAttribute("userInfo",userInfo);
+		
+		//3.장바구니에 넣은 상품정보 가져오기 
+		List<CartDto> cartList = shopService.cartList(user.getUser_id());
+		model.addAttribute("cartList",cartList);
+		
+		//4.장바구니의 전체금액 가져오기
+		int total = 0;
+		for(int i=0;i<cartList.size();i++) {
+			total += cartList.get(i).getProduct_count() * cartList.get(i).getProduct_price(); // 수량 * 상품가격 
+		}
+		//5.장바구니 전체금액에 따른 배송비 구분 ( 5만원 이상이면 무료 미만이면 배송비 2500 추가  )
+		int fee = total >= 50000 ? 0 : 2500;
+		//6.배송비를 포함한 전체금액 
+		int total_fee = total + fee;
+		model.addAttribute("total",total);
+		model.addAttribute("fee",fee);
+		model.addAttribute("total_fee",total_fee);
 		
 		return "shop/order_page";
+	}
+	
+	//주문서(주문/결제) 작성 페이지 이동(해당 상품을 주문하기를 클릭했을 경우) 
+	@RequestMapping(value="/order_page_b", method=RequestMethod.POST)
+	public String orderPage_B(ProductDto product,HttpSession session,Model model,HttpServletRequest request) {
+		
+		UserDto user = (UserDto)session.getAttribute("User");
+		
+		//1.회원의 배송지 정보 가져오기 
+		UserAddressDto user_address = shopService.getUserAddress(user.getUser_id());
+		model.addAttribute("user_address",user_address);
+		
+		//2.회원의 정보(이름,전화번호,이메일) 가져오기 
+		UserDto userInfo = shopService.getUserInfo(user.getUser_id());
+		model.addAttribute("userInfo",userInfo);
+		
+		//3.해당상품 정보가져오기
+		int product_count = Integer.parseInt(product.getProduct_count()); //문자열 -> 정수형으로 변환 
+		model.addAttribute("product_count",product_count); //선택한 상품개수
+		ProductDto productInfo = shopService.getProductInfo(product.getProduct_number());
+		model.addAttribute("productInfo",productInfo);
+
+		//4.전체금액/배송비/배송비를 포함한 전체금액 
+		int total = productInfo.getProduct_price() * product_count; //상품의 총금액 
+		int fee = total >= 50000 ? 0 : 2500; //배송비 
+		int total_fee = total + fee; // 배송비 + 총금액 (전체금액)
+		model.addAttribute("total",total);
+		model.addAttribute("fee",fee);
+		model.addAttribute("total_fee",total_fee);
+		
+		return "shop/order_page";
+	}
+	
+	//결제완료시 주문정보 테이블에 INSERT 
+	@ResponseBody
+	@RequestMapping(value="/orderInfoInsert", method=RequestMethod.POST)
+	public int selectDelete(@RequestBody OrderDetailDto order_detail_list) {
+		
+		System.out.println("상품 길이"+order_detail_list.getList().size());
+		
+		//ArrayList<Map<String,Object>>
+		/*
+		for(int i=0;i<order_detail_list.size();i++) {
+			System.out.println("주문한 상품 개수"+order_detail_list.get(i).get("product_count"));
+		}
+		*/
+		
+		
+		return 0;
 	}
 }
 

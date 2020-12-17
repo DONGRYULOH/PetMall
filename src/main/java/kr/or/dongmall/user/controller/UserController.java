@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 import kr.or.dongmall.user.service.UserService;
 
@@ -36,8 +37,8 @@ public class UserController {
 	}
 	//회원가입 처리
 	@RequestMapping(value="/register" , method=RequestMethod.POST)
-	public String register(UserDto user,HttpServletRequest req) {
-		return userService.register(user);	
+	public String register(UserDto user,UserAddressDto userAddress,HttpServletRequest req) {
+		return userService.register(user,userAddress);	
 	}
 	
 	//----------로그인----------------

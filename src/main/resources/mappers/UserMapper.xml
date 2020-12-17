@@ -24,7 +24,14 @@
 		 where user_id = #{user_id}
 	</select>
 	
+	<!-- 해당 User의 배송지 주소값 입력   -->
+	<insert id="insertAddress" parameterType="kr.or.dongmall.user.dto.UserAddressDto">
+		INSERT INTO Deliver_address(user_id,user_address1,user_address2,user_address3)
+		VALUES(#{user_id},#{user_address1},#{user_address2},#{user_address3})
+	</insert>
 	
+	
+	<!-- 모든 유저 리스트  -->
 	<select id="userList" resultType="kr.or.dongmall.user.dto.UserDto">
 		select *
 		from user

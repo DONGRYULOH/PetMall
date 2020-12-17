@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import kr.or.dongmall.user.dao.UserDao;
+import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 
 @Service
@@ -23,7 +24,7 @@ public class UserService {
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	// -----------회원가입 서비스-----------
-	public String register(UserDto user) {
+	public String register(UserDto user,UserAddressDto userAddress) {
 		System.out.println(user.toString());
 		UserDao userdao = sqlSession.getMapper(UserDao.class);
 		
@@ -34,16 +35,17 @@ public class UserService {
 			if(user.getEmail_check() == 0 || user.getEmail_check() == ' ') {
 				user.setEmail_check('N');
 			}
-			//이것도 잘얻어옴 
-//			System.out.println("ID"+user.getUser_id());
-//			System.out.println("name"+user.getUser_name());
-//			System.out.println("pwd"+user.getUser_pwd());
-//			System.out.println("phone"+user.getUser_phone());
-			
+
+			// 패스워드를 암호화 시킨후 User 테이블에 Insert 시킴 
 			user.setUser_pwd(bCryptPasswordEncoder.encode(user.getUser_pwd()));
 			System.out.println("암호화된 패스워드 "+user.getUser_pwd()); 
 			userdao.signUp(user);  
-
+				
+			// 해당 User의 배송지 주소값 입력 
+			userAddress.setUser_id(user.getUser_id());
+			userdao.insertAddress(userAddress);
+			
+			
 //			List<UserDto> list = userdao.userList();
 //			
 //			for(int i=0;i<list.size();i++) {

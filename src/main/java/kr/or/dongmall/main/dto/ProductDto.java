@@ -30,7 +30,16 @@ public class ProductDto {
 	
 	private String stored_thumbNail; // 썸네일 이미지 
 	
+	private String product_count; // 선택한 상품 개수 
 	
+	
+	
+	public String getProduct_count() {
+		return product_count;
+	}
+	public void setProduct_count(String product_count) {
+		this.product_count = product_count;
+	}
 	public String getStored_thumbNail() {
 		return stored_thumbNail;
 	}

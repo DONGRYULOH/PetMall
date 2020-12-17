@@ -15,6 +15,7 @@ import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dao.ShopDao;
 import kr.or.dongmall.shop.dto.CartDto;
 import kr.or.dongmall.shop.dto.ProductReply;
+import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 
 @Service
@@ -205,6 +206,27 @@ public class ShopService {
 	public Product_ImageFile shop_delegate_image(int product_number) {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		return shopdao.shop_delegate_image(product_number);
+	}
+	
+	
+	// <주문 관련 서비스> ---------------------------------------------------------------------------
+	
+	//1.회원의 배송지 정보 가져오기 
+	public UserAddressDto getUserAddress(String user_id) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		return shopdao.getUserAddress(user_id);
+	}
+	
+	//2.회원의 정보(이름,전화번호,이메일) 가져오기 
+	public UserDto getUserInfo(String user_id) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		return shopdao.getUserInfo(user_id);
+	}
+	
+	// 해당 상품 주문시 상품 정보가져오기 
+	public ProductDto getProductInfo(int product_number) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		return shopdao.getProductInfo(product_number);
 	}
 
 	

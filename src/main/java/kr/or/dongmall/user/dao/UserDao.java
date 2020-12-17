@@ -3,6 +3,7 @@ package kr.or.dongmall.user.dao;
 import java.sql.SQLException;
 import java.util.List;
 
+import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 
 
@@ -18,6 +19,9 @@ public interface UserDao {
 	public int userIdCheck(String user_id) throws Exception;
 	
 	public List<UserDto> userList() throws Exception;
+	
+	//해당 User의 배송지 주소값 입력 
+	public void insertAddress(UserAddressDto userAddress);
 	
 	
 }

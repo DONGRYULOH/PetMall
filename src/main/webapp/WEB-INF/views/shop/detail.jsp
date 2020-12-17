@@ -197,13 +197,17 @@
 						</h4>
 						<p class="cartStock">
 						   <span>구입 수량</span>
-						   <input type="number" min="1" max="${product.product_stock}" value="1" id="numBox"/>  
+						   <!-- Submit로 전송한것만 name값이 서버로 들어감?? Form태그 안에 있어야지 전송이 됨-->
+						   <input type="number" min="1" max="${product.product_stock}" value="1" id="p_count" />  
 						</p>
 						<div>
 							<div>
-							  <a href="#" class="btn btn-default" style="width: 228px;">
-			                     <span class="btn-inner--text">BUY NOW</span>
-			                  </a>
+								<form action="${pageContext.request.contextPath}/shop/order_page_b" method="post">
+								
+				                    <input type="hidden" name="product_number" value="${product.product_number}" />
+				                    <input type="hidden" id="product_count" name="product_count" value="1"/>  
+				                  	<input class="btn btn-default" style="width: 228px;" type="submit" value="구매하기"> 
+			                   </form>
 							</div>
 							<div>
 							  <a href="#" class="btn btn-lg btn-white btn-icon mb-3 mb-sm-0">
@@ -213,12 +217,12 @@
 			                   <script>
 									  $("#addCart_btn").click(function(){
 										var product_number = ${product.product_number};	
-									    var cart_stock = $("#numBox").val();
+									    var product_count = $("#p_count").val(); 
 									    console.log("상품번호"+product_number);
-									    console.log("선택한 수량"+cart_stock);
+									    console.log("선택한 수량"+product_count);
 									     var data = {
 											    product_number : product_number,
-											    product_count : cart_stock
+											    product_count : product_count
 									     	};
 									   
 										    $.ajax({
@@ -239,6 +243,13 @@
 											    }
 										    });
 									  });
+									  
+									/* 상품 개수 선택칸의 값이 변경될경우 이벤트 함수 */
+									$("#p_count").change(function(){
+										console.log("상품 개수변경 ->"+$('#p_count').val());
+										$('#product_count').val($('#p_count').val());
+									});
+									
 								</script>
 				              <a href="#" class="btn btn-lg btn-white btn-icon mb-3 mb-sm-0" >
 			                     <span class="btn-inner--text">WISH LIST</span>
