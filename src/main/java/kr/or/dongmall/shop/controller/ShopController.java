@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +34,7 @@ import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dto.CartDto;
 import kr.or.dongmall.shop.dto.OrderDetailDto;
+import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.shop.dto.ProductReply;
 import kr.or.dongmall.shop.service.ShopService;
 import kr.or.dongmall.user.dto.UserAddressDto;
@@ -487,20 +492,88 @@ public class ShopController {
 	//결제완료시 주문정보 테이블에 INSERT 
 	@ResponseBody
 	@RequestMapping(value="/orderInfoInsert", method=RequestMethod.POST)
-	public int selectDelete(@RequestBody OrderDetailDto order_detail_list) {
+	public int selectDelete(OrderDto orderInfo,ArrayList<OrderDetailDto> orderDetailInfo,@RequestBody String json,HttpSession session) {
+
+		UserDto user = (UserDto)session.getAttribute("User");
+		System.out.println("프론트 단에서 얻어온 json 데이터 -> "+json);		
+		// JSONParser 라이브러리를 사용해 프론트단에서 Ajax로 JSON.stringify()를 사용해서 얻은 JSON 데이터에서 원하는 것을 추출할수 있음  
+		JSONParser jsonParser = new JSONParser();
 		
-		System.out.println("상품 길이"+order_detail_list.getList().size());
-		
-		//ArrayList<Map<String,Object>>
-		/*
-		for(int i=0;i<order_detail_list.size();i++) {
-			System.out.println("주문한 상품 개수"+order_detail_list.get(i).get("product_count"));
+		try {
+			//json 데이터를 JSON 객체 형태로 변환 
+			JSONObject jsonObj = (JSONObject)jsonParser.parse(json);
+			
+			//orderDate라는 키안에 담긴 값(기본 주문 정보들이 객체 형태로 저장이된것)을 얻어옴  
+			JSONObject order = (JSONObject)jsonObj.get("orderDate");
+		    // 기본주문 정보 -> {"address3":"2234-12","address2":"서울 강남구 남부순환로 2609 (도곡동)","address1":"06267","receiver_name":"김동률","receiver_phone":"123-1321-1231"}
+			System.out.println(" 기본주문 정보 -> "+order);
+			System.out.println("고유 주문번호 :"+order.get("order_number"));
+			System.out.println("배송지 주소(우편번호) :"+order.get("address1"));
+			System.out.println("배송지 주소(주소) :"+order.get("address2"));
+			System.out.println("배송지 주소(상세주소) :"+order.get("address3"));
+			System.out.println("수령인 :"+order.get("receiver_name"));
+			System.out.println("전화번호 :"+order.get("receiver_phone"));
+			
+			String order_number = (String)order.get("order_number"); //주문번호
+			//기본주문 정보값 DTO에 넣기 
+			orderInfo.setOrder_number(order_number); //주문번호 
+			orderInfo.setUser_id(user.getUser_id()); //회원ID 
+			orderInfo.setAddress1((String)order.get("address1")); //우편번호
+			orderInfo.setAddress2((String)order.get("address2")); //주소
+			orderInfo.setAddress3((String)order.get("address3")); //상세주소 
+			orderInfo.setReceiver_name((String)order.get("receiver_name")); //수령인
+			orderInfo.setReceiver_phone((String)order.get("receiver_phone")); //전화번호 
+			
+			//주문한 상품정보들은 배열로 담음  
+			JSONArray order_detail_list = (JSONArray)jsonObj.get("order_detail_list"); 
+			OrderDetailDto orderDetail = null;
+			for(int i=0;i<order_detail_list.size();i++) {
+				JSONObject orderDetailObj = (JSONObject)order_detail_list.get(i);
+				System.out.println(" ====== " + i +"번째 주문 세부사항");
+				 				
+				String detailOrderNum = order_number + i; //상세 주문번호  (주문번호 + 인덱스값) 
+				//각각의 상품정보들을 List 형태의 배열에 넣기 
+				orderDetail = new OrderDetailDto();
+				orderDetail.setOrder_detail_number(detailOrderNum); //상세 주문번호 
+				orderDetail.setOrder_number(order_number); //주문번호 
+				orderDetail.setProduct_number(Integer.parseInt((String)orderDetailObj.get("product_number"))); //상품번호
+				orderDetail.setProduct_count(Integer.parseInt((String)orderDetailObj.get("product_count"))); // 주문한 상품 개수 
+				orderDetail.setProduct_price(Integer.parseInt((String)orderDetailObj.get("product_price"))); // 상품 가격 
+				orderDetail.setOrder_detail_status((String)orderDetailObj.get("order_detail_status")); // 결제 상태
+				orderDetailInfo.add(i,orderDetail);
+			}
+			
+			//List에 들어간 상품정보들 출력하기 
+			for(int i=0;i<orderDetailInfo.size();i++) {
+				System.out.println(i+"번째 상품번호:"+orderDetailInfo.get(i).getProduct_number());
+				System.out.println(i+"번째 주문한 수량:"+orderDetailInfo.get(i).getProduct_count());
+			}
+			
+		} catch (ParseException e) {
+			System.out.println("JSON 데이터 파싱중 에러발생!!"+e.getMessage());
+			e.printStackTrace();
 		}
-		*/
 		
+		//주문한 상품들과 주문정보(배송지,회원정보)를 서비스단에서 처리함 
+		int result = shopService.insertOrderInfo(orderInfo,orderDetailInfo);
 		
-		return 0;
+		return result;
 	}
+	
+	//결제완료 페이지로 이동 
+	@RequestMapping(value="/paymentOk", method=RequestMethod.GET)
+	public String paymentOk(@RequestParam String order_number,Model model) {
+		
+		System.out.println("주문번호 ->"+order_number);
+		//결제한 회원의 정보 가져오기(배송지,주문번호,회원정보)
+		OrderDto orderInfo =  shopService.getOrderInfo(order_number);
+		model.addAttribute("orderInfo", orderInfo);
+		
+		//결제한 상품정보 가져오기(상품명,상품이미지,주문금액)
+		
+		return "shop/paymentOkPage";
+	}
+	
 }
 
 

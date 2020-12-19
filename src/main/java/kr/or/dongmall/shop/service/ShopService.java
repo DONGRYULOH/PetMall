@@ -1,5 +1,6 @@
 package kr.or.dongmall.shop.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dao.ShopDao;
 import kr.or.dongmall.shop.dto.CartDto;
+import kr.or.dongmall.shop.dto.OrderDetailDto;
+import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.shop.dto.ProductReply;
 import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
@@ -227,6 +230,29 @@ public class ShopService {
 	public ProductDto getProductInfo(int product_number) {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		return shopdao.getProductInfo(product_number);
+	}
+	
+	//주문한 상품정보들과 주문정보(배송지,회원정보) DB에 INSERT 하기 
+	public int insertOrderInfo(OrderDto orderInfo, ArrayList<OrderDetailDto> orderDetailInfo) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		
+		int result = 0;
+		
+		//주문정보 INSERT
+		result = shopdao.insertOrderInfo(orderInfo);
+		
+		//상품정보 INSERT 
+		for(int i=0;i<orderDetailInfo.size();i++) {
+			result = shopdao.insertProductOrderInfo(orderDetailInfo.get(i));
+		}
+
+		return result;
+	}
+
+	//결제한 회원의 정보 가져오기(배송지,주문번호,회원정보)
+	public OrderDto getOrderInfo(String order_number) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		return shopdao.getOrderInfo(order_number);
 	}
 
 	

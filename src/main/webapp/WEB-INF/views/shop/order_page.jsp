@@ -253,10 +253,12 @@
 	            
 	            <div class="card-body">
 	                  <div class="row">
-		              	 <div class="col-lg-3">결제수단</div>
+		              	 <div class="col-lg-3">주문자 동의</div>
 		              	 <div class="col-lg-9">
-		              	 	<input type="radio" >
-	  					    <label>카카오페이</label>
+		              	 	<input type="checkbox" >
+	  					    <label>개인정보 제3자 제공 동의(필수)</label><br>
+	  					    <input type="checkbox" >
+	  					    <label>위 상품 정보 및 거래 조건을 확인하였으며, 구매 진행에 동의합니다.(필수)</label>
 		              	 </div>
 		              </div>
 	            </div>
@@ -283,125 +285,40 @@
 	  	  		IMP.init('imp16146364'); // 가맹점 식별코드
   	  		});
   	  		
-  	  		$('#Payment').click(function(){
-  	  			
-  	  		//<결제 완료후 주문테이블에 주문정보가 들어가야됨>
-		  	      
-	  	          // ***************** <기본 주문 정보 > START********************************
-	  	          
-		  	          // 회원(기존)배송지인지 신규배송지인지 여부를 파악해야됨(value 값이 UserD -> 기존 배송지 , NewD -> 신규 배송지) 
-		  	          var Ck = document.getElementById("D_Check").value;
-		  	          var orderDate = new Object(); //기본주문정보가 들어갈 객체선언 
-		  	          
-		  	          if(Ck == 'UserD'){
-		  	        	console.log("기존(회원) 배송지임!!");
-		  	        	orderDate.address1 = document.getElementById("D_userAddress1").value; //우편번호
-		  	        	orderDate.address2 = document.getElementById("D_userAddress2").value; //주소
-		  	        	orderDate.address3 = document.getElementById("D_userAddress3").value; //상세주소
-		  	        	orderDate.receiver_name = document.getElementById("D_userName").value; //수령인
-		  	        	orderDate.receiver_phone = document.getElementById("D_userPhone").value; //전화번호
-		  	          }else{
-			  	        	console.log("신규 배송지임!!");
-			  	        	var newP = document.getElementById("new_phone_first").value + '-' + document.getElementById("new_phone_mid").value + '-' + document.getElementById("new_phone_last").value;
-			  	        	console.log("신규 배송지 전화번호 : "+newP);
-			  	        	orderDate.address1 = document.getElementById("new_sample6_postcode").value; //우편번호
-			  	        	orderDate.address2 = document.getElementById("new_sample6_address").value; //주소
-			  	        	orderDate.address3 = document.getElementById("new_sample6_detailAddress").value; //상세주소
-			  	        	orderDate.receiver_name = document.getElementById("new_receiver").value; //수령인
-			  	        	orderDate.receiver_phone = newP; //전화번호
-		  	          }
-		  	          	console.log("기본 주문 정보 :"+ Object.values(orderDate) );
-		  	          	
-	  	          // ***************** <기본 주문 정보 > END ******************************** 	
-	  	          	
-	  	          
-	  	       // ************** <주문 세부 사항 관련 데이터들 > START ************************************
-	  	       
-	  	  			  var cartListSize = '${fn:length(cartList)}'; //장바구니에서 주문하기 버튼 클릭시 주문리스트
-	  	  			  console.log("cartListSize 는??"+cartListSize); //해당 상품을 주문을 할경우에는 값이 0이 나옴 
-	  	  			  var order_detail_list = []; //주문한 상품들에 대한 정보가 들어갈 배열을 만듬 
-	  	  			  
-	  	  			 // ************** 장바구니에서 주문을 했을때 *************************
-	  	  			  if(cartListSize != 0){
-			  	          //각각의 상품들에 대한 정보 (주문한 상품이 여러개일 경우는 for문으로 여러개의 객체가 생성됨)
-			  	          for(var i=0;i<cartListSize;i++){
-			  	        	 	  var order_detail = {
-					  	        		product_number :   document.getElementsByName("product_number[]")[i].value, //상품번호
-					  	        		product_count :   document.getElementsByName("product_count[]")[i].value, //주문한 개수
-					  	        		product_price :   document.getElementsByName("product_price[]")[i].value,  //상품 가격 
-					  	        		order_detail_status : 'PaymentComplete' // 결제완료 상태 
-					  	          };
-			  	        	 	  console.log(i+"번째 상품 정보 : "+Object.values(order_detail));
-			  	        	 	  order_detail_list.push(order_detail);
-			  	          }
-	  	  			  }
-	  	  			 // ************** 해당 상품을 주문을 했을때 *************************
-		  	         else{ 
-		  	  			var order_detail = {
-		  	        		product_number :   document.getElementById("product_number").value, //상품번호
-		  	        		product_count :   document.getElementById("product_count").value, //주문한 개수
-		  	        		product_price :   document.getElementById("product_price").value,  //상품 가격 
-		  	        		order_detail_status : 'PaymentComplete' // 결제완료 상태 
-		  	            };
-		  	  		    order_detail_list.push(order_detail)
-		  	  		    console.log("주문한 상품 정보 : "+Object.values(order_detail));
-		  	         }
-	  			  
-	  	  			  console.log("상품정보가 들어간 배열 :"+ order_detail_list[0] );
-	  		    // ************** <주문 세부 사항 관련 데이터들 > END************************************
-				
-	  		    // 컨트롤러로 주문이랑 주문세부내역을 넘기는 방법을 찾아야됨 .... (12/18)
-	  			$.ajax({
-				    url : "${pageContext.request.contextPath}/shop/orderInfoInsert",
-				    dataType    : "json",
-				    contentType : "application/x-www-form-urlencoded; charset=UTF-8",
-				    type : "post",
-				    data : {list : order_detail_list },
-				    success : function(result){
-				    	if(result == 1){
-					     	alert("카트 담기 성공");
-					     	$("#numBox").val("1");
-				    	}else{
-				    		alert("카트 담기 실패");
-					     	$("#numBox").val("1");
-				    	}
-				    },
-				    error : function(){
-				     	alert("카트 담기 실패");
-				    }
-			    });  
-	  	          	    
-  	  		    
+  	  		//<결제하기 버튼 클릭시 실행 함수> 
+  	  		$('#Payment').click(function(){    
 			  	 IMP.request_pay({
 			  	      pg : 'kakaopay', // version 1.1.0부터 지원.
 			  	      pay_method : 'card',
-			  	      merchant_uid : 'merchant_' + new Date().getTime(),
+			  	      merchant_uid : 'ID' + new Date().getTime(), //고유 주문번호 
 			  	      name : '주문명:결제테스트',
-			  	      amount : 10, //document.getElementById("total_fee").value, // 총 주문금액 
+			  	      amount : 101, //document.getElementById("total_fee").value, // 총 주문금액 
 			  	      buyer_email : document.getElementById("user_email").value,  //구매자 이메일 
 			  	      buyer_name : document.getElementById("user_name").value, //구매자 이름
 			  	      buyer_tel : document.getElementById("user_phone").value, //구매자 전화번호 
 			  	      buyer_addr : '서울특별시 강남구 삼성동',
-			  	      buyer_postcode : '123-456'
+			  	      buyer_postcode : '123-456',
+			  	      m_redirect_url : 'https://www.naver.com'
 			  	  }, function(rsp) {
 			  	      if ( rsp.success ) {
-			  	          var msg = '결제가 완료되었습니다.';
-			  	          msg += '고유ID : ' + rsp.imp_uid;
-			  	          msg += '고유 주문번호 : ' + rsp.merchant_uid;
-			  	          msg += 'PG사 거래고유번호 : ' + rsp.apply_num; 
-			  	          msg += '결제 금액 : ' + rsp.paid_amount;
-			  	          msg += '카드 승인번호 : ' + rsp.apply_num;
+			  	          var msgOk = '결제가 완료되었습니다.';
+			  	        msgOk += '고유ID : ' + rsp.imp_uid;
+			  	      	msgOk += '고유 주문번호 : ' + rsp.merchant_uid;
+			  	    	msgOk += 'PG사 거래고유번호 : ' + rsp.apply_num; 
+			  	 	 	msgOk += '결제 금액 : ' + rsp.paid_amount;
+			  			msgOk += '카드 승인번호 : ' + rsp.apply_num;
 			  	          	  	          
 			  	      //<결제 완료후 주문테이블에 주문정보가 들어가야됨>
 			  	      
 			  	          // ***************** <기본 주문 정보 > START********************************
-			  	          
 				  	          // 회원(기존)배송지인지 신규배송지인지 여부를 파악해야됨(value 값이 UserD -> 기존 배송지 , NewD -> 신규 배송지) 
 				  	          var Ck = document.getElementById("D_Check").value;
 				  	          var orderDate = new Object(); //기본주문정보가 들어갈 객체선언 
+				  	          var orderNum = rsp.merchant_uid; //고유 주문번호 
 				  	          
 				  	          if(Ck == 'UserD'){
 				  	        	console.log("기존(회원) 배송지임!!");
+				  	        	orderDate.order_number = orderNum; //주문번호
 				  	        	orderDate.address1 = document.getElementById("D_userAddress1").value; //우편번호
 				  	        	orderDate.address2 = document.getElementById("D_userAddress2").value; //주소
 				  	        	orderDate.address3 = document.getElementById("D_userAddress3").value; //상세주소
@@ -411,19 +328,17 @@
 					  	        	console.log("신규 배송지임!!");
 					  	        	var newP = document.getElementById("new_phone_first").value + '-' + document.getElementById("new_phone_mid").value + '-' + document.getElementById("new_phone_last").value;
 					  	        	console.log("신규 배송지 전화번호 : "+newP);
+					  	        	orderDate.order_number = orderNum; //주문번호
 					  	        	orderDate.address1 = document.getElementById("new_sample6_postcode").value; //우편번호
 					  	        	orderDate.address2 = document.getElementById("new_sample6_address").value; //주소
 					  	        	orderDate.address3 = document.getElementById("new_sample6_detailAddress").value; //상세주소
 					  	        	orderDate.receiver_name = document.getElementById("new_receiver").value; //수령인
 					  	        	orderDate.receiver_phone = newP; //전화번호
 				  	          }
-				  	          	console.log("기본 주문 정보 :"+ Object.values(orderDate) );
-				  	          	
+				  	          	console.log("기본 주문 정보 :"+ Object.values(orderDate) ); 	
 			  	          // ***************** <기본 주문 정보 > END ******************************** 	
 			  	          	
-			  	          
 			  	       // ************** <주문 세부 사항 관련 데이터들 > START ************************************
-			  	       
 			  	  			  var cartListSize = '${fn:length(cartList)}'; //장바구니에서 주문하기 버튼 클릭시 주문리스트
 			  	  			  console.log("cartListSize 는??"+cartListSize); //해당 상품을 주문을 할경우에는 값이 0이 나옴 
 			  	  			  var order_detail_list = []; //주문한 상품들에 대한 정보가 들어갈 배열을 만듬 
@@ -453,32 +368,49 @@
 				  	  		    order_detail_list.push(order_detail)
 				  	  		    console.log("주문한 상품 정보 : "+Object.values(order_detail));
 				  	         }
-		  	  			  
-		  	  		    // ************** <주문 세부 사항 관련 데이터들 > END************************************
-			  	          	
-		  	  			$.ajax({
+			  	  		// ************** <주문 세부 사항 관련 데이터들 > END************************************
+			  	  			  
+		  	  			  // 기본주문정보 + 주문한 상품들에 대한 정보가 담긴 객체 선언 
+		  	  			  var orderData = {
+		  	  			  			orderDate : orderDate, //기본주문정보가 있는 객체 
+		  	  			  			order_detail_list : order_detail_list //주문한 상품들에 대한 정보가 담겨있는 배열 
+		  	  			  	};
+		  	  			  console.log("기본주문정보가 있는 객체의 우편번호 : "+orderData.orderDate.address1);
+		  	  			  console.log("주문한 상품들에 대한 정보가 담겨있는 배열 인덱스 0번의 주문한 수량 : "+orderData.order_detail_list[0].product_count);
+
+			  		    // 객체안에 있는 객체(기본주문정보)와 배열(주문한 상품들의 정보)을 서버에서 받는 방법은?? 
+			  		    /*
+			  		    	방법1)
+			  		    	- JSON 문자열 형식으로 저장을 해서 보냄 
+			  		    */
+			  			$.ajax({
 						    url : "${pageContext.request.contextPath}/shop/orderInfoInsert",
-						    type : "post",
-						    data : {order_detail_list : order_detail_list},
+						    type : "POST",
+						    contentType: "application/json; charset=utf-8",
+						    data: JSON.stringify(orderData),
 						    success : function(result){
 						    	if(result == 1){
-							     	alert("카트 담기 성공");
-							     	$("#numBox").val("1");
+							     	alert("주문 테이블 입력 성공!!");
+							     	//결제 완료페이지로 이동 
+							     	var url = "${pageContext.request.contextPath}/shop/paymentOk";	
+							     	url = url + "?order_number=" + orderNum; //주문번호
+					    			location.href = url;
 						    	}else{
-						    		alert("카트 담기 실패");
-							     	$("#numBox").val("1");
+						    		alert("주문 정보 입력중 에러 발생!!");
 						    	}
 						    },
 						    error : function(){
-						     	alert("카트 담기 실패");
+						     	alert("주문 정보 입력중 에러 발생!!");
 						    }
 					    });  
-		  	  		    
+			  	 
+			  			  alert(msgOk);
 			  	      } else {
-			  	          var msg = '결제에 실패하였습니다.';
-			  	          msg += '에러내용 : ' + rsp.error_msg;
+			  	          var msgFail = '결제에 실패하였습니다.';
+			  	          msgFail += '에러내용 : ' + rsp.error_msg;
+			  	          alert(msgFail);
 			  	      }
-			  	      alert(msg);
+			  	     
 			  	  });
 	  	   		
   	  	   });
