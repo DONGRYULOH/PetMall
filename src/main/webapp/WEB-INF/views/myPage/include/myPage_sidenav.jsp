@@ -16,29 +16,17 @@
           <!-- Nav items -->
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" href="${pageContext.request.contextPath}/admin/product_register">
+              <a class="nav-link" href="${pageContext.request.contextPath}/myPage/orderList">
                 <i class="ni ni-tv-2 text-primary"></i>
-                <span class="nav-link-text">상품등록</span>
+                <span class="nav-link-text">주문내역조회</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="${pageContext.request.contextPath}/admin/product_list">
                 <i class="ni ni-planet text-orange"></i>
-                <span class="nav-link-text">상품목록</span>
+                <span class="nav-link-text">개인정보</span>
               </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">
-                <i class="ni ni-planet text-orange"></i>
-                <span class="nav-link-text">환불내역</span>
-              </a>
-            </li>   
-            <li class="nav-item">
-              <a class="nav-link" href="#">
-                <i class="ni ni-planet text-orange"></i>
-                <span class="nav-link-text">유저관리</span>
-              </a>
-            </li>               
+            </li>         
           </ul>
           <!-- Divider -->
           <hr class="my-3">

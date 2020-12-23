@@ -41,9 +41,9 @@
 	             </c:if>
 	             <c:if test="${User != null}">
 	             	<li class="nav-item">
-	             		 <a class="nav-link nav-link-icon" href="#">
+	             		 <a class="nav-link nav-link-icon" href="${pageContext.request.contextPath}/myPage">
 		             		 <span class="nav-link-inner--text"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
-		             		  ${User.user_nickname}님 
+		             		  ${User.user_nickname}님 MyPage
 		             		 </font></font></span>
 						</a>		             		 
 					</li>

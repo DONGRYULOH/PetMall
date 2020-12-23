@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import kr.or.dongmall.shop.dto.OrderDetailDto;
+import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.user.dao.UserDao;
 import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
@@ -71,6 +73,24 @@ public class UserService {
 	public int userIdCheck(String user_id) throws Exception {
 		UserDao userdao = sqlSession.getMapper(UserDao.class);
 		return userdao.userIdCheck(user_id);
+	}
+	
+	//유저에 해당하는 모든 주문정보를 가져옴 
+	public List<OrderDto> getOrderInfo(String user_id) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		return userdao.getOrderInfo(user_id);
+	}
+
+	//주문번호에 해당되는 상품정보들을 가져옴
+	public List<OrderDetailDto> getOrderDetailInfo(String order_number) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		return userdao.getOrderDetailInfo(order_number);
+	}
+
+	//환불여부 체크 프로시저 호출
+	public void refundCheck() {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		userdao.refundCheck();
 	}
 	
 	

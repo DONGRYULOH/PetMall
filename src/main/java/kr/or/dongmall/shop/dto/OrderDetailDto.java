@@ -10,7 +10,8 @@ import java.util.List;
 		product_number INT NOT NULL, -- 상품번호
 		product_count INT NOT NULL, -- 수량(개수)
 		product_price INT NOT NULL, -- 가격
-		order_detail_status VARCHAR(10) NOT NULL, -- 처리상태(배송완료,환불진행중... 등등) 
+		order_detail_status VARCHAR(20) NOT NULL, -- 처리상태(배송완료,환불진행중... 등등) 
+		refund_check VARCHAR(1) DEFAULT 'Y' NOT NULL, -- 환불 가능여부(Y-환불가능,N-환불안됨) 
 		PRIMARY KEY(order_detail_number),
 		FOREIGN KEY(order_number) REFERENCES orders(order_number), -- 주문상세 <-> 주문 
 		FOREIGN KEY(product_number) REFERENCES product(product_number) -- 주문상세 <-> 상품 
@@ -18,13 +19,39 @@ import java.util.List;
  */
 public class OrderDetailDto {
 
+	//주문 상세 정보 
 	private String order_detail_number;
 	private String order_number;
 	private int product_number;
 	private int product_count;
 	private int product_price;
 	private String order_detail_status;
+	private String refund_check;
 	
+	//상품 썸네일 
+	private String stored_thumbNail;
+	
+	//상품이름 
+	private String product_name;
+	
+	public String getStored_thumbNail() {
+		return stored_thumbNail;
+	}
+	public void setStored_thumbNail(String stored_thumbNail) {
+		this.stored_thumbNail = stored_thumbNail;
+	}
+	public String getProduct_name() {
+		return product_name;
+	}
+	public void setProduct_name(String product_name) {
+		this.product_name = product_name;
+	}
+	public String getRefund_check() {
+		return refund_check;
+	}
+	public void setRefund_check(String refund_check) {
+		this.refund_check = refund_check;
+	}
 	public String getOrder_detail_number() {
 		return order_detail_number;
 	}

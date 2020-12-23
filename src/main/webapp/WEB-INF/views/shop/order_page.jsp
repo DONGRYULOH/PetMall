@@ -288,9 +288,9 @@
   	  		//<결제하기 버튼 클릭시 실행 함수> 
   	  		$('#Payment').click(function(){    
 			  	 IMP.request_pay({
-			  	      pg : 'kakaopay', // version 1.1.0부터 지원.
+			  	      pg : 'kakaopay', 
 			  	      pay_method : 'card',
-			  	      merchant_uid : 'ID' + new Date().getTime(), //고유 주문번호 
+			  	      merchant_uid : 'ID' + new Date().getTime(), //고유 주문번호(결제 정보 조회시 또는 환불할시 필요함) 
 			  	      name : '주문명:결제테스트',
 			  	      amount : 101, //document.getElementById("total_fee").value, // 총 주문금액 
 			  	      buyer_email : document.getElementById("user_email").value,  //구매자 이메일 
@@ -298,7 +298,7 @@
 			  	      buyer_tel : document.getElementById("user_phone").value, //구매자 전화번호 
 			  	      buyer_addr : '서울특별시 강남구 삼성동',
 			  	      buyer_postcode : '123-456',
-			  	      m_redirect_url : 'https://www.naver.com'
+			  	      m_redirect_url : 'https://www.naver.com' //모바일로 결제시 리다이렉트 주소 
 			  	  }, function(rsp) {
 			  	      if ( rsp.success ) {
 			  	          var msgOk = '결제가 완료되었습니다.';

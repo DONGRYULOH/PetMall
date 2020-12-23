@@ -1,5 +1,8 @@
 package kr.or.dongmall.user.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -7,12 +10,15 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import kr.or.dongmall.shop.dto.OrderDetailDto;
+import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 import kr.or.dongmall.user.service.UserService;
@@ -96,8 +102,45 @@ public class UserController {
 		return userService.userIdCheck(user_id);
 	}
 	
+	// **************** MY PAGE 관련 *******************************************
 	
+	//MyPage 이동 
+	@RequestMapping(value = "/myPage", method = RequestMethod.GET)
+	public String myPage(HttpSession session) throws Exception {
+
+	   
+	 	return "myPage/myPage_index";
+	}
 	
+	//MyPage 주문내역 조회시  
+	@RequestMapping(value = "/myPage/orderList", method = RequestMethod.GET)
+	public String myPageOrderList(HttpSession session,Model model) throws Exception {
+		
+		//1.환불여부 체크 프로시저 호출하기
+		userService.refundCheck();
+		
+		//2.주문테이블에서 접속한 유저의 세션에 해당하는 주문정보를 가져옴(주문정보가 여러개일수도 있음)  
+		UserDto user = (UserDto)session.getAttribute("User");
+		List<OrderDto> orderInfo = userService.getOrderInfo(user.getUser_id());
+		model.addAttribute("orderInfo", orderInfo);
+		
+		//3.주문상세테이블에서 주문번호에 해당되는 상품정보들을 가져옴(여러개일수도 있고 하나일수도 있음) 
+		// 상품이미지 테이블(상품 썸네일) + 상품 테이블(상품이름) + 주문상세 테이블을 조인시켜야됨   
+		ArrayList<OrderDetailDto> OrderList = new ArrayList<OrderDetailDto>();
+		for(int i=0;i<orderInfo.size();i++) {
+			List<OrderDetailDto> OrderDetailList = userService.getOrderDetailInfo(orderInfo.get(i).getOrder_number()); //첫번째 주문번호, 두번쨰 주문번호 이런식으로 
+			OrderList.addAll(i,OrderDetailList); // 0 번째 ArrayList 에 List 담기 (ArrayList 안에 ArrayList 추가하기) 
+		}
+		
+		for(int i=0;i<OrderList.size();i++) {
+			
+		}
+
+		
+		model.addAttribute("OrderDetailList", OrderDetailList);
+		
+	 	return "myPage/myPage_OrderList";
+	}
 	
 	
 }

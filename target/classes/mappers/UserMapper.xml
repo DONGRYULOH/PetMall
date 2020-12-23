@@ -37,6 +37,54 @@
 		from user
 	</select>
 	
+	<!-- ****************************** MYPAGE(내정보)관련 쿼리문  ***********************  -->
 	
+	<!-- 해당 유저에 해당하는 모든 주문정보를 가져옴   -->
+	<select id="getOrderInfo" resultType="kr.or.dongmall.shop.dto.OrderDto">
+		select order_number,user_id,order_date,address1,address2,address3,receiver_name,receiver_phone
+		from Orders
+		where user_id = #{user_id}
+	</select>
+	
+	<!-- 주문번호에 해당되는 상품정보들을 가져오기(상품 썸네일,상품명,가격,상품번호,주문상세번호,주문번호,주문한상품개수,주문처리상태,환불여부 )   -->
+	<select id="getOrderDetailInfo" resultType="kr.or.dongmall.shop.dto.OrderDetailDto">
+		SELECT PI.stored_thumbNail,P.product_name,P.product_price,P.product_number,O.order_detail_number,O.order_number,O.product_count,O.order_detail_status,O.refund_check
+			FROM order_detail O JOIN product P
+				ON O.product_number = P.product_number 
+				JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile WHERE delegate_thumbNail = 'Y' AND delete_check = 'N') PI 
+				ON P.product_number = PI.product_number
+    	WHERE O.order_number = #{order_number}
+	</select>
+	
+	<!-- 환불 여부 체크 프로시저 호출  -->
+	<select id="refundCheck" statementType="CALLABLE">
+		{call refundCheckUpdate()}			
+	</select>
 </mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -3,6 +3,8 @@ package kr.or.dongmall.user.dao;
 import java.sql.SQLException;
 import java.util.List;
 
+import kr.or.dongmall.shop.dto.OrderDetailDto;
+import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 
@@ -22,6 +24,15 @@ public interface UserDao {
 	
 	//해당 User의 배송지 주소값 입력 
 	public void insertAddress(UserAddressDto userAddress);
+	
+	//유저에 해당하는 모든 주문정보를 가져옴 
+	public List<OrderDto> getOrderInfo(String user_id);
+
+	//주문번호에 해당되는 상품정보들을 가져옴
+	public List<OrderDetailDto> getOrderDetailInfo(String order_number);
+
+	//환불여부 체크 프로시저 호출 
+	public void refundCheck();
 	
 	
 }
