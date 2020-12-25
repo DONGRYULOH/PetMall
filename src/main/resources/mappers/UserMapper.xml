@@ -12,7 +12,7 @@
 	  
 	  <!-- 로그인 -->
 	<select id="signIn" resultType="UserDto" parameterType="UserDto">
-		select user_id,user_pwd,user_nickname,user_role
+		select user_id,user_pwd,user_nickname,user_role,user_email
 	 	from User
 	 	where user_id=#{user_id}
 	</select>
@@ -48,11 +48,13 @@
 	
 	<!-- 주문번호에 해당되는 상품정보들을 가져오기(상품 썸네일,상품명,가격,상품번호,주문상세번호,주문번호,주문한상품개수,주문처리상태,환불여부 )   -->
 	<select id="getOrderDetailInfo" resultType="kr.or.dongmall.shop.dto.OrderDetailDto">
-		SELECT PI.stored_thumbNail,P.product_name,P.product_price,P.product_number,O.order_detail_number,O.order_number,O.product_count,O.order_detail_status,O.refund_check
+		SELECT PI.stored_thumbNail,P.product_name,P.product_price,P.product_number,O.order_detail_number,O.order_number,O.product_count,O.order_detail_status,O.refund_check,OD.order_date
 			FROM order_detail O JOIN product P
-				ON O.product_number = P.product_number 
+					ON O.product_number = P.product_number 
 				JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile WHERE delegate_thumbNail = 'Y' AND delete_check = 'N') PI 
-				ON P.product_number = PI.product_number
+					ON P.product_number = PI.product_number
+				JOIN orders OD 
+        			ON O.order_number = OD.order_number
     	WHERE O.order_number = #{order_number}
 	</select>
 	
@@ -60,6 +62,27 @@
 	<select id="refundCheck" statementType="CALLABLE">
 		{call refundCheckUpdate()}			
 	</select>
+	
+	<!-- 상세주문번호에 해당되는 상품정보가져오기(주문상세번호,주문번호,주문한 개수,가격,상품명,상품썸네일)   -->
+	<select id="getOrderDInfo" resultType="kr.or.dongmall.shop.dto.OrderDetailDto">
+			SELECT O.order_detail_number,O.order_number,O.product_count,O.product_price,P.product_name,PI.stored_thumbNail
+			FROM order_detail O JOIN product P
+					ON O.product_number = P.product_number
+			    JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile WHERE delegate_thumbNail = 'Y' AND delete_check = 'N') PI
+					ON PI.product_number = P.product_number
+			WHERE order_detail_number = #{order_detail_number}
+	</select>
+	
+	<!-- 환불내역 테이블에 INSERT -->
+	<insert id="refundInfoInsert">
+			INSERT INTO Order_refund(order_detail_number,refund_reason,refund_img,user_email)
+						VALUES(#{order_detail_number},#{refund_reason},#{refund_img},#{user_email})
+	</insert>
+	
+	<!-- 환불을 요청한 해당 주문의 처리상태가 "환불중"으로 변경되야됨 -->
+	<update id="orderDetailCkUpdate">
+			UPDATE Order_detail SET order_detail_status = 'PaymentRefunding' WHERE order_detail_number = #{order_detail_number}
+	</update>
 </mapper>
 
 

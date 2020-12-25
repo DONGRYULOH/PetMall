@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.OrderDto;
+import kr.or.dongmall.shop.dto.OrderRefundDto;
 import kr.or.dongmall.user.dao.UserDao;
 import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
@@ -91,6 +92,32 @@ public class UserService {
 	public void refundCheck() {
 		UserDao userdao = sqlSession.getMapper(UserDao.class);
 		userdao.refundCheck();
+	}
+	
+	//상세주문번호에 해당되는 상품정보 가져오기 
+	public OrderDetailDto getOrderDInfo(String order_detail_number) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		return userdao.getOrderDInfo(order_detail_number);
+	}
+
+	//환불내역 테이블에 INSERT 해주기 
+	public void refundInfoInsert(OrderRefundDto refundDto) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		try {
+			userdao.refundInfoInsert(refundDto);
+		}catch (Exception e) {
+			System.out.println("환불 내역 테이블에 INSERT 하는 중 에러발생"+e.getMessage());
+		}	
+	}
+
+	//환불을 요청한 해당 주문의 처리상태가 "환불중"으로 변경되야됨
+	public void orderDetailCkUpdate(String order_detail_number) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		try {
+			userdao.orderDetailCkUpdate(order_detail_number);
+		}catch (Exception e) {
+			System.out.println("환불을 요청한 해당 주문의 처리상태가 UPDATE 도중 에러발생"+e.getMessage());
+		}		
 	}
 	
 	

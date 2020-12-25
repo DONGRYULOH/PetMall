@@ -37,7 +37,7 @@
                   </tr>
                 </thead>
                 <tbody class="list">
-                   <c:forEach items="${OrderDetailList}" var="list">
+                   <c:forEach items="${OrderList}" var="list">
                    <tr>
 	                    <!-- 썸네일 출력 -->
 	                    <td>
@@ -53,7 +53,7 @@
 					    	<!-- 상품가격 -->
 					    	<fmt:formatNumber value="${list.product_price}" pattern="###,###,###"/> 원 <br>
 					    	<!-- 주문일자 -->
-					    	<%-- 주문일자 : <fmt:formatDate value="${orderInfo.order_date}" pattern="yyyy-MM-dd"/> --%>	
+					    	주문일자 : <fmt:formatDate value="${list.order_date}" pattern="yyyy-MM-dd"/> 	
 					    </td>
 					    
 					    <!-- 처리상태(PaymentComplete -> 결제완료 , PaymentRefunding -> 환불진행중 , PaymentRefundOk -> 환불완료 -->
@@ -72,7 +72,7 @@
 					    <!-- 환불 가능여부(Y -> 환불하기 , N -> 환불X) -->
 					    <td>
 					    	 <c:if test="${list.refund_check == 'Y' }">
-					    	 	<button>환불하기</button>
+					    	 	<a href="${pageContext.request.contextPath}/myPage/refundPage?n=${list.order_detail_number}">환불하기</a>
 					    	 </c:if>
 					    	 <c:if test="${list.refund_check == 'N' }">
 					    	 	<button>환불X</button>

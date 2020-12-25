@@ -5,6 +5,7 @@ import java.util.List;
 
 import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.OrderDto;
+import kr.or.dongmall.shop.dto.OrderRefundDto;
 import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 
@@ -33,6 +34,15 @@ public interface UserDao {
 
 	//환불여부 체크 프로시저 호출 
 	public void refundCheck();
+	
+	//상세주문번호에 해당되는 상품정보 가져오기 
+	public OrderDetailDto getOrderDInfo(String order_detail_number);
+
+	//환불내역 테이블에 INSERT 해주기 
+	public void refundInfoInsert(OrderRefundDto refundDto);
+
+	//환불을 요청한 해당 주문의 처리상태가 "환불중"으로 변경되야됨
+	public void orderDetailCkUpdate(String order_detail_number);
 	
 	
 }

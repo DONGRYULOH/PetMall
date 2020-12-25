@@ -3,6 +3,7 @@ package kr.or.dongmall.user.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -11,17 +12,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.OrderDto;
+import kr.or.dongmall.shop.dto.OrderRefundDto;
 import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
 import kr.or.dongmall.user.service.UserService;
+import kr.or.dongmall.utils.CommonUtils;
+import kr.or.dongmall.utils.RefundFileUtils;
+
 
 
 
@@ -34,6 +41,8 @@ public class UserController {
 	@Autowired
 	BCryptPasswordEncoder passEncoder;
 	
+	@Resource(name="RefundFileUtils")
+	private RefundFileUtils refundFileUtils;
 
 	//-----------회원가입--------------- 
 	//회원가입 페이지
@@ -125,23 +134,97 @@ public class UserController {
 		model.addAttribute("orderInfo", orderInfo);
 		
 		//3.주문상세테이블에서 주문번호에 해당되는 상품정보들을 가져옴(여러개일수도 있고 하나일수도 있음) 
-		// 상품이미지 테이블(상품 썸네일) + 상품 테이블(상품이름) + 주문상세 테이블을 조인시켜야됨   
-		ArrayList<OrderDetailDto> OrderList = new ArrayList<OrderDetailDto>();
+		// 상품이미지 테이블(상품 썸네일) + 상품 테이블(상품이름) + 주문상세 테이블을 조인시켜야됨
+		ArrayList<List<OrderDetailDto>> OrderDetailList = new ArrayList<List<OrderDetailDto>>();
+		List<OrderDetailDto> OrderList = new ArrayList<OrderDetailDto>(); //상세주문정보를 다시 모아놓을 List 
 		for(int i=0;i<orderInfo.size();i++) {
-			List<OrderDetailDto> OrderDetailList = userService.getOrderDetailInfo(orderInfo.get(i).getOrder_number()); //첫번째 주문번호, 두번쨰 주문번호 이런식으로 
-			OrderList.addAll(i,OrderDetailList); // 0 번째 ArrayList 에 List 담기 (ArrayList 안에 ArrayList 추가하기) 
+			// OrderDetailList에 해당 주문번호에 해당되는 모든 상세주문번호가 List형태로 들어감 
+			OrderDetailList.add(userService.getOrderDetailInfo(orderInfo.get(i).getOrder_number())); 
 		}
 		
-		for(int i=0;i<OrderList.size();i++) {
+		OrderDetailDto orderDetail = null;
+		for(int i=0;i<OrderDetailList.size();i++) {		
+			
+			for(int j=0;j<OrderDetailList.get(i).size();j++) {
+				System.out.println("주문번호:"+OrderDetailList.get(i).get(j).getOrder_number());
+				System.out.println("상세주문 번호:"+OrderDetailList.get(i).get(j).getOrder_detail_number());
+				System.out.println("주문일자 확인 : "+OrderDetailList.get(i).get(j).getOrder_date());
+				
+				orderDetail = new OrderDetailDto();
+				orderDetail.setStored_thumbNail(OrderDetailList.get(i).get(j).getStored_thumbNail()); //상품 썸네일
+				orderDetail.setProduct_name(OrderDetailList.get(i).get(j).getProduct_name()); //상품명 
+				orderDetail.setProduct_price(OrderDetailList.get(i).get(j).getProduct_price()); //상품가격 
+				orderDetail.setProduct_number(OrderDetailList.get(i).get(j).getProduct_number()); //상품번호 
+				orderDetail.setOrder_detail_number(OrderDetailList.get(i).get(j).getOrder_detail_number()); // 주문상세번호
+				orderDetail.setOrder_number(OrderDetailList.get(i).get(j).getOrder_number()); // 고유주문번호
+				orderDetail.setProduct_count(OrderDetailList.get(i).get(j).getProduct_count()); //주문한 상품 개수 
+				orderDetail.setOrder_detail_status(OrderDetailList.get(i).get(j).getOrder_detail_status()); //주문처리상태 
+				orderDetail.setRefund_check(OrderDetailList.get(i).get(j).getRefund_check()); //환불여부 
+				orderDetail.setOrder_date(OrderDetailList.get(i).get(j).getOrder_date()); //주문일자
+				OrderList.add(orderDetail);
+			}
 			
 		}
-
-		
-		model.addAttribute("OrderDetailList", OrderDetailList);
+	
+		model.addAttribute("OrderList", OrderList);
 		
 	 	return "myPage/myPage_OrderList";
 	}
 	
+	//MyPage 환불요청 작성 페이지 이동 
+	@RequestMapping(value = "/myPage/refundPage", method = RequestMethod.GET)
+	public String refundPage(@RequestParam("n") String order_detail_number,Model model) throws Exception {
+		
+	    //해당 상세주문번호로 상품정보(썸네일,상품이름,수량,가격,썸네일) 가져오기
+		OrderDetailDto orderDetailInfo = userService.getOrderDInfo(order_detail_number);
+		model.addAttribute("orderDetailInfo", orderDetailInfo);
+		
+	 	return "myPage/refundPage";
+	}
+	
+	//환불 요청페이지에서 작성한 환불정보 DB에 INSERT 하기 
+	@PostMapping("/myPage/refundPage")
+	public String refundPageOk(Model model,HttpServletRequest request,HttpSession session) throws Exception {
+		
+		//HttpServletRequest 이용해 전송된(업로드한) 파일을 가져온다 
+		MultipartHttpServletRequest MultipartHttpServletRequest = (MultipartHttpServletRequest)request;
+		String OriFile = MultipartHttpServletRequest.getFile("refund_img").getOriginalFilename();
+		
+	    //서버에 저장될 환불사유 이미지파일명을 중복되지 않는 이름으로 재설정 해줌 
+		System.out.println("업로드한 오리진 파일명:"+OriFile); //클라이언트가 업로드한 파일이름 
+		String originalFileExtension = OriFile.substring(OriFile.lastIndexOf(".")); // 해당원본파일의 확장명을 뽑아냄 (png)  
+		String storedFileName = CommonUtils.getRandomString() + originalFileExtension; // 32자리의 랜덤파일이름 + 확장명(서버에 저장될 파일명) 
+		System.out.println("서버에 저장될 파일명 : " +storedFileName);
+		//서버에 이미지 파일 업로드하기 
+		refundFileUtils.refundFileUpload(storedFileName,MultipartHttpServletRequest.getFile("refund_img"));
+		
+		 /*
+		 	파일전송을 위해 form에서 encType="multipart/form-data" 로 전송하게 되면 DTO가 자동으로 생성/주입되지 않기 때문에
+		 	request 이용해 클라이언트에 작성한 환불 정보(환불사유,주문상세번호)를 가져온다 
+		 */
+		String order_detail_number = request.getParameter("order_detail_number"); //주문상세번호 
+		String refund_reason = request.getParameter("refund_reason"); //환불사유 
+		UserDto user = (UserDto)session.getAttribute("User");
+		
+		System.out.println("주문상세번호 : " +order_detail_number);
+		System.out.println("환불사유 : " +refund_reason);
+		System.out.println("유저 이메일 : " +user.getUser_email());
+		
+		//1.환불내역 테이블에 INSERT 해주기 
+		OrderRefundDto refundDto = new OrderRefundDto();
+		refundDto.setOrder_detail_number(order_detail_number);
+		refundDto.setRefund_img(storedFileName);
+		refundDto.setRefund_reason(refund_reason);
+		refundDto.setUser_email(user.getUser_email());	
+		userService.refundInfoInsert(refundDto); 
+		
+		//2.환불내역 테이블에 INSERT가 되고난후 환불을 요청한 해당 주문의 처리상태가 "환불중"으로 변경되야됨
+		userService.orderDetailCkUpdate(order_detail_number);
+		
+		//3.1번과 2번의 작업이 정상적으로 수행되고 나면 주문내역 페이지로 이동하기 
+		
+	 	return "redirect:/myPage/orderList";
+	}
 	
 }
 

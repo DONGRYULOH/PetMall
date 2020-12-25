@@ -1,5 +1,6 @@
 package kr.or.dongmall.shop.dto;
 
+import java.sql.Date;
 import java.util.List;
 
 /*
@@ -34,6 +35,16 @@ public class OrderDetailDto {
 	//상품이름 
 	private String product_name;
 	
+	//주문일자
+	private Date order_date;
+	
+	
+	public Date getOrder_date() {
+		return order_date;
+	}
+	public void setOrder_date(Date order_date) {
+		this.order_date = order_date;
+	}
 	public String getStored_thumbNail() {
 		return stored_thumbNail;
 	}
