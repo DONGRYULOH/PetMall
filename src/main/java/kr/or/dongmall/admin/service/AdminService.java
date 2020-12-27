@@ -16,6 +16,7 @@ import kr.or.dongmall.admin.dto.CategoryDto;
 import kr.or.dongmall.admin.dto.Product_ImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
+import kr.or.dongmall.shop.dto.OrderRefundDto;
 import kr.or.dongmall.utils.FileUtils;
 
 @Service
@@ -162,6 +163,18 @@ public class AdminService {
 	public List<Product_ImageFile> product_img(int product_number) {
 		AdminDao admindao = sqlSession.getMapper(AdminDao.class);
 		return admindao.product_img(product_number);
+	}
+
+	//환불 요청 내역리스트를 가져옴 
+	public List<OrderRefundDto> RefundList() {
+		AdminDao admindao = sqlSession.getMapper(AdminDao.class);
+		return admindao.RefundList();
+	}
+
+	//환불 번호에 해당되는 환불정보 가져오기 
+	public OrderRefundDto getRefundInfo(String refund_number) {
+		AdminDao admindao = sqlSession.getMapper(AdminDao.class);
+		return admindao.getRefundInfo(refund_number);
 	}
 	
 }

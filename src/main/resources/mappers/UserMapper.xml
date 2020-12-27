@@ -83,6 +83,7 @@
 	<update id="orderDetailCkUpdate">
 			UPDATE Order_detail SET order_detail_status = 'PaymentRefunding' WHERE order_detail_number = #{order_detail_number}
 	</update>
+	
 </mapper>
 
 

@@ -7,6 +7,7 @@ import kr.or.dongmall.admin.dto.CategoryDto;
 import kr.or.dongmall.admin.dto.Product_ImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
+import kr.or.dongmall.shop.dto.OrderRefundDto;
 
 
 
@@ -32,4 +33,8 @@ public interface AdminDao {
 	public List<Product_ImageFile> product_img(int product_number);
 	//상품이미지 파일의 변경 
 	public int updateFile(Map<String, Object> tempMap);
+	//환불 요청 내역리스트를 가져옴 
+	public List<OrderRefundDto> RefundList();
+	//환불 번호에 해당되는 환불정보 가져오기 
+	public OrderRefundDto getRefundInfo(String refund_number);
 }

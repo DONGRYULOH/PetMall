@@ -18,6 +18,44 @@ public class OrderRefundDto {
 	private String refund_img;
 	private String user_email;
 	
+	private String order_detail_status; //처리상태 
+	
+	private String order_number; //주문번호 
+	
+	private int product_count; // 주문한 상품개수
+	private int product_price; // 주문한 상품 1개당 가격 
+	private int total_price; // 주문한 상품개수 * 상품 가격(총가격)
+	
+	public int getProduct_count() {
+		return product_count;
+	}
+	public void setProduct_count(int product_count) {
+		this.product_count = product_count;
+	}
+	public int getProduct_price() {
+		return product_price;
+	}
+	public void setProduct_price(int product_price) {
+		this.product_price = product_price;
+	}
+	public int getTotal_price() {
+		return total_price;
+	}
+	public void setTotal_price(int total_price) {
+		this.total_price = total_price;
+	}
+	public String getOrder_number() {
+		return order_number;
+	}
+	public void setOrder_number(String order_number) {
+		this.order_number = order_number;
+	}
+	public String getOrder_detail_status() {
+		return order_detail_status;
+	}
+	public void setOrder_detail_status(String order_detail_status) {
+		this.order_detail_status = order_detail_status;
+	}
 	public int getRefund_number() {
 		return refund_number;
 	}

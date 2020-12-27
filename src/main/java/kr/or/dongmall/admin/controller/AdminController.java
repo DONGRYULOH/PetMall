@@ -1,10 +1,16 @@
 package kr.or.dongmall.admin.controller;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +46,7 @@ import kr.or.dongmall.admin.dto.Product_ImageFile;
 import kr.or.dongmall.admin.service.AdminService;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
+import kr.or.dongmall.shop.dto.OrderRefundDto;
 import kr.or.dongmall.user.dto.UserDto;
 import kr.or.dongmall.utils.UploadFileUtils;
 import net.sf.json.JSONArray;
@@ -277,6 +285,98 @@ public class AdminController {
 			  } catch(IOException e) { e.printStackTrace(); }
 			 }
 			 
+	}
+	
+	// *********************************** 환불 요청 관련 ************************************************** 
+	
+	//환불 요청 내역(리스트) 페이지 이동 
+	@RequestMapping(value="/RefundList",method=RequestMethod.GET) 
+	public String RefundList(Model model) throws Exception{
+		System.out.println("환불 요청 내역 페이지 이동");
+		
+		//환불번호,주문상세번호,처리상태를 가져옴 (환불 테이블 + 주문상세내역 테이블 조인) 
+		List<OrderRefundDto> refundList = adminService.RefundList();
+		model.addAttribute("refundList", refundList);
+		
+		return "admin/refundList";
+	}
+	
+	//해당 요청환불 처리 페이지 이동 
+	@RequestMapping(value="/RefundProcess",method=RequestMethod.GET) 
+	public String RefundProcess(@RequestParam("n") String refund_number,Model model) throws Exception{
+		
+		//1.환불 번호에 해당되는 환불정보 가져오기
+		OrderRefundDto refundInfo = adminService.getRefundInfo(refund_number);
+		int total = refundInfo.getProduct_count() * refundInfo.getProduct_price();
+		refundInfo.setTotal_price(total); //총가격 
+		model.addAttribute("refundInfo", refundInfo);
+		
+		//2.환불을 하기위한 액세스토큰 발급(액세스 토큰 지속시간 :발행시간으로부터 30분)
+		/*	
+	 	 <아임포트 API 요청 정보 > 
+	 	 curl -H "Content-Type: application/json" POST 
+	 	      -d '{"imp_key": "REST API키", "imp_secret":"REST API Secret"}' https://api.iamport.kr/users/getToken
+		*/
+		HttpURLConnection conn = null;
+		String access_token = null; // 발급받을 액세스 토큰 
+		URL url = new URL("https://api.iamport.kr/users/getToken"); //액세스 토큰을 받아올 주소입력 
+		conn = (HttpURLConnection)url.openConnection();
+		
+		// 요청방식 : POST 
+		conn.setRequestMethod("POST"); 
+		
+		// Header 설정 (application/json 형식으로 데이터를 전송) 
+		conn.setRequestProperty("Content-Type", "application/json"); 
+		conn.setRequestProperty("Accept", "application/json"); // 서버로부터 받을 Data를 JSON 형식 타입으로 요청함 
+		//conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+		
+		// Data 설정 
+		conn.setDoOutput(true); // OutputStream으로 POST 데이터를 넘겨주겠다는 옵션
+		//conn.setDoInput(true); // InputStream으로 서버로 부터 응답을 받겠다는 옵션.
+		
+		//서버로 보낼 데이터 JSON 형태로 변환 (imp_apikey,imp_secret)
+		JSONObject obj = new JSONObject();
+		obj.put("imp_key","6724290352514148");
+		obj.put("imp_secret","IKli0sBCdN5uI6QdpnlRzQKLsVb5jRv1BQkCjVfwJl0ssRGRe2JNStzlpKqICVKdM5Q505BJrCcTtSKH");
+		System.out.println("JSON 변환 결과값 : " +obj.toString());
+		
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+		bw.write(obj.toString());
+		bw.flush();
+		bw.close();
+		
+		System.out.println("*** 여기까지 오면 Request는 성공 *** ");
+		
+		// 서버로부터 응답 데이터 받기 
+		int responseCode = conn.getResponseCode(); //응답코드 받기 
+		System.out.println("응답 코드는 ??"+responseCode); //응답코드 400이면 요청이 잘못된건데... (요청시 오타작성 발견) 
+		if(responseCode == 200) { //성공 
+			 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			 StringBuilder sb = new StringBuilder();
+			 String line = null;  
+			 while ((line = br.readLine()) != null) {  
+			        sb.append(line + "\n");  
+			 }
+			 br.close();
+			 System.out.println("" + sb.toString());
+			 
+			 //JSONParser 라이브러리를 사용(JSON 형태로 되어있는 데이터들중 원하는 것들을 추출하기 위해 사용)
+			 JSONParser jsonParser = new JSONParser();
+			 //json 데이터를 JSON 객체 형태로 변환 
+			 JSONObject jsonObj = (JSONObject)jsonParser.parse(sb.toString());
+			 //응답 데이터를 가져옴 
+			 JSONObject responseData = (JSONObject)jsonObj.get("response");
+			 //응답 데이터중에서 Key가 access_token Value값을 가져옴 
+			 access_token = (String)responseData.get("access_token");
+			 System.out.println("가져온 access_token 값 : "+access_token);
+			 model.addAttribute("access_token", access_token);
+		}else{ //실패 
+		    System.out.println(conn.getResponseMessage());  
+		}  
+		
+
+		
+		return "admin/refundProcessPage";
 	}
 	
 }

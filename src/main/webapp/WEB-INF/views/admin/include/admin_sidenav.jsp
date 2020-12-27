@@ -28,9 +28,9 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">
+              <a class="nav-link" href="${pageContext.request.contextPath}/admin/RefundList">
                 <i class="ni ni-planet text-orange"></i>
-                <span class="nav-link-text">환불내역</span>
+                <span class="nav-link-text">환불요청내역</span>
               </a>
             </li>   
             <li class="nav-item">
