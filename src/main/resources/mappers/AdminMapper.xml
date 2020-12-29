@@ -106,7 +106,12 @@
 		WHERE refund_number = #{refund_number}
 	</select>
 	
-	
+	<!-- 환불 주문정보 업데이트 처리(환불 처리상태 -> PaymentRefundOk(환불완료) , 환불 가능여부 -> N -->
+	<update id="RefundInfoUpdate">
+		UPDATE order_detail 
+			SET order_detail_status = 'PaymentRefundOk',refund_check = 'N' 
+		WHERE order_number = #{merchant_uid} 
+	</update>
 	
 </mapper>
 	

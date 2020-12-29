@@ -29,8 +29,10 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +50,7 @@ import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dto.OrderRefundDto;
 import kr.or.dongmall.user.dto.UserDto;
+import kr.or.dongmall.utils.ImportUtils;
 import kr.or.dongmall.utils.UploadFileUtils;
 import net.sf.json.JSONArray;
 
@@ -311,74 +314,45 @@ public class AdminController {
 		refundInfo.setTotal_price(total); //총가격 
 		model.addAttribute("refundInfo", refundInfo);
 		
-		//2.환불을 하기위한 액세스토큰 발급(액세스 토큰 지속시간 :발행시간으로부터 30분)
-		/*	
-	 	 <아임포트 API 요청 정보 > 
-	 	 curl -H "Content-Type: application/json" POST 
-	 	      -d '{"imp_key": "REST API키", "imp_secret":"REST API Secret"}' https://api.iamport.kr/users/getToken
-		*/
-		HttpURLConnection conn = null;
-		String access_token = null; // 발급받을 액세스 토큰 
-		URL url = new URL("https://api.iamport.kr/users/getToken"); //액세스 토큰을 받아올 주소입력 
-		conn = (HttpURLConnection)url.openConnection();
-		
-		// 요청방식 : POST 
-		conn.setRequestMethod("POST"); 
-		
-		// Header 설정 (application/json 형식으로 데이터를 전송) 
-		conn.setRequestProperty("Content-Type", "application/json"); 
-		conn.setRequestProperty("Accept", "application/json"); // 서버로부터 받을 Data를 JSON 형식 타입으로 요청함 
-		//conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-		
-		// Data 설정 
-		conn.setDoOutput(true); // OutputStream으로 POST 데이터를 넘겨주겠다는 옵션
-		//conn.setDoInput(true); // InputStream으로 서버로 부터 응답을 받겠다는 옵션.
-		
-		//서버로 보낼 데이터 JSON 형태로 변환 (imp_apikey,imp_secret)
-		JSONObject obj = new JSONObject();
-		obj.put("imp_key","6724290352514148");
-		obj.put("imp_secret","IKli0sBCdN5uI6QdpnlRzQKLsVb5jRv1BQkCjVfwJl0ssRGRe2JNStzlpKqICVKdM5Q505BJrCcTtSKH");
-		System.out.println("JSON 변환 결과값 : " +obj.toString());
-		
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
-		bw.write(obj.toString());
-		bw.flush();
-		bw.close();
-		
-		System.out.println("*** 여기까지 오면 Request는 성공 *** ");
-		
-		// 서버로부터 응답 데이터 받기 
-		int responseCode = conn.getResponseCode(); //응답코드 받기 
-		System.out.println("응답 코드는 ??"+responseCode); //응답코드 400이면 요청이 잘못된건데... (요청시 오타작성 발견) 
-		if(responseCode == 200) { //성공 
-			 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			 StringBuilder sb = new StringBuilder();
-			 String line = null;  
-			 while ((line = br.readLine()) != null) {  
-			        sb.append(line + "\n");  
-			 }
-			 br.close();
-			 System.out.println("" + sb.toString());
-			 
-			 //JSONParser 라이브러리를 사용(JSON 형태로 되어있는 데이터들중 원하는 것들을 추출하기 위해 사용)
-			 JSONParser jsonParser = new JSONParser();
-			 //json 데이터를 JSON 객체 형태로 변환 
-			 JSONObject jsonObj = (JSONObject)jsonParser.parse(sb.toString());
-			 //응답 데이터를 가져옴 
-			 JSONObject responseData = (JSONObject)jsonObj.get("response");
-			 //응답 데이터중에서 Key가 access_token Value값을 가져옴 
-			 access_token = (String)responseData.get("access_token");
-			 System.out.println("가져온 access_token 값 : "+access_token);
-			 model.addAttribute("access_token", access_token);
-		}else{ //실패 
-		    System.out.println(conn.getResponseMessage());  
-		}  
-		
-
-		
 		return "admin/refundProcessPage";
 	}
 	
+	
+	//해당 요청환불 처리하기 
+	@RequestMapping(value="/RefundProcess",method=RequestMethod.POST) 
+	public String RefundProcessOk(@RequestBody String refundData,Model model) throws Exception{
+		
+		 //1.환불을 처리할 정보(환불사유,환불금액,환불을 요청할 주문번호) 가져오기 
+		 System.out.println("프론트 단에서 얻어온 json 데이터 -> "+refundData);	
+		 JSONParser jsonParser = new JSONParser();
+		 //json 데이터를 JSON 객체 형태로 변환 
+		 JSONObject jsonObj = (JSONObject)jsonParser.parse(refundData.toString()); 
+		 String reason = (String)jsonObj.get("reason"); //환불사유 
+		 String merchant_uid = (String)jsonObj.get("merchant_uid"); //환불을 조회할 번호 
+		 String amount = (String)jsonObj.get("amount"); 
+		 double amounts = Double.parseDouble(amount); //환불금액 
+
+		 //2.환불을 하기위한 액세스토큰 발급(액세스 토큰 지속시간 :발행시간으로부터 30분) - 필수!! 
+		 ImportUtils import_util = new ImportUtils();
+		 String access_token = import_util.getAccessToken(); //액세스 토큰을 발급받아서 가져오는 메서드 호출 
+		 
+		 System.out.println("환불 사유 : " + reason);
+		 System.out.println("환불 번호 : " + merchant_uid);
+		 System.out.println("환불 금액 : " + amounts);
+		 System.out.println("발급 받은 액세스 토큰 : " + access_token);
+		
+		 //3.환불 요청 처리하는 메서드 호출 
+		 int result = import_util.refundProcess(access_token, merchant_uid);
+		 
+		 //4.환불이 정상적으로 수행되었다면 환불을 요청한 주문처리 상태를 "환불완료" 수정하고 환불가능여부를 "N"으로 수정한다 
+		 if(result == 1) {
+			 adminService.RefundInfoUpdate(merchant_uid); // 업데이트가 수행됬으면 1 반환 안됬으면 0 반환 
+		 }
+			
+		//환불 요청 리스트 내역 페이지로 이동 
+		return "redirect:/admin/RefundList";
+	}
+
 }
 
 

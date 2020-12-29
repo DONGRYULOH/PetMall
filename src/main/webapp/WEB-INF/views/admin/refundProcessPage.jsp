@@ -23,7 +23,7 @@
 		<%@ include file="/WEB-INF/views/admin/include/admin_topnav.jsp"%>
 			
 			<!-- 액세스 토큰값  -->
-			<input type="hidden" id="access_token" value="${access_token}" />
+			<%-- <input type="hidden" id="access_token" value="${access_token}" /> --%>
 			<!-- 주문번호 -->
 			<input type="hidden" id="order_number" value="${refundInfo.order_number}" />
 			<!-- 총가격 -->
@@ -67,13 +67,10 @@
     	
     	<%@ include file="/WEB-INF/views/admin/include/admin_tail_import.jsp"%> 
 
-		<script>
-			  
-			 var access_token = document.getElementById("access_token").value; 
-			 console.log("access_token 값은??"+access_token);
+		<script>			  
 			 
 			 var reason = document.getElementById("refund_reason").value; //환불사유 
-			 var merchant_uid = document.getElementById("order_number").value;  //환부 고유번호(주문번호)
+			 var merchant_uid = document.getElementById("order_number").value;  //환불 고유번호(주문번호)
 			 var total_price = document.getElementById("total_price").value; //환불금액 
 			 
 			 console.log("refund_reason 값은??"+reason);
@@ -81,7 +78,7 @@
 			 console.log("total_price 값은??"+total_price);
 			 
 			 var obj = new Object();
-			
+			 obj.reason = reason;
 			 obj.merchant_uid = merchant_uid;
 			 obj.amount = total_price;
 			 
@@ -90,12 +87,9 @@
 			 
 			 $("#refund_Btn").click(function(){
 				  $.ajax({
-					    url : "https://api.iamport.kr/payments/cancel",
+					    url : "${pageContext.request.contextPath}/admin/RefundProcess",
 					    type : "POST",
-					    beforeSend: function (xhr) {
-				            xhr.setRequestHeader("Content-type","application/json");
-				            xhr.setRequestHeader("Authorization",access_token); 
-				        },
+					    contentType: "application/json; charset=utf-8",
 					    data: refundData,
 					    success : function(result){
 					    	if(result == 1){

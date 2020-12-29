@@ -177,6 +177,12 @@ public class AdminService {
 		return admindao.getRefundInfo(refund_number);
 	}
 	
+	//해당 환불 주문정보 업데이트 처리 
+	public void RefundInfoUpdate(String merchant_uid) {
+		AdminDao admindao = sqlSession.getMapper(AdminDao.class);
+		admindao.RefundInfoUpdate(merchant_uid);
+	}
+	
 }
 
 

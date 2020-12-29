@@ -37,4 +37,6 @@ public interface AdminDao {
 	public List<OrderRefundDto> RefundList();
 	//환불 번호에 해당되는 환불정보 가져오기 
 	public OrderRefundDto getRefundInfo(String refund_number);
+	//해당 환불 주문정보 업데이트 처리 
+	public void RefundInfoUpdate(String merchant_uid);
 }
