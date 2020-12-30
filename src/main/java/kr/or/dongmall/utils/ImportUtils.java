@@ -132,6 +132,40 @@ public class ImportUtils {
 	
 	
 	
+	//결제 정보 조회 함수 
+	public void paymentSelect(String access_token,String imp_uid) throws Exception{
+
+		HttpURLConnection conn = null;
+		URL url = new URL("https://api.iamport.kr/payments/"+imp_uid); //액세스 토큰을 받아올 주소입력 
+		conn = (HttpURLConnection)url.openConnection();
+		
+		// 요청방식 : GET 
+		conn.setRequestMethod("GET");
+		
+		// Header 설정  
+		conn.setRequestProperty("Authorization", access_token); 
+		
+		// 서버로부터 응답 데이터 받기 
+		int responseCode = conn.getResponseCode(); //응답코드 받기 
+		System.out.println("응답 코드는 ??"+responseCode); //응답코드 400이면 요청이 잘못된건데... (요청시 오타작성 발견) 
+		if(responseCode == 200) { //성공 
+			System.out.println("환불성공!!!!!");
+			 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			 StringBuilder sb = new StringBuilder();
+			 String line = null;  
+			 while ((line = br.readLine()) != null) {  
+			        sb.append(line + "\n");  
+			 }
+			 br.close();
+			 System.out.println("" + sb.toString());
+		}else{ //실패 
+		    System.out.println(conn.getResponseMessage());  
+		} 
+		
+	}
+	
+	
+	
 	
 	
 	

@@ -320,8 +320,8 @@ public class AdminController {
 	
 	//해당 요청환불 처리하기 
 	@RequestMapping(value="/RefundProcess",method=RequestMethod.POST) 
-	public String RefundProcessOk(@RequestBody String refundData,Model model) throws Exception{
-		
+	public int RefundProcessOk(@RequestBody String refundData,Model model) throws Exception{
+
 		 //1.환불을 처리할 정보(환불사유,환불금액,환불을 요청할 주문번호) 가져오기 
 		 System.out.println("프론트 단에서 얻어온 json 데이터 -> "+refundData);	
 		 JSONParser jsonParser = new JSONParser();
@@ -341,7 +341,7 @@ public class AdminController {
 		 System.out.println("환불 금액 : " + amounts);
 		 System.out.println("발급 받은 액세스 토큰 : " + access_token);
 		
-		 //3.환불 요청 처리하는 메서드 호출 
+		 //3.환불 요청 처리하는 메서드 호출(반환값이 1이면 정상적으로 환불처리됨 0이면 환불 X)  
 		 int result = import_util.refundProcess(access_token, merchant_uid);
 		 
 		 //4.환불이 정상적으로 수행되었다면 환불을 요청한 주문처리 상태를 "환불완료" 수정하고 환불가능여부를 "N"으로 수정한다 
@@ -349,8 +349,7 @@ public class AdminController {
 			 adminService.RefundInfoUpdate(merchant_uid); // 업데이트가 수행됬으면 1 반환 안됬으면 0 반환 
 		 }
 			
-		//환불 요청 리스트 내역 페이지로 이동 
-		return "redirect:/admin/RefundList";
+		return result;
 	}
 
 }

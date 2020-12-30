@@ -94,10 +94,9 @@
 					    success : function(result){
 					    	if(result == 1){
 						     	alert("환불 성공!!");
-						     	//결제 완료페이지로 이동 
-						     	/* var url = "${pageContext.request.contextPath}/shop/paymentOk";	
-						     	url = url + "?order_number=" + orderNum; //주문번호
-				    			location.href = url; */
+						     	//환불 내역 리스트 페이지 이동 
+						     	var url = "${pageContext.request.contextPath}/admin/RefundList";	
+				    			location.href = url; 
 					    	}else{
 					    		alert("환불중 에러 발생!!");
 					    	}

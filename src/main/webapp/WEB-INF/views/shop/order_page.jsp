@@ -291,8 +291,8 @@
 			  	      pg : 'inicis', 
 			  	      pay_method : 'card',
 			  	      merchant_uid : 'ID' + new Date().getTime(), //고유 주문번호(환불할시 필요함) 
-			  	      name : '주문명:결제테스트',
-			  	      amount : 700, //document.getElementById("total_fee").value, // 총 주문금액 
+			  	      name : '상품결제',
+			  	      amount : document.getElementById("total_fee").value, // 총 주문금액 
 			  	      buyer_email : document.getElementById("user_email").value,  //구매자 이메일 
 			  	      buyer_name : document.getElementById("user_name").value, //구매자 이름
 			  	      buyer_tel : document.getElementById("user_phone").value, //구매자 전화번호 
