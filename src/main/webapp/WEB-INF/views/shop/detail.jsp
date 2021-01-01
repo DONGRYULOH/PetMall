@@ -201,12 +201,35 @@
 						</p>
 						<div>
 							<div>
-								<form action="${pageContext.request.contextPath}/shop/order_page_b" method="post">
-								
-				                    <input type="hidden" name="product_number" value="${product.product_number}" />
-				                    <input type="hidden" id="product_count" name="product_count" value="1"/>  
-				                  	<input class="btn btn-default" style="width: 228px;" type="submit" value="구매하기"> 
-			                   </form>
+							<!-- 회원으로 구매시 -->
+							 <c:if test="${User != null }">
+									<form action="${pageContext.request.contextPath}/shop/order_page_b" method="post">
+									
+					                    <input type="hidden" name="product_number" value="${product.product_number}" />
+					                    <input type="hidden" id="product_count" name="product_count" value="1"/>  
+					                  	<input class="btn btn-default" style="width: 228px;" type="submit" value="구매하기"> 
+				                   </form>
+				             </c:if>
+				             <!-- 비회원으로 구매시 -->
+							 <c:if test="${User == null }">
+									<form action="${pageContext.request.contextPath}/shop/nonUserOrder" method="post">
+					                    <input type="hidden" name="product_number" value="${product.product_number}" />
+					                    <input type="hidden" id="product_count" name="product_count" value="1"/>  
+					                  	<input class="btn btn-default" style="width: 228px;" type="submit" onClick="return payment_ck();" value="구매하기"> 
+				                   </form>
+				             </c:if>
+				             <!-- 비회원으로 구매하기 클릭시 구매여부 확인 -->
+				              <script>
+				              		function payment_ck(){
+				              			
+				              			 var deleteConfirm = confirm("비회원으로 구매하시겠습니까??");
+				              			 
+				              			 if(deleteConfirm){
+				              				 return true;
+				              			 }
+				              			 return false;
+				              		}
+				              </script>
 							</div>
 							<div>
 							  <a href="#" class="btn btn-lg btn-white btn-icon mb-3 mb-sm-0">

@@ -174,6 +174,10 @@ public class ShopController {
 		Product_ImageFile delegate_image = shopService.shop_delegate_image(product_number);
 		model.addAttribute("delegate_image",delegate_image);
 		
+		//로그인 세션 
+//		UserDto user = UserSession(model, request);
+//		model.addAttribute("user",user);
+		
 		return "shop/detail";
 	}
 	
@@ -414,6 +418,40 @@ public class ShopController {
 		//결제한 상품정보 가져오기(상품명,상품이미지,주문금액)
 		
 		return "shop/paymentOkPage";
+	}
+	
+	
+	// *********************** <비회원 주문하기> ****************************
+
+	//비회원으로 구매하기 버튼을 클릭했을 경우 
+	@RequestMapping(value="/nonUserOrder", method=RequestMethod.POST)
+	public String nonUserOrder(ProductDto product,HttpSession session,Model model,HttpServletRequest request) {
+		
+		UserDto user = (UserDto)session.getAttribute("User");
+		
+		//1.회원의 배송지 정보 가져오기 
+		UserAddressDto user_address = shopService.getUserAddress(user.getUser_id());
+		model.addAttribute("user_address",user_address);
+		
+		//2.회원의 정보(이름,전화번호,이메일) 가져오기 
+		UserDto userInfo = shopService.getUserInfo(user.getUser_id());
+		model.addAttribute("userInfo",userInfo);
+		
+		//3.해당상품 정보가져오기
+		int product_count = Integer.parseInt(product.getProduct_count()); //문자열 -> 정수형으로 변환 
+		model.addAttribute("product_count",product_count); //선택한 상품개수
+		ProductDto productInfo = shopService.getProductInfo(product.getProduct_number());
+		model.addAttribute("productInfo",productInfo);
+
+		//4.전체금액/배송비/배송비를 포함한 전체금액 
+		int total = productInfo.getProduct_price() * product_count; //상품의 총금액 
+		int fee = total >= 50000 ? 0 : 2500; //배송비 
+		int total_fee = total + fee; // 배송비 + 총금액 (전체금액)
+		model.addAttribute("total",total);
+		model.addAttribute("fee",fee);
+		model.addAttribute("total_fee",total_fee);
+		
+		return "shop/order_page";
 	}
 	
 }
