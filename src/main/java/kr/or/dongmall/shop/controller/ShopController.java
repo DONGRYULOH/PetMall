@@ -43,6 +43,7 @@ import kr.or.dongmall.shop.dto.ProductReply;
 import kr.or.dongmall.shop.service.ShopService;
 import kr.or.dongmall.user.dto.UserAddressDto;
 import kr.or.dongmall.user.dto.UserDto;
+import kr.or.dongmall.utils.CartUtils;
 import kr.or.dongmall.utils.ImportUtils;
 import kr.or.dongmall.utils.OrderUtils;
 
@@ -106,8 +107,10 @@ public class ShopController {
 	 	<상품를 계속해서 무한새로고침 또는 조회시 계속해서 조회수가 올라가는걸 막기위해 쿠키를 사용한 조회수 방지방법을 사용해본다>
 	 	해당 게시물(상품)클릭시 조회수 올리기 방지 방법 => 쿠키사용 (세션 쿠키를 사용)
 	 	@CookieValue => 사용자브라우저에 저장되어있는 쿠키를 읽기만 가능
+	 	
+	 	쿠키 이외의 다른 방식) 
 	 	1.세션은 쿠키보다 보안이 좋지만 세션을 사용시 서버의 자원을 낭비하므로 보안이 중요하지 않은데이터는 쿠키를 사용하는것이 좋다고 판단함 
-	 	2.상품조회시 해당 IP를 테이블에 저장하는 방식으로 DB에 저장(IP,조회날짜)시키는 방식 사용자수가 많아지면 DB의 용량이 커지고 많은 자원을 사용하게 된다고 판단함 
+	 	2.상품조회시 해당 IP를 테이블에 저장하는 방식으로 DB에 저장(IP,조회날짜)시키는 방식은 사용자수가 많아지면 DB의 용량이 커지고 많은 자원을 사용하게 된다고 판단함 
 	 	
 	 	<쿠키 라이프 타임>
 	 	-세션 쿠키 : 브라우저를 닫을때 쿠키가 삭제됨(세션쿠키가 없어지는 시점)
@@ -116,41 +119,47 @@ public class ShopController {
 	@RequestMapping(value="/detail",method=RequestMethod.GET)
 	public String shopDetail(HttpServletResponse response,HttpServletRequest request,@CookieValue(value = "viewProductCookie",defaultValue="null") String viewProduct,@RequestParam("n") int product_number,Model model)throws Exception{
 		
-		Cookie[] cookies = request.getCookies();
+		Cookie[] cookies = request.getCookies(); //사용자 브라우저에 저장되있는 모든 쿠키를 가져와서 배열에 넣음 
 		Cookie viewProductCookie = null; //해당게시물의 다중접근 여부 
 		
 		for(int i=0;i<cookies.length;i++) {
 			//사용자 클라이언트 브라우저에 해당이름으로된 쿠키가 존재하는경우 
 			if(cookies[i].getName().equals("viewProductCookie")) {
 				viewProductCookie = cookies[i];
+				System.out.println("cookies 는??"+cookies[i]);
 			}
 		}
+		
+		String getViewCookie = null; //조회수를 방지하는 쿠키의 값 
+		int check = 0;
 		
 		//상품조회시 조회수를 방지하는 쿠키가 없을경우
 		if(viewProductCookie == null) {
 			System.out.println("조회수 1증가 가능!");
 			//조회수 1증가시키기 
 			shopService.productViewCount(product_number);
-			//쿠키 생성 (key - 쿠키이름 , value - 쿠키값(상품번호) ) 
+			//세션 쿠키 생성 (key - 쿠키이름 , value - 쿠키값(상품번호) ) 
 			Cookie newCookie = new Cookie("viewProductCookie","|"+product_number);
-			//newCookie.setMaxAge(60*60*24); //쿠키 시간(24시간설정) 
 			response.addCookie(newCookie);
-		}else {
+		}else { //조회수를 방지하는 쿠키가 있을경우 
 			System.out.println("viewProductCookie 존재!");
-			String value = viewProductCookie.getValue(); //해당쿠키의 값을 가져옴 
-			System.out.println("가져온 쿠키값 -->"+value);
+			getViewCookie = viewProductCookie.getValue(); //조회수를 방지하는 쿠키의 값을 가져옴 
+			System.out.println("가져온 쿠키값 -->"+getViewCookie); // ex) |6|7|5|9|10|11|12
 			
 			//가져온 쿠키값이 해당게시글번호와 일치여부 판단 
-			//ex) product_A(가져온 쿠키값) != product_B(보고있는 상품정보) 
-			if(value.indexOf("|"+product_number) == -1) { // 값.indexOf("찾을특정문자",시작할위치(생략가능 생략시 처음부터찾음))
-				//조회수 1증가시키기 
+			//ex) 쿠키값 (|6|7|5|9|10|11|12) <-> 현재 보고있는 상품번호(6번) => 쿠키값에 6번이 존재하므로 이미 조회수가 1증가되었음  더이상 조회수 증가X
+			//ex) 쿠키값 (|7|5|9|10|11|12) <-> 현재 보고있는 상품번호(6번) => 쿠키값에 6번이 존재하지 않으므로 조회수 증가시킴  
+			if(getViewCookie.indexOf("|"+product_number) == -1) { // 값.indexOf("찾을특정문자",시작할위치(생략가능 생략시 처음부터찾음))
+				System.out.println("조회수 1증가 가능!");
+				//해당 상품의 조회수를 1증가 시키고 쿠키값을 재설정 해줌 
 				shopService.productViewCount(product_number);
-				
-				value = value + "|" + product_number;
-				viewProductCookie.setValue(value);
-				//viewProductCookie.setMaxAge(60*60*24); //쿠키 시간(24시간설정) 
+				viewProductCookie.setValue(getViewCookie + "|" + product_number);
 				response.addCookie(viewProductCookie);
+				check = 1;
 			}
+			
+			if(check != 1)
+				System.out.println("해당 상품에 대한 조회수가 이미 증가되었음!! 조회수 증가X");
 		}
 		
 		//상품이미지 제외한 상품세부사항만 가져옴 
@@ -164,8 +173,6 @@ public class ShopController {
 		//해당 상품의 대표이미지만 가져옴 
 		Product_ImageFile delegate_image = shopService.shop_delegate_image(product_number);
 		model.addAttribute("delegate_image",delegate_image);
-		
-		model.addAttribute("User",UserSession(model,request));
 		
 		return "shop/detail";
 	}
@@ -208,9 +215,7 @@ public class ShopController {
 	@ResponseBody
 	@RequestMapping(value="/view/replyModify", method=RequestMethod.POST)
 	public void replyModify(ProductReply reply)throws Exception{
-
-		shopService.replyModify(reply);
-		
+		shopService.replyModify(reply);	
 	}
 	
 	
@@ -221,45 +226,7 @@ public class ShopController {
 		shopService.reCmtInsert(reply);
 	}
 	
-	//서버에 저장되어있는 모든 세션을 가져오는 함수 
-	public ArrayList<String> allSession(HttpSession session){
-		Enumeration session_values = session.getAttributeNames();
-		int cnt = 0;
-		String session_name = "";
-		String session_value = "";
-		
-		ArrayList<String> s_list = new ArrayList<String>();
-		
-		//nextElement 하면 서버로부터 뽑아올 세션데이터 1씩 줄어들기 떄문에 ... 
-		while(session_values.hasMoreElements()) {
-			cnt++; 
-			session_name = session_values.nextElement().toString();
-			session_value = session.getAttribute(session_name).toString();
-			System.out.println(cnt+"번째 세션이름->"+session_name);
-			System.out.println(cnt+"번째 세션값->"+session_value);
-			s_list.add(session_value);
-		}
-		return s_list;
-	}
 	
-	//사용자브라우저의 쿠키값과 서버의 세션값이 일치하는게 없는경우의 함수 
-	public String notCookie_Session(HttpSession session,HttpServletResponse response) {
-	 	 //128비트의 랜덤 UUID 코드생성한 값을 서버의 세션과 브라우저의 쿠키에 저장시킴
-		 UUID uid = UUID.randomUUID();
-		 String guest = uid + "guest";
-		 
-		 //쿠키이름은 guest라는 이름으로 부여 
-		 System.out.println("생성된 쿠키값->"+guest);				 
-		 //비회원 식별값을 세션에 저장시킴
-		 session.setAttribute("guest",guest);
-		 
-		 Cookie setCookie = new Cookie("guest",guest);
-		 setCookie.setPath("/"); //쿠키가 유효한 경로 설정(전역 페이지) 
-		 setCookie.setMaxAge(60*60*24); //쿠키 유효시간 
-		 response.addCookie(setCookie); //쿠키 저장하기 
-		 
-		 return guest;
-	}
 	
 	// 카트 담기
 	@ResponseBody
@@ -268,51 +235,16 @@ public class ShopController {
 		
 		int result = 0; // 카트담기 성공/실패 여부 (1이면 성공 0이면 실패) 
 		
-		//현재세션에 저장되어있는 유저ID 가져오기(로그인된 사용자의 아이디 가져오는것)
+		//현재세션에 저장되어있는 유저ID 가져오기(로그인된 사용자의 아이디 가져오는것) 
 		UserDto user = (UserDto)session.getAttribute("User");
-		String user_id = null;
-		//사용자브라우저에 쿠키값이 서버의 세션에 존재하는지 체크함
-		boolean check = false; 
 		
-		//서버에 저장되어있는 모든 세션을 가져오기 (함수1)
-		//서버의 세션에 저장되어 있는 값들 (키,값 -> map으로 저장시킬까??)
-		ArrayList<String> s_list = allSession(session);	
-		
-		if(user != null) { //세션이 남아있는경우(로그인시) - 회원인 경우  	
-			user_id = user.getUser_id();
-		}else { // 비회원일경우 장바구니에 물품을 담는 경우 
-			
-			// 1.사용자 브라우저에 저장되있는 쿠키값을 가져와서 서버의 세션값과 비교 
-			Cookie[] getCookie = request.getCookies();
-			root:for(int k=0;k<getCookie.length;k++) {
-				String value = getCookie[k].getValue(); //쿠키값 
-				
-				//1-1.사용자 브라우저의 쿠키값과 서버의 세션값이 일치하는 경우(사용자 브라우저의 쿠키값으로 장바구니에 물품을 등록함)
-				//브라우저의 쿠키값 과 서버에 저장되어있는 세션값들(1부터...N까지 돌면서 비교-구구단과 비슷)
-				for(int j=0;j<s_list.size();j++) {
-					System.out.println("서버의 값->"+s_list.get(j));
-					
-					//사용자 브라우저의 쿠키값과 서버의 세션값이 매칭이 되는 경우 실행 
-					if(value.equals(s_list.get(j))){
-						user_id = value;
-						check = true;
-						break root;
-					}
-					
-				}
-		
-			}//root:END 
-			
-			//2.사용자브라우저의 쿠키값과 서버의 세션값이 일치하는게 없는경우(비회원식별값을 랜덤으로 만들어서 세션에 저장시킨다음 사용자 브라우저의 쿠키값으로 전달)
-			if(check == false) {
-				 user_id = notCookie_Session(session,response);
-			}
-		}
+		//<카트(장바구니)를 담을때 회원 OR 비회원 여부 파악하기> 
+		CartUtils cartUtils = new CartUtils();
+		String user_id = cartUtils.nowCartDivide(user, session, request, response);
 		
 		//장바구니에 물품담기 
 		cart.setUser_id(user_id); //회원일 경우 회원ID를 비회원일 경우 비회원고유식별값(쿠키)를 셋팅시킴 
 		result = shopService.addCart(cart); //result 값이 1일경우 카트담기 성공 0일경우 실패 
-		System.out.println("result 값??"+result);
 		
 		return result;
 	}
@@ -322,52 +254,11 @@ public class ShopController {
 	public String cartList(HttpSession session,Model model,HttpServletRequest request,HttpServletResponse response) throws Exception{
 		
 		//1.현재세션에 저장되어있는 유저ID 가져오기 
-		UserDto user = null;
-		String user_id = null;	
+		UserDto user = (UserDto)session.getAttribute("User");
 		
-		//사용자브라우저에 쿠키값이 서버의 세션에 존재하는지 체크함
-		boolean check = false; 
-				
-		//서버에 저장되어있는 모든 세션을 가져오기 (함수1)
-		ArrayList<String> s_list = allSession(session);	
-
-		//1-1.회원일경우 OR 비회원일 경우로 나눠봐야됨 
-		if(session.getAttribute("User") != null) {
-			// 회원인 경우 (회원 ID로 장바구니 테이블에 있는 목록들을 조회함) 
-			user = (UserDto)session.getAttribute("User");
-			user_id = user.getUser_id();
-			System.out.println("현재 유저ID"+user.getUser_id());			
-		}else {
-			// 비회원인 경우 
-			// 1.사용자 브라우저에 저장되있는 쿠키값을 가져온다 
-			Cookie[] getCookie = request.getCookies();
-			
-			//2.가져온 쿠키값을 서버에 있는 세션값이랑 비교를 한다 (만약 일치하는게 있다면 그 세션값으로 장바구니 리스트를 출력한다)			
-			//중첩문을 탈출하는 방법(함수로 만들어서 return 해주기 , 라벨 붙이기 , flag 세우기) 
-			root:for(int i=0;i<getCookie.length;i++) {
-				String name = getCookie[i].getName(); //쿠키이름 
-				String value = getCookie[i].getValue(); //쿠키값 
-				System.out.println("쿠키이름->"+name);
-				System.out.println("쿠키값->"+value);
-				
-				//1-1.사용자 브라우저의 쿠키값과 서버의 세션값이 일치하는 경우
-				for(int j=0;j<s_list.size();j++) {
-					//브라우저의 쿠키값 과 서버에 저장되어있는 세션값들(1부터...N까지 돌면서 비교)
-					System.out.println("서버의 값->"+s_list.get(j));
-					if(value.equals(s_list.get(j))){
-						user_id = value;
-						check = true;
-						break root;
-					}
-				}
-			}
-			
-			//3.사용자브라우저의 쿠키값과 서버의 세션값이 일치하는게 없는경우(비회원식별값을 랜덤으로 만들어서 세션에 저장시킨다음 사용자 브라우저의 쿠키값으로 전달)
-			if(check == false) {
-				 user_id = notCookie_Session(session,response);
-			}
-									 
-		}
+		//<장바구니 목록을 출력할때 회원 OR 비회원 여부 파악>
+		CartUtils cartUtils = new CartUtils();
+		String user_id = cartUtils.nowCartDivide(user, session, request, response);
 
 		//2.해당 유저가 장바구니에 담은 리스트 가져오기 
 		List<CartDto> cartList = shopService.cartList(user_id);
@@ -376,11 +267,9 @@ public class ShopController {
 		int total = 0;
 		for(int i=0;i<cartList.size();i++) {
 			total += cartList.get(i).getProduct_count() * cartList.get(i).getProduct_price(); // 수량 * 상품가격 
-		}
-		
+		}		
 		//4.장바구니 전체금액에 따른 배송비 구분 ( 5만원 이상이면 무료 미만이면 배송비 2500 추가  )
 		int fee = total >= 50000 ? 0 : 2500;
-		
 		//5.배송비를 포함한 전체금액 
 		int total_fee = total + fee;				
 			
@@ -391,7 +280,6 @@ public class ShopController {
 		model.addAttribute("total",total);
 		model.addAttribute("fee",fee);
 		model.addAttribute("total_fee",total_fee);
-		//model.addAttribute("User",UserSession(model,request));
 		
 		return "cart/cartList_1";
 	}
@@ -457,6 +345,7 @@ public class ShopController {
 		int fee = total >= 50000 ? 0 : 2500;
 		//6.배송비를 포함한 전체금액 
 		int total_fee = total + fee;
+		
 		model.addAttribute("total",total);
 		model.addAttribute("fee",fee);
 		model.addAttribute("total_fee",total_fee);

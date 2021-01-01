@@ -20,7 +20,6 @@
   	 <div class="container"> 
   	  
   	    	<%@ include file="/WEB-INF/include/header.jsp"%>
-  	  		<h2>장바구니</h2>
 			    <c:choose>
 			        <c:when test="${cartListCount == 0}">
 			            	장바구니가 비어있습니다.
@@ -34,9 +33,7 @@
 							 <div class="delBtn">
 							   <button type="button" id="selectDelete">선택 삭제(체크박스에 체크한것만 삭제)</button> 
 						  	</div><br>		
-						 
-						    
-							
+						 	
 			              <c:forEach var="list" items="${cartList}" varStatus="status">
 			                	<div class="row" style="margin-bottom: 30px;">
 			                	
@@ -48,9 +45,9 @@
 									
 									<div class="col-6">
 										 <span class="name mb-0 text-sm">상품명:</span>${list.product_name}<br>
-										  <span>개당 가격:</span><fmt:formatNumber pattern="###,###,###" value="${list.product_price}" /> 원<br />
+										  <span>개당 가격:</span><fmt:formatNumber pattern="###,###,###" value="${list.product_price}" />원<br />
 										   <div>
-										      	구입수량 : <input type="number" style="width: 40px" name="product_count" id="product_count${status.index}"  value="${list.product_count}"/>										      
+										      	구입수량:<input type="number" style="width: 40px" name="product_count" id="product_count${status.index}"  value="${list.product_count}"/>										      
 										      	<input type="hidden" id="cart_num" value="${list.cart_number}"/>										      											      	
 											     <!-- 수정시 해당 카트번호와 변경할 수량을 같이 들고가야됨 -->													     									  
 						                         <button id="cartUpdateBtn${status.index}">수정</button>	
@@ -65,9 +62,15 @@
 						 		
 							
 							   <div>
-							   		장바구니 금액 합계 : <fmt:formatNumber pattern="###,###,###" value="${total}"/><br>
-						                        배송료 : ${fee}<br>
-						                        전체 주문금액  :<fmt:formatNumber pattern="###,###,###" value="${total_fee}"/>
+							   		  <span class="h2 font-weight-bold mb-0">장바구니 금액 합계 :
+							   		  	<fmt:formatNumber pattern="###,###,###" value="${total}"/>
+							   		  </span><br>
+							   		  <span class="h2 font-weight-bold mb-0">
+						                       	배송료 : ${fee}<br>
+						              </span>
+						              <span class="h2 font-weight-bold mb-0">
+						                                          전체 주문금액  : <fmt:formatNumber pattern="###,###,###" value="${total_fee}"/>
+						              </span>
 							   </div> 
 				
 								

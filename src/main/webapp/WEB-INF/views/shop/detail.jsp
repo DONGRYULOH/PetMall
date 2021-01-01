@@ -64,7 +64,7 @@
 		   					reCmt += "<button type='button' class='replyBtn' reply_num='" + this.reply_number + "'>답글달기</button>"
 		   					reCmt += "</div>"
 		   				}else{ //depth 1이상일경우 
-		   					depthStyle = " background-color : green;";
+		   					depthStyle = " background-color : #FFC5D0; width:250px;";
 		   					depthCss = " padding-left: 50px;";
 		   				}
 		   				
@@ -124,13 +124,12 @@
   	    	<%@ include file="/WEB-INF/include/header.jsp"%>
    		 	
 
-			<h1>상품 조회 페이지 </h1>
   	  		<form role="form" method="post" autocomplete="off">
   	  			<!--  수정과 삭제시 번호를 받아서 할꺼기 떄문에 hidden 으로 숨겨놈 -->
 				<input type="hidden" name="n" value="${product.product_number}" /> 
 			</form>
 			
-				<div class="row">
+				<div class="row" style="margin-top: 30px;">
 					<!-- 상품 이미지  -->
 					<div class="col-8">
 						
@@ -258,7 +257,15 @@
 						</div>					
 					</div>
 				</div>
-			
+				
+				<!-- 전체 이미지 출력 -->
+				 <c:forEach items="${product_image}" var="imageList" varStatus="var" >					
+					<!-- 기본 이미지인 경우 -->
+					<div class="imageList" style="position:absoulte;width:100%;height:100%;">
+						<img src="${pageContext.request.contextPath}/imgUpload/${imageList.stored_thumbNail}" class="subImage" id="image_${var.count}" style="position:absoulte;width:100%;height:100%;margin-top: 30px;"/> 
+					</div>
+				 </c:forEach>
+				 
 				<div id="reply">
 					<!-- 로그인 되지 않은 상태일떄 -->
 					 <c:if test="${User == null }">
@@ -308,7 +315,8 @@
 						  </form>
 						 </section>
 					 </c:if>
-					 
+					 				 
+					 <!-- 댓글 리스트  -->
 					 <section class="replyList">
 					 
 					 		<!-- 댓글 목록이 들어가는 부분  -->

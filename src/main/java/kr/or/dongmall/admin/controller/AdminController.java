@@ -329,7 +329,7 @@ public class AdminController {
 		 JSONObject jsonObj = (JSONObject)jsonParser.parse(refundData.toString()); 
 		 String reason = (String)jsonObj.get("reason"); //환불사유 
 		 String merchant_uid = (String)jsonObj.get("merchant_uid"); //환불을 조회할 번호 
-		 String amount = (String)jsonObj.get("amount"); 
+		 String amount = (String)jsonObj.get("amount");  //환불금액 
 		 double amounts = Double.parseDouble(amount); //환불금액 
 
 		 //2.환불을 하기위한 액세스토큰 발급(액세스 토큰 지속시간 :발행시간으로부터 30분) - 필수!! 
