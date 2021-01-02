@@ -37,6 +37,8 @@ import kr.or.dongmall.admin.dto.Product_Join_ProductImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dto.CartDto;
+import kr.or.dongmall.shop.dto.NonuserOrderDetailDto;
+import kr.or.dongmall.shop.dto.NonuserOrderDto;
 import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.shop.dto.ProductReply;
@@ -285,6 +287,18 @@ public class ShopController {
 		model.addAttribute("fee",fee);
 		model.addAttribute("total_fee",total_fee);
 		
+		//8.사용자 브라우저의 쿠키에 저장되어있는 비회원 식별번호 가져오기 
+		String nonUserNumber = null;
+		Cookie[] cookies = request.getCookies(); //사용자 브라우저에 저장되있는 모든 쿠키를 가져와서 배열에 넣음 
+		for(int i=0;i<cookies.length;i++) {
+			//사용자 클라이언트 브라우저에 해당이름으로된 쿠키가 존재하는경우 
+			if(cookies[i].getName().equals("guest")) {
+				nonUserNumber = cookies[i].getValue();
+				System.out.println("비회원 식별번호 값은??"+nonUserNumber);
+			}
+		}
+		model.addAttribute("nonUserNumber",nonUserNumber);
+
 		return "cart/cartList_1";
 	}
 	
@@ -388,7 +402,7 @@ public class ShopController {
 		return "shop/order_page";
 	}
 	
-	//결제완료시 주문정보 테이블에 INSERT 
+	//결제완료시 주문정보 테이블에 INSERT(회원인 경우) 
 	@ResponseBody
 	@RequestMapping(value="/orderInfoInsert", method=RequestMethod.POST)
 	public int orderInfoInsert(OrderDto orderInfo,ArrayList<OrderDetailDto> orderDetailInfo,@RequestBody String json,HttpSession session) throws Exception {
@@ -406,7 +420,7 @@ public class ShopController {
 		return result;
 	}
 	
-	//결제완료 페이지로 이동 
+	//결제완료 페이지로 이동 (회원일 경우) 
 	@RequestMapping(value="/paymentOk", method=RequestMethod.GET)
 	public String paymentOk(@RequestParam String order_number,Model model) {
 		
@@ -423,27 +437,18 @@ public class ShopController {
 	
 	// *********************** <비회원 주문하기> ****************************
 
-	//비회원으로 구매하기 버튼을 클릭했을 경우 
+	//비회원으로 해당상품을 구매하기 버튼을 클릭했을 경우 
 	@RequestMapping(value="/nonUserOrder", method=RequestMethod.POST)
-	public String nonUserOrder(ProductDto product,HttpSession session,Model model,HttpServletRequest request) {
+	public String nonUserOrderPost(ProductDto product,HttpSession session,Model model,HttpServletRequest request) {
+
 		
-		UserDto user = (UserDto)session.getAttribute("User");
-		
-		//1.회원의 배송지 정보 가져오기 
-		UserAddressDto user_address = shopService.getUserAddress(user.getUser_id());
-		model.addAttribute("user_address",user_address);
-		
-		//2.회원의 정보(이름,전화번호,이메일) 가져오기 
-		UserDto userInfo = shopService.getUserInfo(user.getUser_id());
-		model.addAttribute("userInfo",userInfo);
-		
-		//3.해당상품 정보가져오기
+		//1.해당상품 정보가져오기
 		int product_count = Integer.parseInt(product.getProduct_count()); //문자열 -> 정수형으로 변환 
 		model.addAttribute("product_count",product_count); //선택한 상품개수
 		ProductDto productInfo = shopService.getProductInfo(product.getProduct_number());
 		model.addAttribute("productInfo",productInfo);
 
-		//4.전체금액/배송비/배송비를 포함한 전체금액 
+		//2.전체금액/배송비/배송비를 포함한 전체금액 
 		int total = productInfo.getProduct_price() * product_count; //상품의 총금액 
 		int fee = total >= 50000 ? 0 : 2500; //배송비 
 		int total_fee = total + fee; // 배송비 + 총금액 (전체금액)
@@ -451,7 +456,66 @@ public class ShopController {
 		model.addAttribute("fee",fee);
 		model.addAttribute("total_fee",total_fee);
 		
-		return "shop/order_page";
+		return "shop/non_order_page";
+	}
+	
+	//비회원으로 장바구니에서 구매하기 버튼을 클릭했을 경우 
+	@RequestMapping(value="/nonUserOrder", method=RequestMethod.GET)
+	public String nonUserOrderGet(Model model,HttpServletRequest request) {
+
+		
+		//1.비회원 식별번호에 해당되는 주문리스트 가져오기 
+		String nonUserNumber = request.getParameter("nonUserNumber");
+		System.out.println("브라우저의 쿠키값에서 가져온 비회원 식별번호는??" + nonUserNumber);
+		List<CartDto> cartList = shopService.cartList(nonUserNumber);
+		model.addAttribute("cartList",cartList);
+
+		//2.장바구니의 전체금액 가져오기
+		int total = 0;
+		for(int i=0;i<cartList.size();i++) {
+			total += cartList.get(i).getProduct_count() * cartList.get(i).getProduct_price(); // 수량 * 상품가격 
+		}
+		//3.장바구니 전체금액에 따른 배송비 구분 ( 5만원 이상이면 무료 미만이면 배송비 2500 추가  )
+		int fee = total >= 50000 ? 0 : 2500;
+		//4.배송비를 포함한 전체금액 
+		int total_fee = total + fee;
+				
+		model.addAttribute("total",total);
+		model.addAttribute("fee",fee);
+		model.addAttribute("total_fee",total_fee);
+		
+		return "shop/non_order_page";
+	}
+	
+	//결제완료시 주문정보 테이블에 INSERT(비회원인 경우) 
+	@ResponseBody
+	@RequestMapping(value="/nonUserOrderInsert", method=RequestMethod.POST)
+	public int nonUserOrderInfoInsert(NonuserOrderDto nonuserOrderDto,ArrayList<NonuserOrderDetailDto> nonuserOrderDetailInfo,@RequestBody String json) throws Exception {
+
+		System.out.println("프론트 단에서 얻어온 json 데이터 -> "+json);		
+		
+		// JSON 형식으로 된 결제,주문정보 값 추출해서 해당 변수에 설정하기  
+		OrderUtils orderUtils = new OrderUtils();
+		orderUtils.nonUserOrderInfoExtract(nonuserOrderDto, nonuserOrderDetailInfo, json);
+		
+		//주문한 상품들과 주문정보(배송지,회원정보)를 서비스단에서 처리함 
+		int result = shopService.nonUserOrderInfoInsert(nonuserOrderDto,nonuserOrderDetailInfo);
+		
+		return result;
+	}
+	
+	//결제완료 페이지로 이동 (비회원일 경우) 
+	@RequestMapping(value="/nonUserPaymentOk", method=RequestMethod.GET)
+	public String nonUserPaymentOk(@RequestParam String order_number,Model model) {
+		
+		System.out.println("주문번호 ->"+order_number);
+		//결제한 비회원의 정보 가져오기(배송지,주문번호,회원정보)
+		NonuserOrderDto nonuserOrderInfo =  shopService.getNonuserOrderInfo(order_number);
+		model.addAttribute("nonuserOrderInfo", nonuserOrderInfo);
+		
+		//결제한 상품정보 가져오기(상품명,상품이미지,주문금액)
+		
+		return "shop/nonUserPaymentOkPage";
 	}
 	
 }

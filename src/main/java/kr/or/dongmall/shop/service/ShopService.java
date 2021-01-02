@@ -15,6 +15,8 @@ import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dao.ShopDao;
 import kr.or.dongmall.shop.dto.CartDto;
+import kr.or.dongmall.shop.dto.NonuserOrderDetailDto;
+import kr.or.dongmall.shop.dto.NonuserOrderDto;
 import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.shop.dto.ProductReply;
@@ -116,11 +118,7 @@ public class ShopService {
 		List<CartDto> cartList = null;
 		try {
 			cartList = shopdao.cartList(user_id);
-			for(int i=0;i<cartList.size();i++) {
-				
-//				int cart_num = (int)cartList.get(i).getCart_num();				
-//				cartList.get(i).setCart_num(cart_num);
-					
+			for(int i=0;i<cartList.size();i++) {				
 				System.out.println("상품 번호 -> " +cartList.get(i).getProduct_number());
 				System.out.println("유저ID -> "+cartList.get(i).getUser_id());
 				System.out.println("상품이름 -> "+cartList.get(i).getProduct_name());
@@ -232,16 +230,16 @@ public class ShopService {
 		return shopdao.getProductInfo(product_number);
 	}
 	
-	//주문한 상품정보들과 주문정보(배송지,회원정보) DB에 INSERT 하기 
+	//주문한 상품정보들과 주문정보(배송지,회원정보) DB에 INSERT 하기 (회원인 경우)
 	public int insertOrderInfo(OrderDto orderInfo, ArrayList<OrderDetailDto> orderDetailInfo) {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		
 		int result = 0;
 		
-		//주문정보 INSERT
+		//회원 주문정보 INSERT
 		result = shopdao.insertOrderInfo(orderInfo);
 		
-		//상품정보 INSERT 
+		//회원 상품정보 INSERT 
 		for(int i=0;i<orderDetailInfo.size();i++) {
 			result = shopdao.insertProductOrderInfo(orderDetailInfo.get(i));
 		}
@@ -253,6 +251,29 @@ public class ShopService {
 	public OrderDto getOrderInfo(String order_number) {
 		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
 		return shopdao.getOrderInfo(order_number);
+	}
+	
+	//주문한 상품정보들과 주문정보(배송지,회원정보) DB에 INSERT 하기 (비회원인 경우)
+	public int nonUserOrderInfoInsert(NonuserOrderDto nonuserOrderDto,ArrayList<NonuserOrderDetailDto> nonuserOrderDetailInfo) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		
+		int result = 0;
+		
+		//비회원 주문정보 INSERT
+		result = shopdao.insertNonUserOrderInfo(nonuserOrderDto);
+		
+		//비회원 상품정보 INSERT 
+		for(int i=0;i<nonuserOrderDetailInfo.size();i++) {
+			result = shopdao.insertNonUserProductOrderInfo(nonuserOrderDetailInfo.get(i));
+		}
+
+		return result;
+	}
+	
+	//결제후 비회원의 주문정보 가져오기 
+	public NonuserOrderDto getNonuserOrderInfo(String order_number) {
+		ShopDao shopdao = sqlSession.getMapper(ShopDao.class);
+		return shopdao.getNonuserOrderInfo(order_number);
 	}
 
 	

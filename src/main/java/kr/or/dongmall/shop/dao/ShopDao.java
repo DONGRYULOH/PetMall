@@ -9,6 +9,8 @@ import kr.or.dongmall.admin.dto.Product_Join_ProductImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
 import kr.or.dongmall.shop.dto.CartDto;
+import kr.or.dongmall.shop.dto.NonuserOrderDetailDto;
+import kr.or.dongmall.shop.dto.NonuserOrderDto;
 import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.shop.dto.ProductReply;
@@ -90,6 +92,15 @@ public interface ShopDao {
 
 	//결제한 회원의 정보 가져오기(배송지,주문번호,회원정보)
 	public OrderDto getOrderInfo(String order_number);
+	
+	//비회원 주문정보 INSERT
+	public int insertNonUserOrderInfo(NonuserOrderDto nonuserOrderDto);
+	
+	//비회원 상품정보 INSERT
+	public int insertNonUserProductOrderInfo(NonuserOrderDetailDto nonuserOrderDetailDto);
+	
+	//결제후 비회원 주문정보 
+	public NonuserOrderDto getNonuserOrderInfo(String order_number);
 }
 
 

@@ -20,7 +20,7 @@ public class CartDto {
 	//장바구니 테이블 
 	private int cart_number; //장바구니 번호 
 	private int product_number; //상품 번호 
-	private String user_id; //유저ID 
+	private String user_id; //유저ID 또는 비회원 식별번호
 	private int product_count; //선택한 상품 수량
 	
 	//상품 테이블 

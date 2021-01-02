@@ -220,6 +220,26 @@
 		FROM Orders
 		WHERE order_number = #{order_number}
 	</select>
+	
+	<!-- 주문한 비회원 기본(배송지주소,회원)정보  -->
+	<insert id="insertNonUserOrderInfo" parameterType="kr.or.dongmall.shop.dto.NonuserOrderDto">
+		INSERT INTO Nonuser_Order(order_number,address1,address2,address3,receiver_name,receiver_phone)
+		VALUES(#{order_number},#{address1},#{address2},#{address3},#{receiver_name},#{receiver_phone})
+	</insert>
+	
+	<!-- 주문한 비회원 기본(배송지주소,회원)정보  -->
+	<insert id="insertNonUserProductOrderInfo" parameterType="kr.or.dongmall.shop.dto.NonuserOrderDetailDto">
+		INSERT INTO NonUserOrder_detail(order_detail_number,order_number,product_number,product_count,product_price,order_detail_status)
+		VALUES(#{order_detail_number},#{order_number},#{product_number},#{product_count},#{product_price},#{order_detail_status})
+	</insert>
+
+	<!-- 결제한 비회원의 정보 가져오기(배송지,주문번호,회원정보) -->
+	<select id="getNonuserOrderInfo" resultType="kr.or.dongmall.shop.dto.NonuserOrderDto">
+		SELECT order_number,order_date,address1,address2,address3,receiver_name,receiver_phone
+		FROM Nonuser_Order
+		WHERE order_number = #{order_number}
+	</select>
+	
 </mapper>
 
 

@@ -80,12 +80,32 @@
 			    </c:choose>
 						<!-- 주문하기 버튼(회원만 주문이 가능하다는 조건하에 주문하기 버튼을 누르면 해당 회원이 장바구니에 넣은 
 						 			 상품들과 회원의 정보를 가져온다음 주문서 페이지로 이동함) 	-->
+						 		<!-- 회원일 경우 주문하기  -->
 								<c:if test="${User != null && cartListCount != 0}">
 								  <a href="${pageContext.request.contextPath}/shop/order_page_a" class="btn btn-default" style="width: 342px;margin-top: 50px;">
 				                     <span class="btn-inner--text">주문하기</span>
 				                  </a>
 								</c:if>
-   		 	
+								<!-- 비회원일 경우 주문하기(비회원식별번호를 파라미터로 가지고 있어야됨)  -->
+								<c:if test="${User == null && cartListCount != 0}">
+									<form action="${pageContext.request.contextPath}/shop/nonUserOrder" method="GET">
+										<!-- 비회원 식별번호  -->
+									  	 <input type="hidden" name="nonUserNumber" value="${nonUserNumber}" />
+					                     <input class="btn btn-default" style="width: 342px;margin-top: 50px;" type="submit" onClick="return payment_ck();" value="주문하기">
+				               		</form>
+								</c:if>
+   		 						 <!-- 장바구니에서 비회원으로 구매하기 클릭시 구매여부 확인 -->
+					              <script>
+					              		function payment_ck(){
+					              			
+					              			 var deleteConfirm = confirm("비회원으로 주문하시겠습니까??");
+					              			 
+					              			 if(deleteConfirm){
+					              				 return true;
+					              			 }
+					              			 return false;
+					              		}
+					              </script>
    		 	
     		<%@ include file="/WEB-INF/include/footer.jsp"%> 
 	    	
