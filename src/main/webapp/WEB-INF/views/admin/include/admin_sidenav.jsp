@@ -30,9 +30,15 @@
             <li class="nav-item">
               <a class="nav-link" href="${pageContext.request.contextPath}/admin/RefundList">
                 <i class="ni ni-bullet-list-67"></i>
-                <span class="nav-link-text">환불요청내역</span>
+                <span class="nav-link-text">회원 환불요청내역</span>
               </a>
             </li>   
+            <li class="nav-item">
+              <a class="nav-link" href="${pageContext.request.contextPath}/admin/nonUserRefundList">
+                <i class="ni ni-bullet-list-67"></i>
+                <span class="nav-link-text">비회원 환불요청내역</span>
+              </a>
+            </li>  
             <li class="nav-item">
               <a class="nav-link" href="#">
                 <i class="ni ni-circle-08"></i>

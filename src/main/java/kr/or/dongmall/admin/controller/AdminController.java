@@ -48,6 +48,7 @@ import kr.or.dongmall.admin.dto.Product_ImageFile;
 import kr.or.dongmall.admin.service.AdminService;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
+import kr.or.dongmall.shop.dto.NonuserRefundDto;
 import kr.or.dongmall.shop.dto.OrderRefundDto;
 import kr.or.dongmall.user.dto.UserDto;
 import kr.or.dongmall.utils.ImportUtils;
@@ -290,16 +291,18 @@ public class AdminController {
 			 
 	}
 	
-	// *********************************** 환불 요청 관련 ************************************************** 
+	// *********************************** 환불 요청 관련(회원) ************************************************** 
 	
 	//환불 요청 내역(리스트) 페이지 이동 
 	@RequestMapping(value="/RefundList",method=RequestMethod.GET) 
 	public String RefundList(Model model) throws Exception{
 		System.out.println("환불 요청 내역 페이지 이동");
 		
-		//환불번호,주문상세번호,처리상태를 가져옴 (환불 테이블 + 주문상세내역 테이블 조인) 
+		//환불번호,주문상세번호,처리상태를 가져옴 (환불 테이블 + 주문상세내역 테이블 조인) - 회원 
 		List<OrderRefundDto> refundList = adminService.RefundList();
 		model.addAttribute("refundList", refundList);
+		
+		
 		
 		return "admin/refundList";
 	}
@@ -312,6 +315,7 @@ public class AdminController {
 		OrderRefundDto refundInfo = adminService.getRefundInfo(refund_number);
 		int total = refundInfo.getProduct_count() * refundInfo.getProduct_price();
 		refundInfo.setTotal_price(total); //총가격 
+		
 		model.addAttribute("refundInfo", refundInfo);
 		
 		return "admin/refundProcessPage";
@@ -352,6 +356,72 @@ public class AdminController {
 		return result;
 	}
 
+
+	// *********************************** 환불 요청 관련(비회원) ************************************************** 
+	
+	//환불 요청 내역(리스트) 페이지 이동 
+	@RequestMapping(value="/nonUserRefundList",method=RequestMethod.GET) 
+	public String nonUserRefundList(Model model) throws Exception{
+		System.out.println("비회원 환불 요청 내역 페이지 이동");
+		
+		//환불번호,주문상세번호,처리상태를 가져옴 (환불 테이블 + 주문상세내역 테이블 조인) - 비회원 
+		List<NonuserRefundDto> refundList = adminService.nonUserRefundList();
+		model.addAttribute("refundList", refundList);
+
+		return "admin/nonUserRefundList";
+	}
+	
+	//해당 요청환불 처리 페이지 이동 
+	@RequestMapping(value="/nonUserRefundProcess",method=RequestMethod.GET) 
+	public String nonUserRefundProcess(@RequestParam("n") String refund_number,Model model) throws Exception{
+		
+		//1.환불 번호에 해당되는 환불정보 가져오기
+		NonuserRefundDto refundInfo = adminService.nonUserRefundProcess(refund_number);
+		int total = refundInfo.getProduct_count() * refundInfo.getProduct_price();
+		refundInfo.setTotal_price(total); //총가격 
+		
+		model.addAttribute("refundInfo", refundInfo);
+		
+		return "admin/nonUserRefundProcessPage";
+	}
+	
+	
+	//해당 요청환불 처리하기 
+	@ResponseBody
+	@RequestMapping(value="/nonUserRefundProcess",method=RequestMethod.POST) 
+	public int nonUserRefundProcessOk(@RequestBody String refundData,Model model) throws Exception{
+
+		 //1.환불을 처리할 정보(환불사유,환불금액,환불을 요청할 주문번호) 가져오기 
+		 System.out.println("프론트 단에서 얻어온 json 데이터 -> "+refundData);	
+		 JSONParser jsonParser = new JSONParser();
+		 //json 데이터를 JSON 객체 형태로 변환 
+		 JSONObject jsonObj = (JSONObject)jsonParser.parse(refundData.toString()); 
+		 String reason = (String)jsonObj.get("reason"); //환불사유 
+		 String merchant_uid = (String)jsonObj.get("merchant_uid"); //환불을 조회할 번호 
+		 String amount = (String)jsonObj.get("amount");  //환불금액 
+		 double amounts = Double.parseDouble(amount); //환불금액 
+
+		 //2.환불을 하기위한 액세스토큰 발급(액세스 토큰 지속시간 :발행시간으로부터 30분) - 필수!! 
+		 ImportUtils import_util = new ImportUtils();
+		 String access_token = import_util.getAccessToken(); //액세스 토큰을 발급받아서 가져오는 메서드 호출 
+		 
+		 System.out.println("환불 사유 : " + reason);
+		 System.out.println("환불 번호 : " + merchant_uid);
+		 System.out.println("환불 금액 : " + amounts);
+		 System.out.println("발급 받은 액세스 토큰 : " + access_token);
+		
+		 //3.환불 요청 처리하는 메서드 호출(반환값이 1이면 정상적으로 환불처리됨 0이면 환불 X)  
+		 int result = import_util.refundProcess(access_token, merchant_uid);
+		 System.out.println("환불 요청후 결과값은 ??" + result);
+		 
+		 //4.환불이 정상적으로 수행되었다면 환불을 요청한 주문처리 상태를 "환불완료" 수정하고 환불가능여부를 "N"으로 수정한다 
+		 if(result == 1) {
+			 adminService.nonUserRefundProcessOk(merchant_uid); // 업데이트가 수행됬으면 1 반환 안됬으면 0 반환 
+		 }
+			
+		 //@ResponseBody 라는 어노테이션을 붙여줘야지 Ajax 호출하고 return값을 받을수 있다?? (맞음)
+		return result;
+	}
 }
 
 

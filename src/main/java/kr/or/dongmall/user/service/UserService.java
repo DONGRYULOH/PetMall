@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import kr.or.dongmall.shop.dto.NonuserOrderDetailDto;
+import kr.or.dongmall.shop.dto.NonuserOrderDto;
+import kr.or.dongmall.shop.dto.NonuserRefundDto;
 import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.shop.dto.OrderRefundDto;
@@ -118,6 +121,57 @@ public class UserService {
 		}catch (Exception e) {
 			System.out.println("환불을 요청한 해당 주문의 처리상태가 UPDATE 도중 에러발생"+e.getMessage());
 		}		
+	}
+	
+	//입력한 주문번호가 DB테이블에 있는지 검증 
+	public int orderNumberCk(String orderNumber) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		int result = 0;
+		try {
+			String orderNum = userdao.orderNumberCk(orderNumber);
+			if(orderNumber.equals(orderNum)) { // DB테이블에 있는 주문번호와 입력한 주문번호가 동일한 경우 
+				result = 1;
+			}
+		}catch (Exception e) {
+			System.out.println("입력한 주문번호가 DB테이블에 있는지 검증 도중 에러발생"+e.getMessage());
+		}			
+		return result;
+	}
+
+	//주문번호에 해당하는 주문정보를 가져옴(비회원)
+	public List<NonuserOrderDto> getNonUserOrderInfo(String orderNumber) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		return userdao.getNonUserOrderInfo(orderNumber);
+	}
+	
+	//주문번호에 해당하는 주문세부 정보를 가져옴(비회원)
+	public List<NonuserOrderDetailDto> getNonUserOrderDetailInfo(String order_number) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		return userdao.getNonUserOrderDetailInfo(order_number);
+	}
+	
+	//상세주문번호에 해당되는 상품정보 가져오기(비회원)
+	public NonuserOrderDetailDto getNonUserOrderDInfo(String order_detail_number) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		return userdao.getNonUserOrderDInfo(order_detail_number);
+	}
+
+	//환불 내역테이블에 환불정보 INSERT(비회원)
+	public void nonUserRefundInfoInsert(NonuserRefundDto refundDto) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		userdao.nonUserRefundInfoInsert(refundDto);
+	}
+	
+	//환불 처리상태 변경(비회원)
+	public void NonUserOrderDetailCkUpdate(String order_detail_number) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		userdao.NonUserOrderDetailCkUpdate(order_detail_number);
+	}
+
+	//주문번호 가져오기(비회원)
+	public String getOrderNumber(String order_detail_number) {
+		UserDao userdao = sqlSession.getMapper(UserDao.class);
+		return userdao.getOrderNumber(order_detail_number);
 	}
 	
 	

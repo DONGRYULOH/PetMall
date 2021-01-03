@@ -7,6 +7,7 @@ import kr.or.dongmall.admin.dto.CategoryDto;
 import kr.or.dongmall.admin.dto.Product_ImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
+import kr.or.dongmall.shop.dto.NonuserRefundDto;
 import kr.or.dongmall.shop.dto.OrderRefundDto;
 
 
@@ -39,4 +40,10 @@ public interface AdminDao {
 	public OrderRefundDto getRefundInfo(String refund_number);
 	//해당 환불 주문정보 업데이트 처리 
 	public void RefundInfoUpdate(String merchant_uid);
+	//비회원 환불 요청 내역 가져오기 
+	public List<NonuserRefundDto> nonUserRefundList();
+	//비회원 환불번호에 해당하는 환불정보 가져오기 
+	public NonuserRefundDto nonUserRefundProcess(String refund_number);
+	//비회원 환불처리
+	public void nonUserRefundProcessOk(String merchant_uid);
 }

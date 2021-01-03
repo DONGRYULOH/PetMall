@@ -89,7 +89,7 @@
 		UPDATE Product_imageFile SET delete_check = 'N',delegate_thumbNail=#{delegate_thumbNail} WHERE file_number = #{FILE_IDX}
 	</update>
 	
-	<!--  ********************************************** 환불 요청 관련 쿼리문  ************************************** -->
+	<!--  ********************************************** 환불 요청 관련 쿼리문(회원)  ************************************** -->
 	
 	<!-- 환불 요청 내역리스트를 가져옴(환불번호,주문상세번호,처리상태) -->
 	<select id="RefundList" resultType="kr.or.dongmall.shop.dto.OrderRefundDto">
@@ -112,6 +112,35 @@
 			SET order_detail_status = 'PaymentRefundOk',refund_check = 'N' 
 		WHERE order_number = #{merchant_uid} 
 	</update>
+	
+	
+	
+	<!--  ********************************************** 환불 요청 관련 쿼리문(비회원)  ************************************** -->
+	
+	<!-- 환불 요청 내역리스트를 가져옴(환불번호,주문상세번호,처리상태) -->
+	<select id="nonUserRefundList" resultType="kr.or.dongmall.shop.dto.NonuserRefundDto">
+		SELECT O.refund_number,O.order_detail_number,D.order_detail_status
+			FROM nonuserOrder_refund O JOIN NonUserOrder_detail D 
+				ON O.order_detail_number = D.order_detail_number
+	</select>
+	
+	<!-- 환불번호에 해당되는 환불정보 가져오기 -->
+	<select id="nonUserRefundProcess" resultType="kr.or.dongmall.shop.dto.NonuserRefundDto">
+		SELECT A.refund_number,A.order_detail_number,A.refund_reason,A.refund_img,O.order_number,O.product_count,O.product_price
+			FROM nonuserOrder_refund A JOIN NonUserOrder_detail O
+			ON A.order_detail_number = O.order_detail_number
+		WHERE refund_number = #{refund_number}
+	</select>
+	
+	<!-- 환불 주문정보 업데이트 처리(환불 처리상태 -> PaymentRefundOk(환불완료) , 환불 가능여부 -> N -->
+	<update id="nonUserRefundProcessOk">
+		UPDATE NonUserOrder_detail 
+			SET order_detail_status = 'PaymentRefundOk',refund_check = 'N' 
+		WHERE order_number = #{merchant_uid} 
+	</update>
+	
+	
+	
 	
 </mapper>
 	

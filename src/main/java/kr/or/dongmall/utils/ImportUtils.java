@@ -110,6 +110,7 @@ public class ImportUtils {
 		System.out.println("*** 여기까지 오면 Request는 성공 *** ");
 		
 		// 서버로부터 응답 데이터 받기 
+		int result = 0;
 		int responseCode = conn.getResponseCode(); //응답코드 받기 
 		System.out.println("응답 코드는 ??"+responseCode); //응답코드 400이면 요청이 잘못된건데... (요청시 오타작성 발견) 
 		if(responseCode == 200) { //성공 
@@ -122,11 +123,12 @@ public class ImportUtils {
 			 }
 			 br.close();
 			 System.out.println("" + sb.toString());
-			 return 1; //환불 성공시 정수값 1반환 
+			 result = 1; //환불 성공시 정수값 1반환 
 		}else{ //실패 
-		    System.out.println(conn.getResponseMessage());  
-		    return 0; //환불 실패시 정수값 0반환(응답코드 400,404..등등) 
+		    System.out.println(conn.getResponseMessage()); //환불 실패시 정수값 0반환(응답코드 400,404..등등) 
 		}  
+		
+		return result;
 	}
 	
 	

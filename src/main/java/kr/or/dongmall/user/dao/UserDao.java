@@ -3,6 +3,9 @@ package kr.or.dongmall.user.dao;
 import java.sql.SQLException;
 import java.util.List;
 
+import kr.or.dongmall.shop.dto.NonuserOrderDetailDto;
+import kr.or.dongmall.shop.dto.NonuserOrderDto;
+import kr.or.dongmall.shop.dto.NonuserRefundDto;
 import kr.or.dongmall.shop.dto.OrderDetailDto;
 import kr.or.dongmall.shop.dto.OrderDto;
 import kr.or.dongmall.shop.dto.OrderRefundDto;
@@ -43,6 +46,27 @@ public interface UserDao {
 
 	//환불을 요청한 해당 주문의 처리상태가 "환불중"으로 변경되야됨
 	public void orderDetailCkUpdate(String order_detail_number);
+	
+	//입력한 주문번호가 DB테이블에 있는지 검증 
+	public String orderNumberCk(String orderNumber);
+
+	//주문번호에 해당하는 주문정보를 가져옴(비회원)
+	public List<NonuserOrderDto> getNonUserOrderInfo(String orderNumber);
+
+	//주문번호에 해당하는 주문세부 정보를 가져옴(비회원)
+	public List<NonuserOrderDetailDto> getNonUserOrderDetailInfo(String order_number);
+
+	//상세주문번호에 해당되는 상품정보 가져오기(비회원)
+	public NonuserOrderDetailDto getNonUserOrderDInfo(String order_detail_number);
+
+	//환불 내역테이블에 환불정보 INSERT(비회원)
+	public void nonUserRefundInfoInsert(NonuserRefundDto refundDto);
+	
+	//환불 처리상태 변경(비회원)
+	public void NonUserOrderDetailCkUpdate(String order_detail_number);
+	
+	//주문번호 가져오기(비회원)
+	public String getOrderNumber(String order_detail_number);
 	
 	
 }

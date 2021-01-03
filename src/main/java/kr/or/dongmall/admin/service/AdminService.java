@@ -16,6 +16,7 @@ import kr.or.dongmall.admin.dto.CategoryDto;
 import kr.or.dongmall.admin.dto.Product_ImageFile;
 import kr.or.dongmall.main.dto.ProductCateDto;
 import kr.or.dongmall.main.dto.ProductDto;
+import kr.or.dongmall.shop.dto.NonuserRefundDto;
 import kr.or.dongmall.shop.dto.OrderRefundDto;
 import kr.or.dongmall.utils.FileUtils;
 
@@ -181,6 +182,24 @@ public class AdminService {
 	public void RefundInfoUpdate(String merchant_uid) {
 		AdminDao admindao = sqlSession.getMapper(AdminDao.class);
 		admindao.RefundInfoUpdate(merchant_uid);
+	}
+	
+	//비회원 환불 요청 내역 리스트 가져오기 
+	public List<NonuserRefundDto> nonUserRefundList() {
+		AdminDao admindao = sqlSession.getMapper(AdminDao.class);
+		return admindao.nonUserRefundList();
+	}
+
+	//비회원 환불번호에 해당하는 환불정보 가져오기 
+	public NonuserRefundDto nonUserRefundProcess(String refund_number) {
+		AdminDao admindao = sqlSession.getMapper(AdminDao.class);
+		return admindao.nonUserRefundProcess(refund_number);
+	}
+	
+	//비회원 환불 처리 
+	public void nonUserRefundProcessOk(String merchant_uid) {
+		AdminDao admindao = sqlSession.getMapper(AdminDao.class);
+		admindao.nonUserRefundProcessOk(merchant_uid);
 	}
 	
 }

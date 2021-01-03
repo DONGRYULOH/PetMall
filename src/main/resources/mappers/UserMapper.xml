@@ -84,6 +84,56 @@
 			UPDATE Order_detail SET order_detail_status = 'PaymentRefunding' WHERE order_detail_number = #{order_detail_number}
 	</update>
 	
+	<!-- 입력한 주문번호가 DB테이블에 있는지 검증  -->
+	<select id="orderNumberCk" resultType="string">
+			select order_number from Nonuser_Order where order_number = #{orderNumber}		
+	</select>
+	
+	<!-- 주문번호에 해당하는 주문정보를 가져옴(비회원)  -->
+	<select id="getNonUserOrderInfo" resultType="kr.or.dongmall.shop.dto.NonuserOrderDto">
+			select order_number,order_date,address1,address2,address3,receiver_name,receiver_phone
+				from Nonuser_Order
+			where order_number = #{orderNumber}		
+	</select>
+	
+	<!-- 주문번호에 해당되는 상품정보들 가져오기(비회원)   -->
+	<select id="getNonUserOrderDetailInfo" resultType="kr.or.dongmall.shop.dto.NonuserOrderDetailDto">
+			SELECT PI.stored_thumbNail,P.product_name,P.product_price,P.product_number,O.order_detail_number,O.order_number,O.product_count,O.order_detail_status,O.refund_check,OD.order_date
+			FROM NonUserOrder_detail O JOIN product P
+					ON O.product_number = P.product_number 
+				JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile WHERE delegate_thumbNail = 'Y' AND delete_check = 'N') PI 
+					ON P.product_number = PI.product_number
+				JOIN Nonuser_Order OD 
+        			ON O.order_number = OD.order_number
+    		WHERE O.order_number = #{order_number}
+	</select>
+	
+	<!-- 상세주문번호에 해당되는 상품정보 가져오기(비회원)   -->
+	<select id="getNonUserOrderDInfo" resultType="kr.or.dongmall.shop.dto.NonuserOrderDetailDto">
+			SELECT O.order_detail_number,O.order_number,O.product_count,O.product_price,P.product_name,PI.stored_thumbNail
+			FROM NonUserOrder_detail O JOIN product P
+					ON O.product_number = P.product_number
+			    JOIN (SELECT product_number,stored_thumbNail FROM Product_imageFile WHERE delegate_thumbNail = 'Y' AND delete_check = 'N') PI
+					ON PI.product_number = P.product_number
+			WHERE order_detail_number = #{order_detail_number}
+	</select>
+	
+	<!-- 환불내역 테이블에 INSERT -->
+	<insert id="nonUserRefundInfoInsert">
+			INSERT INTO nonuserOrder_refund(order_detail_number,refund_reason,refund_img,refund_email)
+						VALUES(#{order_detail_number},#{refund_reason},#{refund_img},#{refund_email})
+	</insert>
+	
+	<!-- 환불을 요청한 해당 주문의 처리상태가 "환불중"으로 변경되야됨 -->
+	<update id="NonUserOrderDetailCkUpdate">
+			UPDATE NonUserOrder_detail SET order_detail_status = 'PaymentRefunding' WHERE order_detail_number = #{order_detail_number}
+	</update>
+	
+	<!-- 주문번호 가져오기 (비회원)   -->
+	<select id="getOrderNumber" resultType="string">
+			select order_number from NonUserOrder_detail where order_detail_number = #{order_detail_number}
+	</select>
+	
 </mapper>
 
 
