@@ -112,7 +112,7 @@ public class ImportUtils {
 		// 서버로부터 응답 데이터 받기 
 		int result = 0;
 		int responseCode = conn.getResponseCode(); //응답코드 받기 
-		System.out.println("응답 코드는 ??"+responseCode); //응답코드 400이면 요청이 잘못된건데... (요청시 오타작성 발견) 
+		System.out.println("응답 코드는 ??"+responseCode); // 응답코드 확인하기
 		if(responseCode == 200) { //성공 
 			System.out.println("환불성공!!!!!");
 			 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));

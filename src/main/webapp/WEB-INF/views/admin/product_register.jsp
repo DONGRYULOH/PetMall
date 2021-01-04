@@ -22,7 +22,7 @@
 		<%@ include file="/WEB-INF/views/admin/include/admin_topnav.jsp"%>
 
 			
-  	  		<h2>1차분류 선택후 2차분류를 무조건 선택해야됨!!!</h2>
+  	  		<!-- <h2>1차분류 선택후 2차분류를 무조건 선택해야됨!!!</h2> -->
   	  		<!-- enctype="multipart/form-data" 파일을 올릴시 필수조건  -->
 		    <form role="form" method="post" autocomplete="off" enctype="multipart/form-data">
 					
