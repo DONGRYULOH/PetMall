@@ -9,11 +9,15 @@
    
 	 
     <%@ include file="/WEB-INF/include/head_import.jsp"%>
-
+	
+	<!-- 반응형 모바일 구축 -->
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/mobile_css/main.css">
+	
+	
   </head>
   <body>
   	 
-  	 <div class="container"> 
+  	 <div class="container" > 
   	  
   	  	<%@ include file="/WEB-INF/include/header.jsp"%>
   	  		
@@ -24,12 +28,14 @@
 			    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
 			    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
 			  </ol>
-			  <div class="carousel-inner">
+			  <div class="carousel-inner" style="margin-top: 30px;">
 			    <div class="carousel-item active">
 			     <img src="${pageContext.request.contextPath}/resources/images/b.jpg" title="Funky roots" style="width: 100%; height:500px;">
 			    </div>
 			    <div class="carousel-item">
-			      <img src="${pageContext.request.contextPath}/resources/images/b.jpg" title="Funky roots" style="width: 100%; height:500px;">
+			        <video autoplay muted loop id="myVideo" style="width: 100%; height:500px;">
+						<source src="${pageContext.request.contextPath}/resources/assets/video/python.mp4" type="video/mp4">
+					</video>
 			    </div>
 			    <div class="carousel-item">
 			      <img src="${pageContext.request.contextPath}/resources/images/b.jpg" title="Funky roots" style="width: 100%; height:500px;">
@@ -51,17 +57,17 @@
 			
    		 	<c:forEach begin="0" end="2" step="1" varStatus="status">
 				
-	   		 	<div class="row" style="margin-bottom: 50px;">
+	   		 	<div class="row" id="Main_row">
 	   		 		<c:forEach items="${productRankNine}" var="list" begin="${index}" end="${index_2}" step="1" varStatus="status_2">
-				        <div class="col-4">
-				          <a href="${pageContext.request.contextPath}/shop/detail?n=${list.product_number}">
-				          	<img src="${pageContext.request.contextPath}/imgUpload/${list.stored_thumbNail}" class="thumbImg"/>
-				          </a>
-				          <small class="d-block text-uppercase font-weight-bold mb-4" style="height: 5px;">${list.product_name}</small>
-				          <!-- 가격 -->
-						  <span style="font-size:16px;color:#000000;font-weight:bold;">
-						  	<fmt:formatNumber pattern="###,###,###" value="${list.product_price}" />원
-						  </span>
+				        <div class="col-4" id="Main_col">
+						          <a href="${pageContext.request.contextPath}/shop/detail?n=${list.product_number}">
+						          	<img src="${pageContext.request.contextPath}/imgUpload/${list.stored_thumbNail}" class="thumbImg"/>
+						          </a>
+						          <strong  id="Prod_name" >${list.product_name}</strong><br>
+						          <!-- 가격 -->
+								  <span>
+								  	(<fmt:formatNumber pattern="###,###,###" value="${list.product_price}" />)
+								  </span>
 				        </div>
 				        <!-- 끝번호라면 다음if구문실행(시작인덱스와 끝인덱스값을 바꿔줌) -->
 				        <c:if test="${status_2.last}">
@@ -78,7 +84,18 @@
 			    </div>
 		    	
 			</c:forEach>
-   		 	
+				
+			<!-- 카톡 오픈채팅 연결 링크 -->
+   		 	 <div>
+		        <ul>
+		          <li>
+		            <a href="https://open.kakao.com/o/gcfdIuGc" target="_blank"><h4 class="title_w"><i class="fas fa-comments"></i> Kakao Talk</h4></a>
+		          </li>
+		          <li>
+		        	  <a href="tel:070-4349-5060"><h4 class="title_w"><i class="fas fa-phone-alt"></i> Tell</h4></a>
+		          </li>
+		        </ul>
+		      </div>
    		 	
     		<%@ include file="/WEB-INF/include/footer.jsp"%> 
 	    	

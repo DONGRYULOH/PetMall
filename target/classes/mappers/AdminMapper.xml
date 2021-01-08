@@ -27,9 +27,11 @@
 	
 	<!-- 상품목록 (해당 상품에 대한 썸네일이 여러장 존재할경우 대표사진 한장만 보여주기 ) -->
 	<select id="product_list" resultType="kr.or.dongmall.main.dto.ProductDto">
-		SELECT P.product_number,P.product_name,P.category_code,P.product_price,P.product_stock,P.product_desc,P.product_date,PI.stored_thumbNail
-		FROM Product P INNER JOIN (SELECT product_number,stored_thumbNail  FROM Product_imageFile where delegate_thumbNail = 'Y' AND delete_check = 'N') PI
-		ON P.product_number = PI.product_number
+		SELECT P.product_number,P.product_name,P.category_code,P.product_price,P.product_stock,P.product_desc,P.product_date,PI.stored_thumbNail,PC.category_name
+		FROM Product P INNER JOIN (SELECT product_number,stored_thumbNail  FROM Product_imageFile where delegate_thumbNail = 'Y') PI
+				ON P.product_number = PI.product_number
+		    INNER JOIN Product_category PC 
+				ON P.category_code = PC.category_code
 		ORDER BY P.product_number DESC
 	</select>
 	

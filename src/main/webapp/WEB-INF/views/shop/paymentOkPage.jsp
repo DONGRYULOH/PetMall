@@ -35,11 +35,11 @@
 			               <div class="row">
 			              	 <div class="col-lg-3">배송지 정보</div>
 			              	 <div class="col-lg-9">
-			              	 	<h3>${orderInfo.receiver_name}</h3>
-			              	 	<h3>${orderInfo.receiver_phone}</h3>
-			              	 	<h4>${orderInfo.address1}<strong>(우편번호)</strong></h4>
-			              	 	<h4>${orderInfo.address2}<strong>(주소)</strong></h4>
-			              	 	<h4>${orderInfo.address3}<strong>(상세주소)</strong></h4>
+			              	 	<h3><strong>수령인: </strong>${orderInfo.receiver_name}</h3>
+			              	 	<h3><strong>전화번호: </strong>${orderInfo.receiver_phone}</h3>
+			              	 	<h4><strong>우편번호: </strong>${orderInfo.address1}</h4>
+			              	 	<h4><strong>주소: </strong>${orderInfo.address2}</h4>
+			              	 	<h4><strong>상세주소: </strong>${orderInfo.address3}</h4>
 			              	 </div>
 			              </div>
 		            </div>

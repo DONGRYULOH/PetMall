@@ -31,12 +31,12 @@
 				
 				<div class="inputArea"> 
 				 <label>1차 분류</label>
-				 <select class="category1" name="product_category">
+				 <select class="category1" name="category_code">
 				  <option value="">전체</option>
 				 </select>
 				
 				 <label>2차 분류</label>
-				 <select class="category2" name="category_code">
+				 <select class="category2" name="category_code_ref">
 				  <option value="">전체</option>
 				 </select>
 				</div>

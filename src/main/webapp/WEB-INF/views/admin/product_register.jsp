@@ -29,12 +29,12 @@
 				<!-- 1차분류 선택후 2차분류를 무조건 선택해야됨!!!  -->
 				<div class="inputArea"> 
 				 <label>1차 분류</label>
-				 <select class="category1" name="product_category_1">
+				 <select class="category1" name="category_code">
 				  <option value="">전체</option>
 				 </select>
 				
 				 <label>2차 분류</label>
-				 <select class="category2" name="category_code">
+				 <select class="category2" name="category_code_ref">
 				  <option value="">전체</option>
 				 </select>
 				</div>
@@ -62,7 +62,7 @@
 				
 				
 				<div class="inputArea" id="fileDiv">
-					 <label for="gdsImg">(대표 썸네일 체크는 1개만 선택가능)</label>
+					 <label for="gdsImg">(대표 썸네일 체크는 1개만 선택가능) <strong>*대표 썸네일 무조건 체크하기!!</strong></label>
 					 
 					 <!-- 파일업로드 방법1) -->
 					 <!-- <input type="file" id="image" accept="image/*" onchange="setThumbnail(event);" multiple/> 

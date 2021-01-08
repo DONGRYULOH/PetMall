@@ -119,7 +119,9 @@
 	%>
   <body>
   	 
-  	 <div class="container"> 
+  	 <div class="container" style="
+    width: 1030px;
+"> 
   	  
   	    	<%@ include file="/WEB-INF/include/header.jsp"%>
    		 	

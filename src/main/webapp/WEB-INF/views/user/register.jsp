@@ -53,10 +53,11 @@
 				        </tr>
 				        <tr>
 				            <td class="text-center">
-				            	닉네임<i class="ni ni-fat-remove pt-1"></i>
+				            	닉네임<i class="ni ni-fat-remove pt-1"></i>				        
 				            </td>
 				            <td>
-				            	<input type="text" id="user_nickname" name="user_nickname" placeholder="닉네임을 입력해주세요" />      
+				            	<input type="text" id="user_nickname" name="user_nickname" placeholder="닉네임을 입력해주세요" />
+				            	<span class="status">(4~10자에 영어 대소문자,숫자를 사용하세요)</span>      
 				            </td>  
 				        </tr>
 				        <tr>
@@ -64,7 +65,8 @@
 				            	이름<i class="ni ni-fat-remove pt-1"></i>
 				            </td>
 				            <td>
-				            	<input type="text" id="user_name" name="user_name" placeholder="이름을 입력해주세요" />      
+				            	<input type="text" id="user_name" name="user_name" placeholder="이름을 입력해주세요" /> 
+				            	<span class="status">(한글 이름만 사용가능!!)</span>        
 				            </td>  
 				        </tr>
 				         <tr>
@@ -84,7 +86,7 @@
 				            	연락처<i class="ni ni-fat-remove pt-1"></i>
 				            </td>
 				            <td>
-				            	<input type="text" id="user_phone" name="user_phone" placeholder="연락처를 입력해주세요" />    
+				            	<input type="text" id="user_phone" name="user_phone" placeholder="ex)010-XXXX-XXXX" />    
 				            </td>  
 				        </tr>
 				        <tr>
@@ -92,7 +94,7 @@
 				            	이메일<i class="ni ni-fat-remove pt-1"></i>
 				            </td>
 				            <td>
-				            	<input type="text" id="user_phone" name="user_phone" placeholder="연락처를 입력해주세요" />    
+				            	<input type="text" id="user_phone" name="user_phone" placeholder="ex)Example@naver.com" />    
 				            </td>  
 				        </tr>
 				         <tr>

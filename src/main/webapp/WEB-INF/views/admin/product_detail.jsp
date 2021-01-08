@@ -22,13 +22,12 @@
 	  	<!-- topnav 영역 -->
 		<%@ include file="/WEB-INF/views/admin/include/admin_topnav.jsp"%>
 
-			
-  	  		<h1>상품 세부 목록</h1>
+		
   	  		<form role="form" method="post" autocomplete="off">
   	  			<!--  수정과 삭제시 번호를 받아서 할꺼기 떄문에 hidden 으로 숨겨놈 -->
 				<input type="hidden" name="n" value="${product.product_number}" />
 				
-				<div class="inputArea"> 
+				<%-- <div class="inputArea"> 
 				 <label>1차 분류</label>
 				 <span class="category1">${product.category_ref_code}</span> 
 				</div>
@@ -36,26 +35,41 @@
 				<div class="inputArea">        
 				 <label>2차 분류</label>
 				 <span class="category2">${product.category_name}</span>
+				</div> --%>
+				
+				<div class="inputArea">        
+				 <label><strong style = "font-size:2.0em;">카테고리: </strong></label>
+				 <span class="category2"><strong style = "font-size:2.0em;">${product.category_name}</strong></span>
 				</div>
 				
 				<div class="inputArea">
-				 <label for="gdsName">상품명</label>
-				 <span>${product.product_name}</span>
+				 <label for="gdsName"><strong style = "font-size:2.0em;">상품명: </strong></label>
+				 <span>
+				 	<strong style = "font-size:2.0em;">${product.product_name}</strong>
+				 </span>
 				</div>
 				
 				<div class="inputArea">
-				 <label for="gdsPrice">상품가격</label>
-				 <span><fmt:formatNumber value="${product.product_price}" pattern="###,###,###"/></span>
+				 <label for="gdsPrice"><strong style = "font-size:2.0em;">상품가격: </strong></label>
+				 <span>
+				 	<strong style = "font-size:2.0em;">
+				 		<fmt:formatNumber value="${product.product_price}" pattern="###,###,###"/>
+				 	</strong>
+				 </span>
 				</div>
 				
 				<div class="inputArea">
-				 <label for="gdsStock">상품수량</label>
-				 <span>${product.product_stock}</span>
+				 <label for="gdsStock"><strong style = "font-size:2.0em;">상품수량: </strong></label>
+				 <span>
+				 	<strong style = "font-size:2.0em;">${product.product_stock} </strong>
+				 </span>
 				</div>
 				
 				<div class="inputArea">
-				 <label for="gdsDes">상품소개</label>
-				 <span>${product.product_desc}</span>
+				 <label for="gdsDes"><strong style = "font-size:3.0em;">상품소개: </strong></label>
+				 <span>
+				 	<strong style = "font-size:3.0em;">${product.product_desc}</strong>
+				 </span>
 				</div>
 				
 				<label for="gdsImg">상품 이미지</label>

@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page session="true" %>
 
- 	<nav class="navbar navbar-expand-lg navbar-dark bg-default" style="height: 62px;">
+ 	<nav class="navbar navbar-expand-lg navbar-dark bg-default" id="Main_navbar">
           <div class="container">
             <a class="navbar-brand" href="${pageContext.request.contextPath}/">Home</a>
   
@@ -15,7 +15,7 @@
                 <div class="row">
                   <div class="col-6 collapse-brand">
                     <a href="javascript:void(0)">
-                      <img src="../../assets/img/brand/blue.png">
+                      <img src="${pageContext.request.contextPath}/resources/images/logo.jpg">
                     </a>
                   </div>
                   <div class="col-6 collapse-close">
@@ -73,48 +73,52 @@
         
         <!-- (상품페이지,고객센터,QnA) 메뉴바 -->
         <div>
-         <nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded">
-               <div class="row">
+         <nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded" id="Navbar_2">
+               <div class="row" id="Navbar_row">
+               		<!-- 화면 크기가 작아졌을때 다음코드 생성(반응형) -->
              		<div class="col-lg-2">
-		                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-inner-primary" aria-controls="nav-inner-primary" aria-expanded="false" aria-label="Toggle navigation">
-		                   <span class="navbar-toggler-icon"></span>
-		                 </button>
-                   </div>
+             		  <ul class="navbar-toggler"  data-toggle="collapse" data-target="#nav-inner-primary" aria-controls="nav-inner-primary" aria-expanded="false" aria-label="Toggle navigation">	
+	                   	<li class="nav-item dropdown" id="NavItem-1">
+	                       <a class="nav-link dropdown-toggle" href="javascript:;" id="nav-inner-primary_dropdown_1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	                       <strong style="color:#F2F2F2;">Shop</strong>
+	                       </a>
+	                       <div class="dropdown-menu" aria-labelledby="nav-inner-primary_dropdown_1">
+	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=100">ALL</a>
+	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=101">봄/여름</a>
+	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=102">가을/겨울</a>
+	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=103">라이프</a>
+	                       </div>
+	                     </li>
+	                     <li class="nav-item" id="NavItem-2">
+	                       <a class="nav-link" href="#">
+	                       		<strong style="color:#F2F2F2;">고객센터</strong>
+	                       	</a>
+	                     </li>
+	                     <li class="nav-item" id="NavItem-3">
+	                       <a class="nav-link" href="#">
+	                       		<strong style="color:#F2F2F2;">문의게시판</strong>
+	                       </a>
+	                     </li>                    
+	                   </ul>
+                    </div> 
                      
-                  <div class="col-lg-10" style="width: 930px;">  
+                  <div class="col-lg-10" id="Navbar_menu">  
 	                 <div class="collapse navbar-collapse" id="nav-inner-primary">
-	                 	<!-- 화면 크기가 작아졌을때 다음코드 생성(반응형) -->
-	                   <div class="navbar-collapse-header">
-	                     <div class="row">
-	                       <div class="col-6 collapse-brand">
-	                         <a href="./index.html">
-	                           <img src="./assets/img/brand/blue.png">
-	                         </a>
-	                       </div>
-	                       <div class="col-6 collapse-close">
-	                         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#nav-inner-primary" aria-controls="nav-inner-primary" aria-expanded="false" aria-label="Toggle navigation">
-	                           <span></span>
-	                           <span></span>
-	                         </button>
-	                       </div>
-	                     </div>
-	                   </div>
 	                   <ul class="navbar-nav ml-lg-auto">	
-	                   	<li class="nav-item dropdown">
+	                   	<li class="nav-item dropdown" id="NavItem-1">
 	                       <a class="nav-link dropdown-toggle" href="javascript:;" id="nav-inner-primary_dropdown_1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
 	                       <div class="dropdown-menu" aria-labelledby="nav-inner-primary_dropdown_1">
 	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=100">ALL</a>
-	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=101">상의</a>
-	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=102">하의</a>
-	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=103">신발</a>
-	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=104">시계</a>
+	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=101">봄/여름</a>
+	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=102">가을/겨울</a>
+	                         <a class="dropdown-item" href="${pageContext.request.contextPath}/shop/list?cateNum=103">라이프</a>
 	                       </div>
 	                     </li>
-	                     <li class="nav-item">
-	                       <a class="nav-link" href="javascript:;">고객센터</a>
+	                     <li class="nav-item" id="NavItem-2">
+	                       <a class="nav-link" href="#">고객센터</a>
 	                     </li>
-	                     <li class="nav-item">
-	                       <a class="nav-link" href="${pageContext.request.contextPath}/board/List">게시판</a>
+	                     <li class="nav-item" id="NavItem-3">
+	                       <a class="nav-link" href="#">게시판</a>
 	                     </li>                    
 	                   </ul>
 	                 </div>

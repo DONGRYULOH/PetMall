@@ -32,8 +32,15 @@ public class ProductDto {
 	
 	private String product_count; // 선택한 상품 개수 
 	
+	//카테고리 테이블 
+	private String category_name; //카테고리 이름
 	
-	
+	public String getCategory_name() {
+		return category_name;
+	}
+	public void setCategory_name(String category_name) {
+		this.category_name = category_name;
+	}
 	public String getProduct_count() {
 		return product_count;
 	}

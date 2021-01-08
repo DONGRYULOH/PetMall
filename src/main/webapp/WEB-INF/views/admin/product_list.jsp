@@ -28,8 +28,7 @@
              <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                   <tr>
-                       <th>번호</th>
-                       <th>썸네일</th>
+                       <th width="20%">썸네일</th>
 					   <th>이름</th>
 					   <th>카테고리</th>
 					   <th>가격</th>
@@ -40,9 +39,6 @@
                 <tbody class="list">
                    <c:forEach items="${ProductList}" var="list">
                    <tr>
-	                    <th scope="row">
-	    					${list.product_number}
-	                    </th>
 	                    <!-- 썸네일 출력 -->
 	                    <td>
 		                    <%-- <c:set var="ThumbImg" value="${ProductList.product_ThumbImg}" /> --%>
@@ -56,15 +52,25 @@
 						    </c:choose>
 						 </td>
 					    <td>
-					    	<a href="${pageContext.request.contextPath}/admin/product_detail?n=${list.product_number}">${list.product_name}</a>
+					    	<a href="${pageContext.request.contextPath}/admin/product_detail?n=${list.product_number}">
+					    		<strong style = "font-size:3.0em;">${list.product_name}</strong>
+					    	</a>
 					    </td>
-					    <td>${list.category_code}</td>
 					    <td>
-					    	<fmt:formatNumber value="${list.product_price}" pattern="###,###,###"/>
+					    	<strong style = "font-size:3.0em;">${list.category_name}</strong>
 					    </td>
-					    <td>${list.product_stock}</td>
 					    <td>
-					    	<fmt:formatDate value="${list.product_date}" pattern="yyyy-MM-dd"/>		
+					    	<strong style = "font-size:3.0em;">
+					    		<fmt:formatNumber value="${list.product_price}" pattern="###,###,###"/>
+					    	</strong>
+					    </td>
+					    <td>
+					    	<strong style = "font-size:3.0em;">${list.product_stock}</strong>
+					    </td>
+					    <td>
+					    	<strong style = "font-size:3.0em;">
+					    		<fmt:formatDate value="${list.product_date}" pattern="yyyy-MM-dd"/>	
+					    	</strong>	
 					    </td>                
 	              </tr>    
                   </c:forEach>           
