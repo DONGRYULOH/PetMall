@@ -13,9 +13,8 @@ Pet Mall 프로젝트
 프로젝트 소개
 ----------
 
-Pet Mall은 애완동물에 관한 상품들을 판매하는 사이트입니다. 
-평소에 많이 사용하는 쇼핑몰에 대한 주요 기능들을 구현함으로써 이전에 배웠던 Spring,Java,MySQL 등의 기술들을 
-좀더 확실하게 학습하고자 생각하였습니다.
+Pet Mall은 애완동물에 관한 상품들을 판매하는 사이트입니다. 평소에 많이 사용하는 쇼핑몰에 대한 주요 기능들을 구현함으로써 
+이전에 배웠던 Spring,Java,MySQL 등의 기술들을 좀더 확실하게 학습하고자 생각하였습니다.
 
 <br />
 
@@ -28,11 +27,8 @@ Pet Mall은 애완동물에 관한 상품들을 판매하는 사이트입니다.
 #### 백엔드
     JAVA, Spring MVC, jsp, mybatis
   
-#### API / Library
-    청기와랩, Kakao, Naver, Google Gmail, Import, SummerNote Editor
-  
 #### DB
-    AWS RDS, Oracle 11g
+    MySQL
   
 #### WAS
     Tomcat 9.0
@@ -46,19 +42,14 @@ Pet Mall은 애완동물에 관한 상품들을 판매하는 사이트입니다.
 -----
 #### * PPT [PDF뷰어](<https://doeez.github.io/portfolio/img/portfolio_projectEE.pdf>) 
     
-#### * 담당한 기능
+#### * 주요 기능
 
-    - 일반 / sns(oauth) 회원가입, 탈퇴
-    - 이메일 인증 / 발송
-    - SMS 인증 / 발송
-    - 아이디 / 비밀번호 찾기
-    - 일반 / sns 로그인, 로그아웃
-    - 접근권한설정
-    - 예외처리
-    - 포인트(Import) 결제 및 전환
-    - 메세지
-    - 카카오링크 공유
-    - AWS 배포
-    - 문의 / 건의게시판 CRUD
-    - 비밀글
-    - 비밀댓글
+    - 결제/환불 서비스 
+    - 장바구니(비회원/회원) 
+    - 주문조회(비회원/회원)
+    - 카테고리별 상품목록 
+    - Ajax를 사용한 상품댓글 처리 
+    - 관리자 상품 등록,수정,삭제 
+    - 관리자 환불 내역 조회
+    - 관리자 환불 처리 
+    
