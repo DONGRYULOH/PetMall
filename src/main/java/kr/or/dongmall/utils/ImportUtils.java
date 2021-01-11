@@ -40,7 +40,7 @@ public class ImportUtils {
 		//서버로 보낼 데이터 JSON 형태로 변환 (imp_apikey,imp_secret)
 		JSONObject obj = new JSONObject();
 		obj.put("imp_key","6724290352514148");
-		obj.put("imp_secret","IKli0sBCdN5uI6QdpnlRzQKLsVb5jRv1BQkCjVfwJl0ssRGRe2JNStzlpKqICVKdM5Q505BJrCcTtSKH");
+		obj.put("imp_secret","IKli0sBCdN5uI6QdpnlRzQKLsVb5jRv1e2JNStzlpKqICVKdM5Q505BJrCcTtSKH");
 		System.out.println("JSON 변환 결과값 : " +obj.toString());
 		
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));

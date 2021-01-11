@@ -81,8 +81,6 @@ public class AdminController {
 	@RequestMapping(value="/index",method=RequestMethod.GET) 
 	public String adminIndex(Model model,HttpServletRequest req) throws Exception{
 		System.out.println("관리자 화면");
-
-				
 		return "admin/admin_index";
 	}
 	
@@ -96,12 +94,11 @@ public class AdminController {
 		
 		//JSON 라이브러리를 사용해 JSON 형태로 변경시킴 
 		model.addAttribute("category",JSONArray.fromObject(category));
-		
-		
+			
 		return "admin/product_register";
 	}
 	
-	//상품등록(상품등록후 상품이 등록된 페이지로 이동할것인가? 아니면 계속해서 상품을 등록할수 있게 상품등록페이지로 이동할것인가?)
+	//상품등록(상품등록후 상품이 등록된 페이지로 이동할것인가? 아니면 계속해서 상품을 등록할수 있게 상품등록페이지로 이동할것인가? - 후자를 선택함)
 	@RequestMapping(value="/product_register",method=RequestMethod.POST) 
 	public String productRegisterApply(ProductDto product,MultipartFile file,HttpServletRequest request) throws Exception{
 		System.out.println("상품등록중...");
@@ -119,35 +116,27 @@ public class AdminController {
 		while(iterator.hasNext()) {
 			multipartFile = MultipartHttpServletRequest.getFile(iterator.next());
 			if(multipartFile.isEmpty() == false) {
-				
 				 log.debug("-----------file start--------------");
 				 log.debug("name :"+multipartFile.getName());
 				 log.debug("filename"+multipartFile.getOriginalFilename());
 				 log.debug("size:"+multipartFile.getSize());
-				 log.debug("-----------file start--------------");
-				
+				 log.debug("-----------file start--------------");			
 			}
 		}
 		
 		//상품등록하기 
 		adminService.product_insert(product,MultipartHttpServletRequest,checkList);
 
-		
 		return "redirect:/admin/product_register";
 	}
 
 	//상품목록 
 	@RequestMapping(value="/product_list",method=RequestMethod.GET) 
 	public String goods_list(Model model,HttpServletRequest req) throws Exception{
-		System.out.println("상품목록 페이지");
+		System.out.println("상품목록 페이지 이동");
 		
 		//상품목록 서비스 호출 
-		List<ProductDto> ProductList = adminService.product_list();
-		
-		for(int i=0;i<ProductList.size();i++) {
-			//System.out.println("썸네일이미지 -> "+ProductList.get(i).getProduct_ThumbImg());
-		}
-		
+		List<ProductDto> ProductList = adminService.product_list();	
 		model.addAttribute("ProductList",ProductList);
 	
 		return "admin/product_list";
@@ -161,11 +150,8 @@ public class AdminController {
 		 ProductCateDto product = adminService.product_detail(product_number);
 		 model.addAttribute("product", product);
 		 
-		 //해당 상품에 해당되는 이미지파일(썸네일) 가져오기 
+		 //해당 상품에 해당되는 이미지 가져오기(이미지가 여러장 있을 수도 있음)
 		 List<Product_ImageFile> thumbImg = adminService.product_img(product_number);
-		 for(int i=0;i<thumbImg.size();i++) {
-			 System.out.println(i+"번쨰 이미지 파일"+thumbImg.get(i));
-		 }
 		 model.addAttribute("ThumbImg", thumbImg);
 		 
 		 return "admin/product_detail";
@@ -185,12 +171,9 @@ public class AdminController {
 		List<CategoryDto> category = adminService.category();
 		model.addAttribute("category",JSONArray.fromObject(category));
 		
-		//해당 상품에 해당되는 이미지파일(썸네일) 가져오기 
-		 List<Product_ImageFile> thumbImg = adminService.product_img(product_number);
-		 for(int i=0;i<thumbImg.size();i++) {
-			 System.out.println(i+"번쨰 이미지 파일"+thumbImg.get(i));
-		 }
-		 model.addAttribute("ThumbImg", thumbImg);
+		//해당 상품에 해당되는 이미지 가져오기(이미지가 여러장 있을 수도 있음)
+		List<Product_ImageFile> thumbImg = adminService.product_img(product_number);
+		model.addAttribute("ThumbImg", thumbImg);
 		 
 		return "admin/product_modify";
 	}
@@ -201,7 +184,7 @@ public class AdminController {
 		System.out.println("해당 상품수정중... ");
 		//뷰단의 form의 name 값이랑 Dto의 필드명이랑 똑같아야지 자동으로 setter를 통해 삽입될수있음 
 
-		String url="redirect:/admin/product_modify";
+		String url="redirect:/admin/product_modify";	
 		
 		//대표썸네일 체크여부 검사 로직  (체크박스에 체크하지 않으면 NULL로 해당값을 가져오지 못함)
 		String[] checkList =  request.getParameterValues("checkList");
@@ -301,9 +284,7 @@ public class AdminController {
 		//환불번호,주문상세번호,처리상태를 가져옴 (환불 테이블 + 주문상세내역 테이블 조인) - 회원 
 		List<OrderRefundDto> refundList = adminService.RefundList();
 		model.addAttribute("refundList", refundList);
-		
-		
-		
+
 		return "admin/refundList";
 	}
 	
@@ -338,8 +319,7 @@ public class AdminController {
 
 		 //2.환불을 하기위한 액세스토큰 발급(액세스 토큰 지속시간 :발행시간으로부터 30분) - 필수!! 
 		 ImportUtils import_util = new ImportUtils();
-		 String access_token = import_util.getAccessToken(); //액세스 토큰을 발급받아서 가져오는 메서드 호출 
-		 
+		 String access_token = import_util.getAccessToken(); //액세스 토큰을 발급받아서 가져오는 메서드 호출 	 
 		 System.out.println("환불 사유 : " + reason);
 		 System.out.println("환불 번호 : " + merchant_uid);
 		 System.out.println("환불 금액 : " + amounts);
@@ -403,8 +383,7 @@ public class AdminController {
 
 		 //2.환불을 하기위한 액세스토큰 발급(액세스 토큰 지속시간 :발행시간으로부터 30분) - 필수!! 
 		 ImportUtils import_util = new ImportUtils();
-		 String access_token = import_util.getAccessToken(); //액세스 토큰을 발급받아서 가져오는 메서드 호출 
-		 
+		 String access_token = import_util.getAccessToken(); //액세스 토큰을 발급받아서 가져오는 메서드 호출 		 
 		 System.out.println("환불 사유 : " + reason);
 		 System.out.println("환불 번호 : " + merchant_uid);
 		 System.out.println("환불 금액 : " + amounts);

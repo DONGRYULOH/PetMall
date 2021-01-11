@@ -58,12 +58,12 @@ public class FileUtils {
 
 		//가져온 파일이 있을경우 실행 
 		while(iterator.hasNext()){ 
-			multipartFile = multipartHttpServletRequest.getFile(iterator.next()); 
-			//1.파일이 있을경우 실행 (신규로 업로드한 파일이거나 기존의 파일을 새로운 파일로 대체해서 업로드한 경우) 
+			multipartFile = multipartHttpServletRequest.getFile(iterator.next()); 			 
 			/*
-				만약 게시글에서 첨부파일이 있을경우 해당파일을 수정하지 않고 수정을 할경우 multipartFile은 비어있게된다
-				그러므로  파일정보가 없는경우(기존에 저장된 첨부파일을 수정하지 않고 게시글만 수정한 경우와 첨부파일을 삭제한경우만)를 구분해야됨 
+				만약 상품수정페이지에서 해당경우(이미지파일을 수정하지 않고 게시글만 수정을 할경우 OR 첨부파일을 삭제한경우 OR 이미지 파일만 추가한 경우)에는
+				multipartFile은 비어있게된다. -> 이에 따라서 구분 할 수 있는 로직이 필요함
 			*/
+			//1.파일이 있을경우 실행 (신규로 업로드한 파일이거나 기존의 파일을 새로운 파일로 대체해서 업로드한 경우)
 			if(multipartFile.isEmpty() == false){ 
 				   	System.out.println("올린 파일 존재함O");
 					originalFileName = multipartFile.getOriginalFilename(); //원본파일의 이름을 받아옴 (exam.png)
@@ -96,12 +96,12 @@ public class FileUtils {
 					
 					checkListIndex++; // 썸네일 대표 이미지 체크여부
 			} 
-			//2.기존에 저장된 상품이미지파일을 수정하지 않고 상품세부목록만 수정한 경우,상품이미지파일을 삭제한경우,파일만 추가한 경우 
+			//2.기존에 저장된 상품이미지파일을 수정하지 않고 (상품세부목록만 수정한 경우 OR 상품이미지파일을 삭제한경우 OR 파일만 추가한 경우) 
 			else {
 				System.out.println("올린 파일 존재안함"); //파일만 추가한경우도 일로탐 
 					/*
 					 	<input type="hidden" id="IDX" name="IDX_숫자" value="파일번호">
-						-> 기존에 해당 게시글에 저장이 된 파일의 경우는 위에 태그가 있음(위 태그의 값이 있을경우 기존에 저장된 파일임을 알수 있음) 
+						-> 기존에 해당 상품에 대한 저장이 된 파일의 경우는 위에 태그가 있음(위 태그의 값이 있을경우 기존에 저장된 파일임을 알수 있음) 
 					 */
 					//<input type="file" id="file_${var.index }" name="file_${var.index }">
 				    listMap = new HashMap<String,Object>(); 

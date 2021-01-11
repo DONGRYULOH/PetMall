@@ -247,8 +247,6 @@ public class UserController {
 	//MyPage 이동 
 	@RequestMapping(value = "/myPage", method = RequestMethod.GET)
 	public String myPage(HttpSession session) throws Exception {
-
-	   
 	 	return "myPage/myPage_index";
 	}
 	

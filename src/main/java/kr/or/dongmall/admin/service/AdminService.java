@@ -107,7 +107,7 @@ public class AdminService {
 		String product_number = Integer.toString(product.getProduct_number());
 		productMap.put("product_number", product_number); //상품번호 
 		
-		//상품이미지 파일을 제외한 상품수정 
+		//1.상품이미지 파일을 제외한 상품수정 
 		int result = 0;
 		try {
 			result = admindao.product_update(product);
@@ -116,7 +116,7 @@ public class AdminService {
 			e1.printStackTrace();
 		}
 		
-		//기존의 첨부파일을 수정하거나 신규로 등록한 첨부파일만 서버의 파일저장소에 저장함 (상품이미지 파일의 수정) 
+		//2.기존의 첨부파일을 수정하거나 신규로 등록한 첨부파일만 서버의 파일저장소에 저장함 (상품이미지 파일의 수정) 
 		try {
 			Map<String,Object> tempMap = null;
 			admindao.deleteFileList(productMap); // 해당 상품번호에 해당되는 이미지 파일을 모두 삭제함(delete_check -> Y 바꿈)

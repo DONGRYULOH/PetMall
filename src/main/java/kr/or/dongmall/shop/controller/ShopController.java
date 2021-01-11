@@ -55,7 +55,6 @@ public class ShopController {
 	
 	//세션값을 부여하는 함수(임시로 만듬)
 	public UserDto UserSession(Model model,HttpServletRequest req) {
-		//session.setAttribute("User",login); 했던게 사라지므로 index페이지에 세션값을 부여할려면 다시 지정해줘야함 
 		HttpSession session = req.getSession();
 		UserDto name = (UserDto)session.getAttribute("User");	
 		System.out.println("세션에 저장되어있는 값"+name);
@@ -176,12 +175,10 @@ public class ShopController {
 		Product_ImageFile delegate_image = shopService.shop_delegate_image(product_number);
 		model.addAttribute("delegate_image",delegate_image);
 		
-		//로그인 세션 
-//		UserDto user = UserSession(model, request);
-//		model.addAttribute("user",user);
-		
 		return "shop/detail";
 	}
+	
+	// *********************************** <상품 댓글 AJAX> START ***********************************************
 	
 	//상품조회시 소감(댓글)작성  AJAX
 	@ResponseBody
@@ -192,11 +189,10 @@ public class ShopController {
 		UserDto user = (UserDto)session.getAttribute("User");
 		reply.setWriter_nickname(user.getUser_nickname());
 		
-		shopService.replyInsert(reply);
-		
+		shopService.replyInsert(reply);		
 	}
 	
-	//상품 소감(댓글) 목록(AJAX) 
+	//상품 소감(댓글) 목록 AJAX
 	@ResponseBody // 자바객체를 JSON 형태로 변환을 해서 클라이언트단에 응답하는 역할 
 	@RequestMapping(value = "/view/replyList",method=RequestMethod.GET)
 	public List<ProductReply> getReplyList(@RequestParam("n") int product_number) throws Exception {
@@ -232,6 +228,7 @@ public class ShopController {
 		shopService.reCmtInsert(reply);
 	}
 	
+	// *********************************** <상품 댓글 AJAX> END ***********************************************
 	
 	
 	// 카트 담기
@@ -334,7 +331,8 @@ public class ShopController {
 		return "redirect:/shop/cart/cartList";
 	}
 	
-	// *********************** 주문 관련 컨트롤러 ****************************
+	
+	// *********************** 주문 관련 컨트롤러 START ****************************
 	
 	//주문서(주문/결제) 작성 페이지 이동(장바구니에서 주문하기를 클릭했을 경우) 
 	@RequestMapping(value="/order_page_a", method=RequestMethod.GET)
@@ -433,9 +431,10 @@ public class ShopController {
 		
 		return "shop/paymentOkPage";
 	}
+	// *********************** 주문 관련 컨트롤러 END ****************************
 	
 	
-	// *********************** <비회원 주문하기> ****************************
+	// *********************** <비회원 주문하기> START ****************************
 
 	//비회원으로 해당상품을 구매하기 버튼을 클릭했을 경우 
 	@RequestMapping(value="/nonUserOrder", method=RequestMethod.POST)
@@ -517,7 +516,7 @@ public class ShopController {
 		
 		return "shop/nonUserPaymentOkPage";
 	}
-	
+	// *********************** <비회원 주문하기> END ****************************
 }
 
 
