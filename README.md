@@ -22,10 +22,10 @@ Pet Mall은 애완동물에 관한 상품들을 판매하는 사이트입니다.
 -----
 
 #### 프론트엔드
-    jQuery, Ajax, Json, Html / CSS, BootStrap 4
+    JavaScript, Ajax, Json, Html / CSS, BootStrap 4
   
 #### 백엔드
-    JAVA, Spring MVC, jsp, mybatis
+    JAVA, Spring MVC, Jsp, MyBatis
   
 #### DB
     MySQL
