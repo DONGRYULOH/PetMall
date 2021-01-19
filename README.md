@@ -1,6 +1,5 @@
 Pet Mall 프로젝트 
 ----------------------
-📌[Pet Mall 웹사이트 바로가기](<http://ec2-13-124-180-143.ap-northeast-2.compute.amazonaws.com:9306/eepp/>)
 
 <br />
 
@@ -39,8 +38,7 @@ Pet Mall은 애완동물에 관한 상품들을 판매하는 사이트입니다.
 <br/>
 
 내용
------
-#### * PPT [PDF뷰어](<https://doeez.github.io/portfolio/img/portfolio_projectEE.pdf>) 
+----- 
     
 #### * 주요 기능
 
